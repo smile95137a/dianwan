@@ -68,4 +68,7 @@ public class BlindBox {
 
     @Schema(description = "更新人員" , example = "xxxx")
     private String updateUser;
+
+    @Schema(description = "未出貨數量" , example = "0")
+    private Integer unshippedQuantity;
 }
