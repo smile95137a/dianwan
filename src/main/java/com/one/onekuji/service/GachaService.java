@@ -41,7 +41,7 @@ public class GachaService {
 
     public String deleteGacha(Integer gachaId) {
         try {
-            gachaRepository.deleteBlindBox(gachaId);
+            gachaRepository.deleteGacha(gachaId);
             return "1";
         }catch (Exception e){
             return "0";

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "Gacha 管理", description = "與 Gacha 相關的操作")
+@Tag(name = "扭蛋管理", description = "與扭蛋相關的操作")
 public class GachaController {
 
     @Autowired

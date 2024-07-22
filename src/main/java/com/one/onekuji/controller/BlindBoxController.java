@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "Blind Box 管理", description = "與 Blind Box 相關的操作")
+@Tag(name = "盲盒管理", description = "與盲盒相關的操作")
 public class BlindBoxController {
 
     @Autowired

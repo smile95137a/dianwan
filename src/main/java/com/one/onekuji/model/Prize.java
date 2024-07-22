@@ -69,4 +69,10 @@ public class Prize {
 
     @Schema(description = "描述", example = "這是一個很棒的獎品")
     private String description;
+
+    @Schema(description = "新增人員" , example = "aaaa")
+    private String createdUser;
+
+    @Schema(description = "更新人員" , example = "xxxx")
+    private String updateUser;
 }

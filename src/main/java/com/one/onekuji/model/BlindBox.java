@@ -63,4 +63,9 @@ public class BlindBox {
     @Schema(description = "Blind Box 的可用結束日期", example = "2023-12-31T23:59:59")
     private LocalDateTime endDate;
 
+    @Schema(description = "新增人員" , example = "aaaa")
+    private String createdUser;
+
+    @Schema(description = "更新人員" , example = "xxxx")
+    private String updateUser;
 }
