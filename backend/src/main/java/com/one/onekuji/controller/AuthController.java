@@ -20,7 +20,7 @@ public class AuthController {
         String token = authService.login(loginDto);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
+        jwtAuthResponse.setAccessToken("Bearer " + token);
 
         return ResponseEntity.ok(jwtAuthResponse);
     }

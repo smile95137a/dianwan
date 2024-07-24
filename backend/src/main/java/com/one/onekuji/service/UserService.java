@@ -1,5 +1,6 @@
 package com.one.onekuji.service;
 
+import com.one.onekuji.model.Role;
 import com.one.onekuji.model.User;
 import com.one.onekuji.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,17 +61,18 @@ public class UserService implements UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not exists by Username or Email"));
 
-        Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map((role) -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toSet());
-
+        Set<Role> roles = user.getRoles();
+        Set<GrantedAuthority> authorities = (roles != null ? roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toSet()) : Collections.emptySet());
+        authorities.forEach(System.out::println);
         return new org.springframework.security.core.userdetails.User(
-                usernameOrEmail,
+                username,
                 user.getPassword(),
                 authorities
         );

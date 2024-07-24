@@ -1,7 +1,7 @@
 package com.one.onekuji.dto;
 
 public class LoginDto {
-    private String usernameOrEmail;
+    private String username;
     private String password;
 
     // 默认构造函数
@@ -9,17 +9,16 @@ public class LoginDto {
 
     // 带参数的构造函数
     public LoginDto(String usernameOrEmail, String password) {
-        this.usernameOrEmail = usernameOrEmail;
+        this.username = usernameOrEmail;
         this.password = password;
     }
 
-    // Getter 和 Setter 方法
-    public String getUsernameOrEmail() {
-        return usernameOrEmail;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUsernameOrEmail(String usernameOrEmail) {
-        this.usernameOrEmail = usernameOrEmail;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -41,5 +42,5 @@ public class User {
     @Schema(description = "用戶記錄的最後更新時間", example = "2023-07-20T08:45:23")
     private LocalDateTime updatedAt;
 
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 }

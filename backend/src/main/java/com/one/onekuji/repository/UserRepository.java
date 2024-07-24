@@ -1,10 +1,12 @@
 package com.one.onekuji.repository;
 
+import com.one.onekuji.model.Role;
 import com.one.onekuji.model.User;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Mapper
 public interface UserRepository{
@@ -24,8 +26,23 @@ public interface UserRepository{
     void update(User user);
     @Delete("DELETE FROM user WHERE id = #{userId}")
     void deleteUser(@Param("userId") Integer userId);
+    @Select("SELECT username, password FROM user WHERE username = #{username}")
+    @Results({
+            @Result(property = "username", column = "username"),
+            @Result(property = "password", column = "password"),
+            @Result(property = "roles", column = "id",
+                    many = @Many(select = "selectRolesByUserId"))
+    })
+    Optional<User> findByUsername(@Param("username") String username);
 
-    Optional<User> findByUsername(String username);
+    @Select("SELECT r.* FROM roles r " +
+            "JOIN users_roles ur ON r.id = ur.role_id " +
+            "WHERE ur.user_id = #{userId}")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "name", column = "name")
+    })
+    Set<Role> selectRolesByUserId(Long userId);
 
     Boolean existsByEmail(String email);
 
