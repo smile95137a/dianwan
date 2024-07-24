@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user") // 所有端點的公共基礎 URL
@@ -98,4 +100,19 @@ public class UserController {
             return new ResponseEntity<>("刪除失敗", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Integer>> getUserCount() {
+        int adminUserCount = userService.getUserCountByRoleId(1);
+//        int regularUserCount = userService.getUserCountByRoleId(2);
+//        int trialUserCount = userService.getUserCountByRoleId(3);
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("adminUserCount", adminUserCount);
+//        response.put("regularUserCount", regularUserCount);
+//        response.put("trialUserCount", trialUserCount);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

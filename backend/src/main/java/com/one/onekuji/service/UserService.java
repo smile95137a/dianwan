@@ -77,4 +77,8 @@ public class UserService implements UserDetailsService {
                 authorities
         );
     }
+
+    public int getUserCountByRoleId(int roleId) {
+        return userRepository.countByRoleId(roleId);
+    }
 }

@@ -49,4 +49,7 @@ public interface UserRepository{
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     boolean existsByUsername(String username);
+
+    @Select("select * from user where role_id = #{roleId}")
+    int countByRoleId(int roleId);
 }

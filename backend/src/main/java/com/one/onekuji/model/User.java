@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,11 @@ import java.util.Set;
 @AllArgsConstructor
 @Schema(description = "User 模型，表示系統中的用戶信息")
 public class User {
+
+    public enum UserType {
+        REGULAR, // 正式会员
+        TRIAL // 体验会员
+    }
 
     @Schema(description = "用戶的 ID", example = "1")
     private Integer id;
@@ -43,4 +49,22 @@ public class User {
     private LocalDateTime updatedAt;
 
     private Set<Role> roles = new HashSet<>();
+
+    @Schema(description = "用戶的儲值餘額", example = "1000.00")
+    private BigDecimal balance;
+
+    @Schema(description = "用戶的紅利點數", example = "500")
+    private BigDecimal bonusPoints;
+
+    @Schema(description = "最後儲值時間", example = "2023-07-25T10:30:00")
+    private LocalDateTime lastTopUpTime;
+
+    @Schema(description = "用户类型", example = "REGULAR")
+    private UserType userType;
+
+    @Schema(description = "用户角色 ID", example = "2")
+    private Integer roleId;
+
+    @Schema(description = "用戶狀態" , example = "Y等於啟用 N等於未啟用")
+    private String status;
 }
