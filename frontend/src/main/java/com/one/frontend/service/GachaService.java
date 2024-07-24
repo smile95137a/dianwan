@@ -1,11 +1,12 @@
-package com.one.service;
+package com.one.frontend.service;
 
-import com.one.onekuji.model.Gacha;
-import com.one.onekuji.repository.GachaRepository;
+import com.one.model.Gacha;
+import com.one.repository.GachaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 
 @Service
 public class GachaService {
