@@ -1,6 +1,6 @@
-package com.one.onekuji.repository;
+package com.one.repository;
 
-import com.one.onekuji.model.PrizeDetail;
+import com.one.model.PrizeDetail;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

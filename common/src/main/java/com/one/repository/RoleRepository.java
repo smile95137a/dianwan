@@ -1,6 +1,6 @@
-package com.one.onekuji.repository;
+package com.one.repository;
 
-import com.one.onekuji.model.Role;
+import com.one.model.Role;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

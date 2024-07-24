@@ -1,4 +1,4 @@
-package com.one.onekuji.model;
+package com.one.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

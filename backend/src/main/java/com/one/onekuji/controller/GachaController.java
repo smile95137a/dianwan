@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.onekuji.model.Gacha;
+import com.one.model.Gacha;
 import com.one.onekuji.service.GachaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/gacha")
 @Tag(name = "扭蛋管理", description = "與扭蛋相關的操作")
 public class GachaController {
 
@@ -20,14 +21,14 @@ public class GachaController {
     private GachaService gachaService;
 
     @Operation(summary = "獲取所有 Gacha", description = "檢索所有 Gacha 的列表")
-    @GetMapping("/gacha")
+    @GetMapping("/query")
     public ResponseEntity<List<Gacha>> getAllGacha() {
         List<Gacha> gacha = gachaService.getAllGacha();
         return new ResponseEntity<>(gacha, HttpStatus.OK);
     }
 
     @Operation(summary = "通過 ID 獲取 Gacha", description = "根據其 ID 獲取 Gacha")
-    @GetMapping("/gacha/{gachaId}")
+    @GetMapping("/{gachaId}")
     public ResponseEntity<Gacha> getGachaById(
             @Parameter(description = "Gacha 的 ID", example = "1") @PathVariable Integer gachaId) {
         Gacha gacha = gachaService.getGachaById(gachaId);
@@ -35,7 +36,7 @@ public class GachaController {
     }
 
     @Operation(summary = "創建新的 Gacha", description = "創建一個新的 Gacha")
-    @PostMapping("/gacha")
+    @PostMapping("/add")
     public ResponseEntity<String> createGacha(
             @Parameter(description = "要創建的 Gacha 詳情") @RequestBody Gacha gacha) {
         String isSuccess = gachaService.createGacha(gacha);
@@ -47,7 +48,7 @@ public class GachaController {
     }
 
     @Operation(summary = "更新 Gacha", description = "根據 ID 更新現有的 Gacha")
-    @PutMapping("/gacha/{gachaId}")
+    @PutMapping("/{gachaId}")
     public ResponseEntity<String> updateGacha(
             @Parameter(description = "Gacha 的 ID", example = "1") @PathVariable Integer gachaId) {
         Gacha gacha = gachaService.getGachaById(gachaId);

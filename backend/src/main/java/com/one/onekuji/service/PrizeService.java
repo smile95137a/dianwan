@@ -1,8 +1,7 @@
-package com.one.service;
+package com.one.onekuji.service;
 
-import com.one.onekuji.model.Prize;
-import com.one.onekuji.model.User;
-import com.one.onekuji.repository.PrizeRepository;
+import com.one.model.Prize;
+import com.one.repository.PrizeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

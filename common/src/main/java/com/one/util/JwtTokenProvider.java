@@ -1,4 +1,4 @@
-package com.one.frontend.util;
+package com.one.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

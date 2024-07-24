@@ -1,9 +1,9 @@
 package com.one.onekuji.service;
 
 
-import com.one.onekuji.util.JwtTokenProvider;
+import com.one.util.JwtTokenProvider;
 import com.one.onekuji.dto.LoginDto;
-import com.one.onekuji.repository.UserRepository;
+import com.one.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

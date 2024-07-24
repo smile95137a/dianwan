@@ -1,7 +1,7 @@
 package com.one.onekuji.config;
 
 import com.one.onekuji.filter.JwtAuthenticationFilter;
-import com.one.onekuji.util.JwtTokenProvider;
+import com.one.util.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +38,7 @@ public class SpringSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests()
-                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/login" , "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

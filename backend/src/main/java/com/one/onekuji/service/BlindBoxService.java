@@ -1,7 +1,7 @@
-package com.one.service;
+package com.one.onekuji.service;
 
-import com.one.onekuji.model.BlindBox;
-import com.one.onekuji.repository.BlindBoxRepository;
+import com.one.model.BlindBox;
+import com.one.repository.BlindBoxRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

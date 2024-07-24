@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.onekuji.model.BlindBox;
+import com.one.model.BlindBox;
 import com.one.onekuji.service.BlindBoxService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/blindBox")
 @Tag(name = "盲盒管理", description = "與盲盒相關的操作")
 public class BlindBoxController {
 
@@ -20,14 +21,14 @@ public class BlindBoxController {
     private BlindBoxService blindBoxService;
 
     @Operation(summary = "獲取所有 Blind Box", description = "檢索所有 Blind Box 的列表")
-    @GetMapping("/blindBox")
+    @GetMapping("/query")
     public ResponseEntity<List<BlindBox>> getAllBlindBox() {
         List<BlindBox> blindBox = blindBoxService.getAllBlindBox();
         return new ResponseEntity<>(blindBox, HttpStatus.OK);
     }
 
     @Operation(summary = "通過 ID 獲取 Blind Box", description = "根據其 ID 獲取 Blind Box")
-    @GetMapping("/blindBox/{blindBoxId}")
+    @GetMapping("/{blindBoxId}")
     public ResponseEntity<BlindBox> getBlindBoxById(
             @Parameter(description = "Blind Box 的 ID", example = "1") @PathVariable Integer blindBoxId) {
         BlindBox blindBox = blindBoxService.getBlindBoxById(blindBoxId);
@@ -35,7 +36,7 @@ public class BlindBoxController {
     }
 
     @Operation(summary = "創建新的 Blind Box", description = "創建一個新的 Blind Box")
-    @PostMapping("/blindBox")
+    @PostMapping("/add")
     public ResponseEntity<String> createBlindBox(
             @Parameter(description = "要創建的 Blind Box 詳情") @RequestBody BlindBox blindBox) {
         String isSuccess = blindBoxService.createBlindBox(blindBox);
@@ -47,7 +48,7 @@ public class BlindBoxController {
     }
 
     @Operation(summary = "更新 Blind Box", description = "根據 ID 更新現有的 Blind Box")
-    @PutMapping("/blindBox/{blindBoxId}")
+    @PutMapping("/{blindBoxId}")
     public ResponseEntity<String> updateBlindBox(
             @Parameter(description = "Blind Box 的 ID", example = "1") @PathVariable Integer blindBoxId) {
         BlindBox blindBox = blindBoxService.getBlindBoxById(blindBoxId);
@@ -60,7 +61,7 @@ public class BlindBoxController {
     }
 
     @Operation(summary = "刪除 Blind Box", description = "根據 ID 刪除 Blind Box")
-    @DeleteMapping("/blindBox/{blindBoxId}")
+    @DeleteMapping("/{blindBoxId}")
     public ResponseEntity<String> deleteBlindBox(
             @Parameter(description = "Blind Box 的 ID", example = "1") @PathVariable Integer blindBoxId) {
         String isSuccess = blindBoxService.deleteBlindBox(blindBoxId);

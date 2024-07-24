@@ -1,10 +1,9 @@
-package com.one.service;
+package com.one.onekuji.service;
 
-import com.one.onekuji.model.Role;
-import com.one.onekuji.model.User;
-import com.one.onekuji.repository.UserRepository;
+import com.one.model.Role;
+import com.one.model.User;
+import com.one.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

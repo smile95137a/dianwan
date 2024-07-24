@@ -1,6 +1,6 @@
 package com.one.frontend.filter;
 
-import com.one.frontend.util.JwtTokenProvider;
+import com.one.util.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

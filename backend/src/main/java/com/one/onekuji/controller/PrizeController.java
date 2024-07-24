@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.onekuji.model.Prize;
+import com.one.model.Prize;
 import com.one.onekuji.service.PrizeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/prize") // 所有端點的公共基礎 URL
+@RequestMapping("/api/prize")
 @Tag(name = "獎品管理", description = "與獎品相關的操作")
 public class PrizeController {
 
@@ -23,7 +23,7 @@ public class PrizeController {
     private PrizeService prizeService;
 
     @Operation(summary = "獲取所有獎品", description = "檢索所有獎品的列表")
-    @GetMapping
+    @GetMapping("/query")
     public ResponseEntity<List<Prize>> getAll() {
         List<Prize> prizeList = prizeService.getAllPrize();
         return new ResponseEntity<>(prizeList, HttpStatus.OK);
@@ -50,7 +50,7 @@ public class PrizeController {
             @ApiResponse(responseCode = "201", description = "獎品創建成功"),
             @ApiResponse(responseCode = "400", description = "無效的輸入")
     })
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<String> createPrize(
             @Parameter(description = "要創建的獎品詳細信息") @RequestBody Prize prize) {
         String isSuccess = prizeService.createPrize(prize);

@@ -1,7 +1,7 @@
-package com.one.onekuji.repository;
+package com.one.repository;
 
-import com.one.onekuji.model.Role;
-import com.one.onekuji.model.User;
+import com.one.model.Role;
+import com.one.model.User;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

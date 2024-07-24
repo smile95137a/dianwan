@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.onekuji.model.User;
+import com.one.model.User;
 import com.one.onekuji.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/user") // 所有端點的公共基礎 URL
+@RequestMapping("/api/user")
 @Tag(name = "使用者管理", description = "與使用者相關的操作")
 public class UserController {
 
@@ -25,7 +25,7 @@ public class UserController {
     private UserService userService;
 
     @Operation(summary = "獲取所有使用者", description = "檢索所有使用者的列表")
-    @GetMapping
+    @GetMapping("/query")
     public ResponseEntity<List<User>> getAllUser() {
         List<User> users = userService.getAllUser();
         return new ResponseEntity<>(users, HttpStatus.OK);
@@ -52,7 +52,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "使用者創建成功"),
             @ApiResponse(responseCode = "400", description = "無效的輸入")
     })
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<String> createUser(
             @Parameter(description = "要創建的使用者詳細信息") @RequestBody User user) {
         String isSuccess = userService.createUser(user);

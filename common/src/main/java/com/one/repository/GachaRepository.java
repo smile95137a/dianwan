@@ -1,6 +1,6 @@
-package com.one.onekuji.repository;
+package com.one.repository;
 
-import com.one.onekuji.model.Gacha;
+import com.one.model.Gacha;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
