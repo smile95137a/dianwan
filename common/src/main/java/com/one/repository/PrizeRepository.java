@@ -9,7 +9,7 @@ import java.util.List;
 public interface PrizeRepository {
     @Select("select * from prize")
     List<Prize> getAllPrize();
-    @Select("select * from prize where prizeId = #{prizeId}")
+    @Select("select * from prize where prize_id = #{prizeId}")
     Prize getPrizeById(@Param("prizeId") Integer prizeId);
     @Update("UPDATE prizes SET price = #{price}, total_quantity = #{totalQuantity}, " +
             "remaining_quantity = #{remainingQuantity}, main_image_url = #{mainImageUrl}, " +

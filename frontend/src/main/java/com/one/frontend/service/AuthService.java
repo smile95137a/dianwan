@@ -2,6 +2,8 @@ package com.one.frontend.service;
 
 
 import com.one.frontend.dto.LoginDto;
+import com.one.frontend.dto.LoginResponse;
+import com.one.model.User;
 import com.one.repository.UserRepository;
 import com.one.util.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +32,7 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public String login(LoginDto loginDto) {
+    public LoginResponse login(LoginDto loginDto) {
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword()));
@@ -38,7 +40,8 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtTokenProvider.generateToken(authentication);
+        User user = userRepository.getUserByUserName(loginDto.getUsername());
 
-        return token;
+        return new LoginResponse(token, Long.valueOf(user.getId()), user.getUsername());
     }
 }

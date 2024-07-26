@@ -20,6 +20,11 @@ public class MyBatisConfig {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
         sessionFactoryBean.setTypeHandlersPackage("com.one.onekuji.handler");
+
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);
+        sessionFactoryBean.setConfiguration(configuration);
+
         return sessionFactoryBean.getObject();
     }
 }

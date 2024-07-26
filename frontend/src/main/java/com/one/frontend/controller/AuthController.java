@@ -2,6 +2,7 @@ package com.one.frontend.controller;
 
 import com.one.frontend.dto.JWTAuthResponse;
 import com.one.frontend.dto.LoginDto;
+import com.one.frontend.dto.LoginResponse;
 import com.one.frontend.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,12 @@ public class AuthController {
     // Login REST API
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> authenticate(@RequestBody LoginDto loginDto){
-        String token = authService.login(loginDto);
+        LoginResponse loginResponse = authService.login(loginDto);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-        jwtAuthResponse.setAccessToken("Bearer " + token);
+        jwtAuthResponse.setAccessToken("Bearer " + loginResponse.getToken());
+        jwtAuthResponse.setUserId(loginResponse.getId());
+        jwtAuthResponse.setUsername(loginResponse.getUsername());
 
         return ResponseEntity.ok(jwtAuthResponse);
     }

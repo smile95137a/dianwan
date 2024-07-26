@@ -1,10 +1,12 @@
 package com.one.frontend.service;
 
+import com.one.frontend.dto.PrizeDetailDto;
 import com.one.model.PrizeDetail;
 import com.one.repository.PrizeDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -12,38 +14,44 @@ public class PrizeDetailService {
 
     @Autowired
     private PrizeDetailRepository prizeDetailRepository;
-    public String createPrizeDetail(PrizeDetail prizeDetail) {
-        try {
-            prizeDetailRepository.createPrizeDetail(prizeDetail);
-            return "1";
-        }catch (Exception e){
-            return "0";
+
+    public PrizeDetailDto getPrizeDetailById(Integer prizeDetailId) {
+        PrizeDetail prizeDetail = prizeDetailRepository.getPrizeDetailById(prizeDetailId);
+        PrizeDetailDto prizeDetailDto = new PrizeDetailDto();
+        prizeDetailDto.setPrizeDetailId(prizeDetail.getPrizeDetailId());
+        prizeDetailDto.setPrizeId(prizeDetail.getPrizeId());
+        prizeDetailDto.setDescription(prizeDetail.getDescription());
+        prizeDetailDto.setSize(prizeDetail.getSize());
+        prizeDetailDto.setMaterial(prizeDetail.getMaterial());
+        prizeDetailDto.setSecret(prizeDetail.isSecret());
+        prizeDetailDto.setQuantity(prizeDetail.getQuantity());
+        prizeDetailDto.setProductName(prizeDetail.getProductName());
+        prizeDetailDto.setGrade(prizeDetail.getGrade());
+        prizeDetailDto.setCount(prizeDetail.getCount());
+        prizeDetailDto.setImage(prizeDetail.getImage());
+        prizeDetailDto.setStatus(prizeDetail.getStatus());
+        return prizeDetailDto;
+    }
+
+    public List<PrizeDetailDto> getAllPrizeDetails() {
+        List<PrizeDetail> prizeDetails = prizeDetailRepository.getAllPrizeDetails();
+        List<PrizeDetailDto> prizeDetailDtos = new ArrayList<>();
+        for (PrizeDetail prizeDetail : prizeDetails) {
+            PrizeDetailDto prizeDetailDto = new PrizeDetailDto();
+            prizeDetailDto.setPrizeDetailId(prizeDetail.getPrizeDetailId());
+            prizeDetailDto.setPrizeId(prizeDetail.getPrizeId());
+            prizeDetailDto.setDescription(prizeDetail.getDescription());
+            prizeDetailDto.setSize(prizeDetail.getSize());
+            prizeDetailDto.setMaterial(prizeDetail.getMaterial());
+            prizeDetailDto.setSecret(prizeDetail.isSecret());
+            prizeDetailDto.setQuantity(prizeDetail.getQuantity());
+            prizeDetailDto.setProductName(prizeDetail.getProductName());
+            prizeDetailDto.setGrade(prizeDetail.getGrade());
+            prizeDetailDto.setCount(prizeDetail.getCount());
+            prizeDetailDto.setImage(prizeDetail.getImage());
+            prizeDetailDto.setStatus(prizeDetail.getStatus());
+            prizeDetailDtos.add(prizeDetailDto);
         }
-    }
-
-    public String updatePrizeDetail(PrizeDetail prizeDetail) {
-        try {
-            prizeDetailRepository.updatePrizeDetail(prizeDetail);
-            return "1";
-        }catch (Exception e){
-            return "0";
-        }
-    }
-
-    public PrizeDetail getPrizeDetailById(Integer prizeDetailId) {
-        return prizeDetailRepository.getPrizeDetailById(prizeDetailId);
-    }
-
-    public String deletePrizeDetail(Integer prizeDetailId) {
-        try {
-            prizeDetailRepository.deletePrizeDetail(prizeDetailId);
-            return "1";
-        }catch (Exception e){
-            return "0";
-        }
-    }
-
-    public List<PrizeDetail> getAllPrizeDetails() {
-        return prizeDetailRepository.getAllPrizeDetails();
+        return prizeDetailDtos;
     }
 }

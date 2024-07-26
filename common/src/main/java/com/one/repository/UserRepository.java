@@ -61,5 +61,6 @@ public interface UserRepository{
 
     @Select("select balance from user where id = #{userId}")
     Integer getBalance(Integer userId);
-
+    @Select("select * from user where username = #{username}")
+    User getUserByUserName(String username);
 }

@@ -10,11 +10,9 @@ import lombok.Setter;
 public class LoginDto {
     private String username;
     private String password;
+    private Long userId;
 
     // 默认构造函数
     public LoginDto() {}
-
-    // 带参数的构造函数
-
 
 }
