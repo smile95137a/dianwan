@@ -18,8 +18,9 @@ public class DrawController {
 
     @PutMapping("/oneprize")
     public ResponseEntity<DrawResult> drawPrize(@RequestParam Integer userId,
-                                                @RequestBody List<DrawRequest> drawRequests) throws Exception {
-        drawResultService.handleDraw(userId, drawRequests);
+                                                @RequestBody List<DrawRequest> drawRequests,
+                                                @RequestParam Long prizeId) throws Exception {
+        drawResultService.handleDraw(userId, drawRequests , prizeId);
         return ResponseEntity.ok().build();
     }
 

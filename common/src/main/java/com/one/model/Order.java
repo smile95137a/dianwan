@@ -18,6 +18,7 @@ public class Order {
     private Long id;
     private String orderNumber;
     private User user;
+    private Long userId;
     private BigDecimal totalAmount;
     private BigDecimal bonusPointsEarned;
     private BigDecimal bonusPointsUsed;
