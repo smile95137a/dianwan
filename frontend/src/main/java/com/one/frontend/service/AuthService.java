@@ -2,8 +2,8 @@ package com.one.frontend.service;
 
 
 import com.one.frontend.dto.LoginDto;
-import com.one.frontend.util.JwtTokenProvider;
 import com.one.repository.UserRepository;
+import com.one.util.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

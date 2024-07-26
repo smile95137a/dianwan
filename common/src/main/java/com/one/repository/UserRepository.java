@@ -1,9 +1,11 @@
 package com.one.repository;
 
+import com.one.model.DrawResult;
 import com.one.model.Role;
 import com.one.model.User;
 import org.apache.ibatis.annotations.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -52,4 +54,12 @@ public interface UserRepository{
 
     @Select("select * from user where role_id = #{roleId}")
     int countByRoleId(int roleId);
+    @Update("UPDATE user SET balance = balance - #{amount} WHERE id = #{userId}")
+    void deductUserBalance(Integer userId, BigDecimal amount);
+
+    void insertBatch(List<DrawResult> drawResults);
+
+    @Select("select balance from user where id = #{userId}")
+    Integer getBalance(Integer userId);
+
 }

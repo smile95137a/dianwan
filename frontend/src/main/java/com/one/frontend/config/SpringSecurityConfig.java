@@ -1,7 +1,7 @@
 package com.one.frontend.config;
 
-import com.one.onekuji.filter.JwtAuthenticationFilter;
-import com.one.onekuji.util.JwtTokenProvider;
+import com.one.frontend.filter.JwtAuthenticationFilter;
+import com.one.util.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

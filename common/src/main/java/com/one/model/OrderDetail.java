@@ -14,9 +14,13 @@ import java.math.BigDecimal;
 public class OrderDetail {
     private Long id;
     private Order order;
-    private Long productId;
-    private String productName;
-    private String productType; // "BLIND_BOX", "GACHA", "PRIZE"
+    private Long prizeId;
+    private Long prizeDetailId;
+    private String prizeDetailName;
+    private Long blindBoxId;
+    private String blindBoxName;
+    private Long gachaId;
+    private String gachaName;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;

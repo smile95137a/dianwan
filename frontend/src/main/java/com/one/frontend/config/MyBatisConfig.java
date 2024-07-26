@@ -19,7 +19,7 @@ public class MyBatisConfig {
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
-        sessionFactoryBean.setTypeHandlersPackage("com.one.onekuji.handler");
+        sessionFactoryBean.setTypeHandlersPackage("com.one.frontend.handler");
         return sessionFactoryBean.getObject();
     }
 }

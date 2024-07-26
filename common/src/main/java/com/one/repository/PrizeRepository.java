@@ -30,4 +30,7 @@ public interface PrizeRepository {
     void createPrize(Prize prize);
     @Delete("DELETE FROM prizes WHERE prize_id = #{prizeId}")
     void deletePrize(@Param("prizeId") Integer prizeId);
+
+    @Update("UPDATE prize SET remaining_quantity = #{remainingQuantity} WHERE prize_id = #{prizeId}")
+    void updatePrizeRemainingQuantity(Prize prize);
 }

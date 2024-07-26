@@ -26,4 +26,9 @@ public interface PrizeDetailRepository {
 
     @Delete("DELETE FROM prize_detail WHERE prize_detail_id = #{prizeDetailId}")
     void deletePrizeDetail(@Param("prizeDetailId") Integer prizeDetailId);
+
+    @Update("UPDATE prize_detail SET quantity = #{quantity} WHERE prize_detail_id = #{prizeDetailId}")
+    void updatePrizeDetailQuantity(PrizeDetail prizeDetail);
+
+
 }
