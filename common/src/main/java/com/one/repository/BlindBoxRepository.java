@@ -31,4 +31,6 @@ public interface BlindBoxRepository {
 
     @Delete("DELETE FROM blind_boxes WHERE blind_box_id = #{blindBoxId}")
     void deleteBlindBox(@Param("blindBoxId") Integer blindBoxId);
+
+    void updateBlindBoxRemainingQuantity(BlindBox blindBox);
 }

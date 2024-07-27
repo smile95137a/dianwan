@@ -16,6 +16,8 @@ public class DrawResult {
     private Long blindBoxId;
     private Long prizeDetailId;
     private Long gachaId;
+    private Long gachaDetailId;
+    private Long blindBoxDetailId;
     private LocalDateTime drawTime;
     private String status;
     private BigDecimal amount;

@@ -18,8 +18,10 @@ public class OrderDetail {
     private Long prizeDetailId;
     private String prizeDetailName;
     private Long blindBoxId;
+    private Long blindBoxDetailId;
     private String blindBoxName;
     private Long gachaId;
+    private Long gachaDetailId;
     private String gachaName;
     private Integer quantity;
     private BigDecimal unitPrice;

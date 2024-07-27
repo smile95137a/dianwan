@@ -1,11 +1,16 @@
 package com.one.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Blind Box 模型，表示具有各種屬性的收藏品")
 public class BlindBox {
 

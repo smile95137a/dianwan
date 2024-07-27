@@ -29,4 +29,6 @@ public interface GachaRepository {
 
     @Delete("DELETE FROM gachas WHERE gacha_id = #{gachaId}")
     void deleteGacha(@Param("gachaId") Integer gachaId);
+
+    void updateGachaSoldQuantity(Gacha gacha1);
 }

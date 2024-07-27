@@ -30,5 +30,6 @@ public interface PrizeDetailRepository {
     @Update("UPDATE prizedetail SET quantity = #{quantity} WHERE prize_detail_id = #{prizeDetailId}")
     void updatePrizeDetailQuantity(PrizeDetail prizeDetail);
 
-
+    @Select("SELECT * FROM prizedetail WHERE prize_id = #{prizeId}")
+    List<PrizeDetail> getAllPrizeDetailsByPrizeId(Long prizeId);
 }

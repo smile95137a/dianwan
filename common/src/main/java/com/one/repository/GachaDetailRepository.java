@@ -9,8 +9,13 @@ import java.util.List;
 
 @Mapper
 public interface GachaDetailRepository {
-    @Select("select * from gacha")
+    @Select("select * from gacha_detail")
     List<GachaDetail> getAllGachaDetail();
-    @Select("select * from gacha where gacha_detail_id = #{gachaId}")
-    Gacha getGachaById(Long gachaId);
+    @Select("select * from gacha_detail where gacha_detail_id = #{gachaDetailId}")
+    Gacha getGachaById(Long gachaDetailId);
+
+    @Select("select * from gacha_detail where gacha_id = #{gachaId}")
+    List<GachaDetail> getAllGachaDetailBygachaId(Long gachaId);
+
+    void updateGachaDetailQuantity(GachaDetail selectedPrizeDetail);
 }
