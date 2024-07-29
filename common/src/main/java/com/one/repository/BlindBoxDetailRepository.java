@@ -20,6 +20,6 @@ public interface BlindBoxDetailRepository {
     List<BlindBoxDetail> getAllGachaDetailBygachaId(Long blindBoxId);
 
     void updateblindBoxDetailQuantity(BlindBoxDetail selectedBlindBoxDetail);
-
+    @Select("select * from blind_box_detail where blind_box_detail_id = #{blindBoxDetailId}")
     BlindBoxDetail getBlindBoxDetailById(Long blindBoxDetailId);
 }

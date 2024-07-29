@@ -42,4 +42,6 @@ public class BlindBoxDetail {
 
     @Schema(description = "Blind Box 详细信息的等级", example = "A")
     private String grade;
+
+    private String blindBoxName;
 }

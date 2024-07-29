@@ -20,6 +20,8 @@ public class GachaDetail {
     @Schema(description = "Gacha 的 ID", example = "1")
     private Long gachaId;
 
+    private String gachaName;
+
     @Schema(description = "Gacha 详细信息的描述", example = "描述 Gacha 中的一个特定细节")
     private String description;
 
