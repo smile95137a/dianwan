@@ -2,6 +2,7 @@ package com.one.onekuji.service;
 
 import com.one.model.Role;
 import com.one.model.User;
+import com.one.onekuji.request.UserReq;
 import com.one.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +29,21 @@ public class UserService implements UserDetailsService {
         return userRepository.getAllUser();
     }
 
-    public String createUser(User user) {
+    public String createUser(UserReq userReq) throws Exception {
+        User check = userRepository.getUserByUserName(userReq.getUsername());
+        if(check != null){
+            throw new Exception("用戶已存在");
+        }
         try {
+            User user = new User();
+            user.setUsername(userReq.getUsername());
+            user.setPassword(userReq.getPassword());
+            user.setNickname(userReq.getNickname());
+            user.setEmail(userReq.getEmail());
+            user.setAddress(userReq.getAddress());
+            user.setUserType(User.UserType.USER);
+            user.setCreatedAt(LocalDateTime.now());
+            user.setRoleId(2);
             userRepository.createUser(user);
             return "1";
         } catch (Exception e) {
@@ -40,8 +55,14 @@ public class UserService implements UserDetailsService {
         return userRepository.getUserById(userId);
     }
 
-    public String updateUser(User user) {
+    public String updateUser(UserReq userReq) {
         try {
+            User user = userRepository.getUserById(userReq.getId());
+            user.setPassword(userReq.getPassword());
+            user.setNickname(userReq.getNickname());
+            user.setEmail(userReq.getEmail());
+            user.setAddress(userReq.getAddress());
+            user.setUpdatedAt(LocalDateTime.now());
             userRepository.update(user);
             return "1";
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.one.onekuji.controller;
 
 import com.one.model.User;
+import com.one.onekuji.request.UserReq;
 import com.one.onekuji.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -54,7 +55,7 @@ public class UserController {
     })
     @PostMapping("/add")
     public ResponseEntity<String> createUser(
-            @Parameter(description = "要創建的使用者詳細信息") @RequestBody User user) {
+            @Parameter(description = "要創建的使用者詳細信息") @RequestBody UserReq user) throws Exception {
         String isSuccess = userService.createUser(user);
         if ("1".equals(isSuccess)) {
             return new ResponseEntity<>("創建成功", HttpStatus.CREATED);
@@ -71,7 +72,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<String> updateUser(
             @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
-            @Parameter(description = "要更新的使用者詳細信息") @RequestBody User user) {
+            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserReq user) {
         User existingUser = userService.getUserById(userId);
         if (existingUser != null) {
             String isSuccess = userService.updateUser(user);

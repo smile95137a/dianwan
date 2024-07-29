@@ -17,8 +17,8 @@ import java.util.Set;
 public class User {
 
     public enum UserType {
-        REGULAR, // 正式会员
-        TRIAL // 体验会员
+        USER, // 正式会员
+        EXP_USER // 体验会员
     }
 
     @Schema(description = "用戶的 ID", example = "1")
