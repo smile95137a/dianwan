@@ -42,6 +42,7 @@ public class SpringSecurityConfig {
                 .cors(withDefaults())
                 .authorizeRequests()
                 .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/user/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
                 .and()

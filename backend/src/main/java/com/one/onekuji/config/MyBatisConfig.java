@@ -4,7 +4,9 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+
 import javax.sql.DataSource;
 
 @Configuration
@@ -15,8 +17,9 @@ public class MyBatisConfig {
     public MyBatisConfig(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+    public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
         sessionFactoryBean.setTypeHandlersPackage("com.one.onekuji.handler");
@@ -26,5 +29,10 @@ public class MyBatisConfig {
         sessionFactoryBean.setConfiguration(configuration);
 
         return sessionFactoryBean.getObject();
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource);
     }
 }

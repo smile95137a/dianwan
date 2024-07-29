@@ -19,18 +19,18 @@ public interface UserRepository{
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO user (username, password, nickname, email, phone_number, address, created_at, updated_at) " +
-            "VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{address}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO `user` (username, password, nickname, email, phoneNumber, address, createdAt) " +
+            "VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{address}, #{createdAt})")
     void createUser(User user);
 
-    @Update("UPDATE user SET password = #{password}, nickname = #{nickname}, " +
-            "email = #{email}, phone_number = #{phoneNumber}, address = #{address}, updated_at = #{updatedAt} " +
+    @Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, " +
+            "email = #{email}, phoneNumber = #{phoneNumber}, address = #{address}, updatedAt = #{updatedAt} " +
             "WHERE id = #{id}")
     void update(User user);
 
     @Delete("DELETE FROM user WHERE id = #{userId}")
     void deleteUser(@Param("userId") Integer userId);
-    @Select("SELECT username, password FROM user WHERE username = #{username}")
+    @Select("SELECT username, password , role_id FROM user WHERE username = #{username}")
     @Results({
             @Result(property = "username", column = "username"),
             @Result(property = "password", column = "password"),

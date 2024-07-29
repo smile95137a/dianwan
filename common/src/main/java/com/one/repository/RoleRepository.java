@@ -9,11 +9,13 @@ import java.util.Optional;
 
 @Mapper
 public interface RoleRepository {
-    Optional<Role> findByName(String name);
 
     @Select("select * from role")
     List<Role> getAllRole();
 
     @Select("select * from role where id = #{roleId}")
     Role getRoleById(Integer roleId);
+
+    @Select("select * from role where id = #{i}")
+    Optional<Role> findById(int i);
 }

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "使用者創建成功"),
             @ApiResponse(responseCode = "400", description = "無效的輸入")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<String> createUser(
             @Parameter(description = "要創建的使用者詳細信息") @RequestBody UserReq user) throws Exception {
@@ -69,6 +71,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "使用者更新成功"),
             @ApiResponse(responseCode = "404", description = "使用者未找到")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{userId}")
     public ResponseEntity<String> updateUser(
             @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
