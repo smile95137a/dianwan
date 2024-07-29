@@ -54,29 +54,29 @@ public class DrawResultServiceTest {
         prizeDetail1.setPrizeId(1L);
         prizeDetails.add(prizeDetail1);
 
-        PrizeDetail prizeDetail2 = new PrizeDetail();
-        prizeDetail2.setPrizeDetailId(2);
-        prizeDetail2.setQuantity(20);
-        prizeDetail2.setPrizeId(1L);
-        prizeDetails.add(prizeDetail2);
-
-        PrizeDetail prizeDetail3 = new PrizeDetail();
-        prizeDetail3.setPrizeDetailId(3);
-        prizeDetail3.setQuantity(20);
-        prizeDetail3.setPrizeId(1L);
-        prizeDetails.add(prizeDetail3);
-
-        PrizeDetail prizeDetail4 = new PrizeDetail();
-        prizeDetail4.setPrizeDetailId(4);
-        prizeDetail4.setQuantity(10);
-        prizeDetail4.setPrizeId(1L);
-        prizeDetails.add(prizeDetail4);
-
-        PrizeDetail prizeDetail5 = new PrizeDetail();
-        prizeDetail5.setPrizeDetailId(5);
-        prizeDetail5.setQuantity(20);
-        prizeDetail5.setPrizeId(1L);
-        prizeDetails.add(prizeDetail5);
+//        PrizeDetail prizeDetail2 = new PrizeDetail();
+//        prizeDetail2.setPrizeDetailId(2);
+//        prizeDetail2.setQuantity(20);
+//        prizeDetail2.setPrizeId(1L);
+//        prizeDetails.add(prizeDetail2);
+//
+//        PrizeDetail prizeDetail3 = new PrizeDetail();
+//        prizeDetail3.setPrizeDetailId(3);
+//        prizeDetail3.setQuantity(20);
+//        prizeDetail3.setPrizeId(1L);
+//        prizeDetails.add(prizeDetail3);
+//
+//        PrizeDetail prizeDetail4 = new PrizeDetail();
+//        prizeDetail4.setPrizeDetailId(4);
+//        prizeDetail4.setQuantity(10);
+//        prizeDetail4.setPrizeId(1L);
+//        prizeDetails.add(prizeDetail4);
+//
+//        PrizeDetail prizeDetail5 = new PrizeDetail();
+//        prizeDetail5.setPrizeDetailId(5);
+//        prizeDetail5.setQuantity(20);
+//        prizeDetail5.setPrizeId(1L);
+//        prizeDetails.add(prizeDetail5);
         when(prizeDetailRepository.getAllPrizeDetails()).thenReturn(prizeDetails);
 
         when(userRepository.getBalance(anyInt())).thenReturn(1000);

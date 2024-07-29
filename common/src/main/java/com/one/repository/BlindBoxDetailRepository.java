@@ -1,5 +1,6 @@
 package com.one.repository;
 
+import com.one.model.BlindBox;
 import com.one.model.BlindBoxDetail;
 import com.one.model.Gacha;
 import com.one.model.GachaDetail;
@@ -13,7 +14,7 @@ public interface BlindBoxDetailRepository {
     @Select("select * from blind_box_detail")
     List<BlindBoxDetail> getAllBlindBoxDetail();
     @Select("select * from blind_box_detail where blind_box_detail_id = #{blindBoxId}")
-    BlindBoxDetail getBlindBoxById(Long blindBoxId);
+    BlindBox getBlindBoxById(Long blindBoxId);
 
     @Select("select * from blind_box_detail where blind_box_id = #{blindBoxId}")
     List<BlindBoxDetail> getAllGachaDetailBygachaId(Long blindBoxId);

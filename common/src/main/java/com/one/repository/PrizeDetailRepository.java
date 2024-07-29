@@ -31,5 +31,5 @@ public interface PrizeDetailRepository {
     void updatePrizeDetailQuantity(PrizeDetail prizeDetail);
 
     @Select("SELECT * FROM prizedetail WHERE prize_id = #{prizeId}")
-    List<PrizeDetail> getAllPrizeDetailsByPrizeId(Long prizeId);
+    List<PrizeDetail> getAllPrizeDetailsByPrizeId(@Param("prizeId") Long prizeId);
 }

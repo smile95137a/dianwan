@@ -80,5 +80,4 @@ public class Prize {
     private Integer unshippedQuantity;
 
 
-
 }

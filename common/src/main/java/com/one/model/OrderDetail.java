@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderDetail {
     private Long id;
-    private Order order;
+    private Long orderId;
     private Long prizeId;
     private Long prizeDetailId;
     private String prizeDetailName;

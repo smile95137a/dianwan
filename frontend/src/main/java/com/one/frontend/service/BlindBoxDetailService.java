@@ -1,5 +1,7 @@
 package com.one.frontend.service;
 
+import com.one.model.BlindBox;
+import com.one.model.BlindBoxDetail;
 import com.one.model.Gacha;
 import com.one.model.GachaDetail;
 import com.one.repository.BlindBoxDetailRepository;
@@ -14,11 +16,11 @@ public class BlindBoxDetailService {
     @Autowired
     private BlindBoxDetailRepository blindBoxDetailRepository;
 
-    public List<GachaDetail> getAllBlindBoxDetail(){
+    public List<BlindBoxDetail> getAllBlindBoxDetail(){
         return blindBoxDetailRepository.getAllBlindBoxDetail();
     }
 
-    public Gacha getBlindBoxById(Long gachaId){
+    public BlindBox getBlindBoxById(Long gachaId){
         return blindBoxDetailRepository.getBlindBoxById(gachaId);
     }
 

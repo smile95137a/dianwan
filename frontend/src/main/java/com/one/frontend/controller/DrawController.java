@@ -24,19 +24,19 @@ public class DrawController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/gacha")
-    public ResponseEntity<DrawResult> drawGacha(@RequestParam Integer userId,
-                                                @RequestBody List<DrawRequest> drawRequests,
-                                                @RequestParam Long gachaId) throws Exception{
-        drawResultService.handleDrawGacha(userId, drawRequests , gachaId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/blindBox")
-    public ResponseEntity<DrawResult> drawBlindBox(@RequestParam Integer userId,
-                                                @RequestBody List<DrawRequest> drawRequests,
-                                                @RequestParam Long blindBoxId) throws Exception{
-        drawResultService.handleDrawBlindBox(userId, drawRequests , blindBoxId);
-        return ResponseEntity.ok().build();
-    }
+//    @PutMapping("/gacha")
+//    public ResponseEntity<DrawResult> drawGacha(@RequestParam Integer userId,
+//                                                @RequestBody List<DrawRequest> drawRequests,
+//                                                @RequestParam Long gachaId) throws Exception{
+//        drawResultService.handleDrawGacha(userId, drawRequests , gachaId);
+//        return ResponseEntity.ok().build();
+//    }
+//
+//    @PutMapping("/blindBox")
+//    public ResponseEntity<DrawResult> drawBlindBox(@RequestParam Integer userId,
+//                                                @RequestBody List<DrawRequest> drawRequests,
+//                                                @RequestParam Long blindBoxId) throws Exception{
+//        drawResultService.handleDrawBlindBox(userId, drawRequests , blindBoxId);
+//        return ResponseEntity.ok().build();
+//    }
 }

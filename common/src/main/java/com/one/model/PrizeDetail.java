@@ -35,7 +35,7 @@ public class PrizeDetail {
     private int quantity;
 
     @Schema(description = "獎品詳細信息的 ID", example = "1")
-    private Integer PrizeDetailId;
+    private Integer prizeDetailId;
 
     @Schema(description = "獎品名稱", example = "金色稀有徽章")
     private String productName;

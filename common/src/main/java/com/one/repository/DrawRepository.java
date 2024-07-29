@@ -20,11 +20,12 @@ public interface DrawRepository {
             "VALUES (#{userId}, #{blindBoxId}, #{prizeDetailId}, #{gachaId}, #{drawTime}, #{status}, #{amount}, #{drawCount})")
     void insert(DrawResult drawResult);
     @Insert("<script>" +
-            "INSERT INTO drawresult (user_id, blind_box_id, prize_detail_id, gacha_id, draw_time, status, amount, draw_count , create_date) " +
+            "INSERT INTO drawresult (user_id, blind_box_id, prize_detail_id, gacha_id, draw_time, status, amount, draw_count, create_date, update_date) " +
             "VALUES " +
             "<foreach collection='drawResults' item='drawResult' separator=','>" +
-            "(#{drawResult.userId}, #{drawResult.blindBoxId}, #{drawResult.prizeDetailId}, #{drawResult.gachaId}, #{drawResult.drawTime}, #{drawResult.status}, #{drawResult.amount}, #{drawResult.drawCount})" +
+            "(#{drawResult.userId}, #{drawResult.blindBoxId}, #{drawResult.prizeDetailId}, #{drawResult.gachaId}, #{drawResult.drawTime}, #{drawResult.status}, #{drawResult.amount}, #{drawResult.drawCount}, #{drawResult.createDate}, #{drawResult.updateDate})" +
             "</foreach>" +
             "</script>")
     void insertBatch(List<DrawResult> drawResults);
+
 }
