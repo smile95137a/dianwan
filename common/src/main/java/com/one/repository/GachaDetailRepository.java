@@ -12,10 +12,12 @@ public interface GachaDetailRepository {
     @Select("select * from gacha_detail")
     List<GachaDetail> getAllGachaDetail();
     @Select("select * from gacha_detail where gacha_detail_id = #{gachaDetailId}")
-    Gacha getGachaById(Long gachaDetailId);
+    GachaDetail getGachaDetailById(Long gachaDetailId);
 
     @Select("select * from gacha_detail where gacha_id = #{gachaId}")
     List<GachaDetail> getAllGachaDetailBygachaId(Long gachaId);
 
     void updateGachaDetailQuantity(GachaDetail selectedPrizeDetail);
+
+
 }

@@ -151,15 +151,16 @@ public class DrawResultService {
 
         System.out.println(order);
 
-        // 订单明细
+        // 訂單明細
         BigDecimal finalTotalAmount = totalAmount;
         drawResults.forEach(drawResult -> {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrderId(orderId);
             orderDetail.setPrizeId(prizeId);
             orderDetail.setPrizeDetailId(drawResult.getPrizeDetailId());
+            orderDetail.setPrizeDetailName(prizeDetailRepository.getPrizeDetailById(Math.toIntExact(drawResult.getPrizeDetailId())).getProductName());
             orderDetail.setQuantity(1);
-            orderDetail.setUnitPrice(finalTotalAmount);
+            orderDetail.setUnitPrice(amount);
             orderDetail.setTotalPrice(finalTotalAmount);
             orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT.getDescription());
             System.out.println(orderDetail);

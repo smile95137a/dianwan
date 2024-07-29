@@ -18,7 +18,8 @@ public class GachaDetailService {
         return gachaDetailRepository.getAllGachaDetail();
     }
 
-    public Gacha getGachaById(Long gachaId){
-        return gachaDetailRepository.getGachaById(gachaId);
+    public GachaDetail getGachaDetailById(Long gachaId){
+        return gachaDetailRepository.getGachaDetailById(gachaId);
     }
+
 }

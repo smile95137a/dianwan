@@ -20,4 +20,6 @@ public interface BlindBoxDetailRepository {
     List<BlindBoxDetail> getAllGachaDetailBygachaId(Long blindBoxId);
 
     void updateblindBoxDetailQuantity(BlindBoxDetail selectedBlindBoxDetail);
+
+    BlindBoxDetail getBlindBoxDetailById(Long blindBoxDetailId);
 }

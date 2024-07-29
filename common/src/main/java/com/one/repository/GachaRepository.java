@@ -9,7 +9,7 @@ import java.util.List;
 public interface GachaRepository {
     @Select("select * from gacha")
     List<Gacha> getAllGacha();
-    @Select("select * from gacha where gachaId = #{gachaId}")
+    @Select("select * from gacha where gacha_id = #{gachaId}")
     Gacha getGachaById(Integer gachaId);
     @Insert("INSERT INTO gachas (gacha_name, description, price, stock_quantity, sold_quantity, " +
             "image_url, item_list, release_date, is_limited, manufacturer, category, rarity, is_active, " +

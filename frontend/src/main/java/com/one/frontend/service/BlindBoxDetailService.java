@@ -20,8 +20,12 @@ public class BlindBoxDetailService {
         return blindBoxDetailRepository.getAllBlindBoxDetail();
     }
 
-    public BlindBox getBlindBoxById(Long gachaId){
-        return blindBoxDetailRepository.getBlindBoxById(gachaId);
+    public BlindBox getBlindBoxById(Long blindBoxId){
+        return blindBoxDetailRepository.getBlindBoxById(blindBoxId);
+    }
+
+    public BlindBoxDetail getBlindBoxDetailById(Long blindBoxDetailId){
+        return blindBoxDetailRepository.getBlindBoxDetailById(blindBoxDetailId);
     }
 
 }

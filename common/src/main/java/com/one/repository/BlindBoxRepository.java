@@ -10,7 +10,7 @@ public interface BlindBoxRepository {
 
     @Select("select * from blindBox")
     List<BlindBox> getAllBlindBox();
-    @Select("select * from blindBox where blindBoxId = #{blindBoxId}")
+    @Select("select * from blindBox where blind_box_id = #{blindBoxId}")
     BlindBox getBlindBoxById(Integer blindBoxId);
     @Insert("INSERT INTO blind_boxes (blind_box_name, description, price, stock_quantity, sold_quantity, " +
             "image_url, item_list, release_date, is_limited, manufacturer, category, rarity, is_active, " +
