@@ -43,9 +43,6 @@ public class ProductDetail {
     @Schema(description = "商品的等級", example = "A")
     private String grade;
 
-    @Schema(description = "商品的數量", example = "1")
-    private Integer count;
-
     @Schema(description = "商品詳細信息的創建日期", example = "2023-07-01T12:34:56")
     private LocalDateTime createDate;
 
@@ -55,6 +52,4 @@ public class ProductDetail {
     @Schema(description = "商品的圖片 URL", example = "http://example.com/product.jpg")
     private String image;
 
-    @Schema(description = "商品的狀態", example = "有效")
-    private String status;
 }

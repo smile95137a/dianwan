@@ -1,5 +1,6 @@
 package com.one.onekuji.service;
 
+import com.one.eenum.ProductStatus;
 import com.one.model.Product;
 import com.one.model.User;
 import com.one.onekuji.request.ProductReq;
@@ -41,6 +42,11 @@ public class ProductService {
             product.setEndDate(productReq.getEndDate());
             product.setCreatedAt(LocalDateTime.now());
             product.setCreatedUser(user.getNickname());
+            product.setProductType(productReq.getProductType());
+            if(productReq.getPrizeCategory() != null){
+                product.setPrizeCategory(productReq.getPrizeCategory());
+            }
+            product.setStatus(ProductStatus.NOT_AVAILABLE_YET);
             productRepository.createProduct(product);
             return "1";
         }catch (Exception e){
@@ -64,6 +70,11 @@ public class ProductService {
             product.setEndDate(productReq.getEndDate());
             product.setUpdatedAt(LocalDateTime.now());
             product.setUpdateUser(user.getNickname());
+            product.setProductType(productReq.getProductType());
+            if(productReq.getPrizeCategory() != null){
+                product.setPrizeCategory(productReq.getPrizeCategory());
+            }
+            product.setStatus(productReq.getStatus());
 
             productRepository.updateProduct(product);
             return "1";

@@ -16,9 +16,9 @@ public interface ProductRepository {
 
     @Insert("INSERT INTO product (" +
             "product_name, description, price, stock_quantity, sold_quantity, " +
-            "image_url, rarity, created_at, start_date, end_date, created_user) " +
+            "image_url, rarity, created_at, start_date, end_date, created_user , product_type , prize_category , status) " +
             "VALUES (#{productName}, #{description}, #{price}, #{stockQuantity}, #{soldQuantity}, " +
-            "#{imageUrl}, #{rarity}, #{createdAt}, #{startDate}, #{endDate}, #{createdUser})")
+            "#{imageUrl}, #{rarity}, #{createdAt}, #{startDate}, #{endDate}, #{createdUser} , #{productType} , #{prizeCategory} , #{status})")
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     void createProduct(Product product);
 
@@ -35,6 +35,9 @@ public interface ProductRepository {
             "start_date = #{startDate}, " +
             "end_date = #{endDate}, " +
             "update_user = #{updateUser} " +
+            "product_type = #{productType}" +
+            "prize_category = #{prizeCategory}" +
+            "status = #{status]" +
             "WHERE product_id = #{productId}")
     void updateProduct(Product product);
 

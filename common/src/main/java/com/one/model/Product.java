@@ -1,5 +1,8 @@
 package com.one.model;
 
+import com.one.eenum.PrizeCategory;
+import com.one.eenum.ProductStatus;
+import com.one.eenum.ProductType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,4 +56,11 @@ public class Product {
     private String updateUser;
 
     private LocalDateTime updatedAt;
+
+    private ProductType productType;
+
+    @Schema(description = "一番賞的具體類別", example = "BONUS")
+    private PrizeCategory prizeCategory;
+
+    private ProductStatus status;
 }
