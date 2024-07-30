@@ -12,12 +12,8 @@ import java.time.LocalDateTime;
 public class DrawResult {
     private Long id;
     private Long userId;
-    private Long prizeId;
-    private Long blindBoxId;
-    private Long prizeDetailId;
-    private Long gachaId;
-    private Long gachaDetailId;
-    private Long blindBoxDetailId;
+    private Long productId;
+    private Long productDetailId;
     private LocalDateTime drawTime;
     private String status;
     private BigDecimal amount;

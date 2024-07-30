@@ -19,8 +19,8 @@ public interface UserRepository{
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, nickname, email, phoneNumber, address, createdAt) " +
-            "VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{address}, #{createdAt})")
+    @Insert("INSERT INTO `user` (username, password, nickname, email, phoneNumber, address, createdAt , balance , bonus) " +
+            "VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus})")
     void createUser(User user);
 
     @Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, " +

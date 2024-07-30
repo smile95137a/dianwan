@@ -43,4 +43,10 @@ public interface ProductRepository {
 
     @Delete("DELETE FROM product WHERE product_id = #{productId}")
     void deleteProduct(@Param("productId") Integer productId);
+
+    @Update("UPDATE product SET " +
+            "stock_quantity = #{stockQuantity}, " +
+            "sold_quantity = #{soldQuantity} " +
+            "WHERE product_id = #{productId}")
+    void updateProductQuantity(Product product);
 }

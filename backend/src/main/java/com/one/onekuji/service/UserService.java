@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,6 +51,8 @@ public class UserService implements UserDetailsService {
             user.setUserType(User.UserType.USER);
             user.setCreatedAt(LocalDateTime.now());
             user.setRoleId(2);
+            user.setBalance(BigDecimal.valueOf(0));
+            user.setBonus(BigDecimal.valueOf(0));
             userRepository.createUser(user);
             return "1";
         } catch (Exception e) {

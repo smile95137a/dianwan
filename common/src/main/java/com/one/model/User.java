@@ -54,7 +54,7 @@ public class User {
     private BigDecimal balance;
 
     @Schema(description = "用戶的紅利點數", example = "500")
-    private BigDecimal bonusPoints;
+    private BigDecimal bonus;
 
     @Schema(description = "最後儲值時間", example = "2023-07-25T10:30:00")
     private LocalDateTime lastTopUpTime;

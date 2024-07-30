@@ -1,6 +1,5 @@
 package com.one.onekuji.controller;
 
-import com.one.model.Prize;
 import com.one.model.Product;
 import com.one.onekuji.request.ProductReq;
 import com.one.onekuji.service.ProductService;

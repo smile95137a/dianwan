@@ -20,31 +20,13 @@ public class OrderDetail {
     private Long orderId;
 
     @Schema(description = "獎品ID")
-    private Long prizeId;
+    private Long productId;
 
     @Schema(description = "獎品詳情ID")
-    private Long prizeDetailId;
+    private Long productDetailId;
 
     @Schema(description = "獎品詳情名稱")
-    private String prizeDetailName;
-
-    @Schema(description = "盲盒ID")
-    private Long blindBoxId;
-
-    @Schema(description = "盲盒詳情ID")
-    private Long blindBoxDetailId;
-
-    @Schema(description = "盲盒名稱")
-    private String blindBoxName;
-
-    @Schema(description = "扭蛋ID")
-    private Long gachaId;
-
-    @Schema(description = "扭蛋詳情ID")
-    private Long gachaDetailId;
-
-    @Schema(description = "扭蛋名稱")
-    private String gachaName;
+    private String productDetailName;
 
     @Schema(description = "數量")
     private Integer quantity;

@@ -32,4 +32,15 @@ public interface ProductDetailRepository {
 
     @Delete("DELETE FROM product_detail WHERE product_detail_id = #{productDetailId}")
     void deleteProductDetail(Integer productDetailId);
+    @Select("select * from product_detail where product_id = #{productId}")
+    List<ProductDetail> getProductDetailByProductId(Long productId);
+
+
+    @Update("UPDATE product_detail SET " +
+            "quantity = #{quantity} " +
+            "WHERE product_detail_id = #{productDetailId}")
+    void updateProductDetailQuantity(ProductDetail productDetail);
+
+    @Select("select product_name from product_detail where product_id = #{productId}")
+    String getProductDetailByProduct(Long productId);
 }
