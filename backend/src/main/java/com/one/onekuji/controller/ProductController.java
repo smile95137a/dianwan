@@ -87,10 +87,10 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "獎品刪除成功"),
             @ApiResponse(responseCode = "404", description = "獎品未找到")
     })
-    @DeleteMapping("/{prizeId}")
-    public ResponseEntity<String> deletePrize(
-            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer prizeId) {
-        String isSuccess = productService.deleteProduct(prizeId);
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<String> deleteProduct(
+            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer productId) {
+        String isSuccess = productService.deleteProduct(productId);
         if ("1".equals(isSuccess)) {
             return new ResponseEntity<>("刪除成功", HttpStatus.OK);
         } else {
