@@ -27,10 +27,10 @@ public class BlindBox {
     private BigDecimal price;
 
     @Schema(description = "Blind Box 的庫存數量", example = "100")
-    private int stockQuantity;
+    private Integer stockQuantity;
 
     @Schema(description = "已售出的 Blind Box 數量", example = "50")
-    private int soldQuantity;
+    private Integer soldQuantity;
 
     @Schema(description = "表示 Blind Box 的圖片 URL", example = "http://example.com/image.jpg")
     private String imageUrl;
@@ -51,7 +51,7 @@ public class BlindBox {
     private String category;
 
     @Schema(description = "Blind Box 的稀有度等級", example = "5")
-    private int rarity;
+    private Integer rarity;
 
     @Schema(description = "Blind Box 是否啟用", example = "true")
     private boolean isActive;

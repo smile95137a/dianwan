@@ -37,6 +37,8 @@ public class Prize {
     @Schema(description = "類別", example = "電子產品")
     private String category;
 
+    private String productCategory;
+
     @Schema(description = "是否為限量版", example = "true")
     private boolean isLimited;
 

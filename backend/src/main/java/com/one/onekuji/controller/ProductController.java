@@ -1,12 +1,13 @@
 package com.one.onekuji.controller;
 
 import com.one.model.Prize;
-import com.one.onekuji.service.PrizeService;
+import com.one.model.Product;
+import com.one.onekuji.request.ProductReq;
+import com.one.onekuji.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/prize")
-@Tag(name = "獎品管理", description = "與獎品相關的操作")
-public class PrizeController {
+@RequestMapping("/api/product")
+public class ProductController {
 
     @Autowired
-    private PrizeService prizeService;
+    private ProductService productService;
 
     @Operation(summary = "獲取所有獎品", description = "檢索所有獎品的列表")
     @GetMapping("/query")
-    public ResponseEntity<List<Prize>> getAll() {
-        List<Prize> prizeList = prizeService.getAllPrize();
-        return new ResponseEntity<>(prizeList, HttpStatus.OK);
+    public ResponseEntity<List<Product>> getAllProduct() {
+        List<Product> products = productService.getAllProduct();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @Operation(summary = "通過 ID 獲取獎品", description = "根據其 ID 獲取獎品")
@@ -34,10 +34,10 @@ public class PrizeController {
             @ApiResponse(responseCode = "200", description = "獎品檢索成功"),
             @ApiResponse(responseCode = "404", description = "獎品未找到")
     })
-    @GetMapping("/{prizeId}")
-    public ResponseEntity<Prize> getPrizeById(
-            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer prizeId) {
-        Prize prize = prizeService.getPrizeById(prizeId);
+    @GetMapping("/{productId}")
+    public ResponseEntity<Product> getProductById(
+            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer productId) {
+        Product prize = productService.getProductById(productId);
         if (prize != null) {
             return new ResponseEntity<>(prize, HttpStatus.OK);
         } else {
@@ -52,8 +52,8 @@ public class PrizeController {
     })
     @PostMapping("/add")
     public ResponseEntity<String> createPrize(
-            @Parameter(description = "要創建的獎品詳細信息") @RequestBody Prize prize) {
-        String isSuccess = prizeService.createPrize(prize);
+            @Parameter(description = "要創建的獎品詳細信息") @RequestBody ProductReq product) {
+        String isSuccess = productService.createProduct(product);
         if ("1".equals(isSuccess)) {
             return new ResponseEntity<>("創建成功", HttpStatus.CREATED);
         } else {
@@ -66,13 +66,12 @@ public class PrizeController {
             @ApiResponse(responseCode = "200", description = "獎品更新成功"),
             @ApiResponse(responseCode = "404", description = "獎品未找到")
     })
-    @PutMapping("/{prizeId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<String> updatePrize(
-            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer prizeId,
-            @Parameter(description = "要更新的獎品詳細信息") @RequestBody Prize prize) {
-        Prize existingPrize = prizeService.getPrizeById(prizeId);
-        if (existingPrize != null) {
-            String isSuccess = prizeService.updatePrize(prize);
+            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer productId , @RequestBody ProductReq productReq) {
+        Product product = productService.getProductById(productId);
+        if (product != null) {
+            String isSuccess = productService.updateProduct(productReq);
             if ("1".equals(isSuccess)) {
                 return new ResponseEntity<>("更新成功", HttpStatus.OK);
             } else {
@@ -91,7 +90,7 @@ public class PrizeController {
     @DeleteMapping("/{prizeId}")
     public ResponseEntity<String> deletePrize(
             @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer prizeId) {
-        String isSuccess = prizeService.deletePrize(prizeId);
+        String isSuccess = productService.deleteProduct(prizeId);
         if ("1".equals(isSuccess)) {
             return new ResponseEntity<>("刪除成功", HttpStatus.OK);
         } else {
