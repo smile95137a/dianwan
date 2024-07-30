@@ -44,10 +44,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.one.onekuji.BackendApplication</mainClass>
-                    <layout>JAR</layout>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -55,6 +51,19 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>${start-class}</mainClass> <!-- 使用 properties 中定义的 start-class -->
+                    <layout>JAR</layout>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.0</version> <!-- 使用最新的稳定版本 -->
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
             </plugin>
         </plugins>
 
