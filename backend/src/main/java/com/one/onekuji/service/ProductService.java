@@ -55,7 +55,7 @@ public class ProductService {
         }
     }
 
-    public String updateProduct(ProductReq productReq) {
+    public String updateProduct(Integer productId, ProductReq productReq) {
         try {
             Product product = productRepository.getProductById(Math.toIntExact(productReq.getProductId()));
             User user = userRepository.getUserById(Math.toIntExact(productReq.getUserId()));

@@ -45,7 +45,7 @@ public class ProductDetailService {
         }
     }
 
-    public String updateProductDetail(ProductDetailReq product) {
+    public String updateProductDetail(Integer productDetailId, ProductDetailReq product) {
         try {
             ProductDetail productDetail = productDetailRepository.getProductDetailById(product.getProductDetailId());
             productDetail.setProductId(product.getProductId());
