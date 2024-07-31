@@ -21,8 +21,8 @@ public class ProductDetailService {
         return productDetailRepository.getAllProductDetail();
     }
 
-    public ProductDetail getProductDetailById(Integer productDetailId) {
-        return productDetailRepository.getProductDetailById(productDetailId);
+    public List<ProductDetail> getProductDetailById(Integer productDetailId) {
+        return productDetailRepository.getProductDetailByProductId(Long.valueOf(productDetailId));
     }
 
 

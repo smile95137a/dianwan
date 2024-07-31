@@ -36,9 +36,9 @@ public class ProductDetailController {
             @ApiResponse(responseCode = "404", description = "獎品未找到")
     })
     @GetMapping("/{productDetailId}")
-    public ResponseEntity<ProductDetail> getProductById(
+    public ResponseEntity<List<ProductDetail>> getProductById(
             @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer productDetailId) {
-        ProductDetail prize = productDetailService.getProductDetailById(productDetailId);
+        List<ProductDetail> prize = productDetailService.getProductDetailById(productDetailId);
         if (prize != null) {
             return new ResponseEntity<>(prize, HttpStatus.OK);
         } else {
