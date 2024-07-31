@@ -20,14 +20,6 @@
     </properties>
 
     <dependencies>
-<<<<<<< HEAD
-=======
-        <dependency>
-            <groupId>com.one</groupId>
-            <artifactId>common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
->>>>>>> 095ddbea296891224752bf490743123f9525fe6c
     </dependencies>
 
     <build>
