@@ -2,14 +2,8 @@ package com.one.onekuji.service;
 
 
 import com.one.onekuji.dto.LoginDto;
-<<<<<<< HEAD
 import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.util.JwtTokenProvider;
-=======
-import com.one.repository.UserRepository;
-import com.one.util.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
->>>>>>> 095ddbea296891224752bf490743123f9525fe6c
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
