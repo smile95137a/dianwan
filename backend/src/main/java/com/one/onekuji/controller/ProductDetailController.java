@@ -1,9 +1,7 @@
 package com.one.onekuji.controller;
 
-import com.one.model.Product;
-import com.one.model.ProductDetail;
+import com.one.onekuji.model.ProductDetail;
 import com.one.onekuji.request.ProductDetailReq;
-import com.one.onekuji.request.ProductReq;
 import com.one.onekuji.service.ProductDetailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

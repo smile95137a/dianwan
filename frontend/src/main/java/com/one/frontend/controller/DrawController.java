@@ -1,8 +1,8 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.dto.DrawRequest;
+import com.one.frontend.model.DrawResult;
 import com.one.frontend.service.DrawResultService;
-import com.one.model.DrawResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

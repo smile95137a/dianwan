@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.model.Product;
+import com.one.onekuji.model.Product;
 import com.one.onekuji.request.ProductReq;
 import com.one.onekuji.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;

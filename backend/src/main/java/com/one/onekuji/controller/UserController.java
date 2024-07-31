@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.model.User;
+import com.one.onekuji.model.User;
 import com.one.onekuji.request.UserReq;
 import com.one.onekuji.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

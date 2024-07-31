@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.one.model.Role;
+import com.one.onekuji.model.Role;
 import com.one.onekuji.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

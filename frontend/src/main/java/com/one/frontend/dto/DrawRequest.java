@@ -1,7 +1,7 @@
 package com.one.frontend.dto;
 
-import com.one.eenum.PrizeCategory;
-import com.one.eenum.ProductType;
+import com.one.frontend.eenum.PrizeCategory;
+import com.one.frontend.eenum.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

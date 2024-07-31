@@ -1,11 +1,9 @@
 package com.one.onekuji.service;
 
-import com.one.model.ProductDetail;
+import com.one.onekuji.model.ProductDetail;
+import com.one.onekuji.repository.ProductDetailRepository;
+import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.request.ProductDetailReq;
-import com.one.onekuji.request.ProductReq;
-import com.one.repository.ProductDetailRepository;
-import com.one.repository.ProductRepository;
-import com.one.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

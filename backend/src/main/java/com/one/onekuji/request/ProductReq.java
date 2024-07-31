@@ -1,9 +1,8 @@
 package com.one.onekuji.request;
 
-import com.one.eenum.PrizeCategory;
-import com.one.eenum.ProductStatus;
-import com.one.eenum.ProductType;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.one.onekuji.eenum.PrizeCategory;
+import com.one.onekuji.eenum.ProductStatus;
+import com.one.onekuji.eenum.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
 package com.one.frontend.service;
 
-import com.one.model.User;
+import com.one.frontend.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

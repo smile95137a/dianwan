@@ -1,7 +1,7 @@
 package com.one.onekuji.service;
 
-import com.one.model.Role;
-import com.one.repository.RoleRepository;
+import com.one.onekuji.model.Role;
+import com.one.onekuji.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

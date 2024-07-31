@@ -1,6 +1,6 @@
 package com.one.onekuji.filter;
 
-import com.one.util.JwtTokenProvider;
+import com.one.onekuji.util.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

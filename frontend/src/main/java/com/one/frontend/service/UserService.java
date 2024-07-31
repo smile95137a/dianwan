@@ -1,8 +1,8 @@
 package com.one.frontend.service;
 
-import com.one.model.Role;
-import com.one.model.User;
-import com.one.repository.UserRepository;
+import com.one.frontend.model.Role;
+import com.one.frontend.model.User;
+import com.one.frontend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

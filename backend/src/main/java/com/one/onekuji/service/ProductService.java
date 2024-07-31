@@ -1,11 +1,11 @@
 package com.one.onekuji.service;
 
-import com.one.eenum.ProductStatus;
-import com.one.model.Product;
-import com.one.model.User;
+import com.one.onekuji.eenum.ProductStatus;
+import com.one.onekuji.model.Product;
+import com.one.onekuji.model.User;
+import com.one.onekuji.repository.ProductRepository;
+import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.request.ProductReq;
-import com.one.repository.ProductRepository;
-import com.one.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

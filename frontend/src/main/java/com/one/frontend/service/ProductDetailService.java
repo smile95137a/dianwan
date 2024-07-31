@@ -1,12 +1,11 @@
 package com.one.frontend.service;
 
-import com.one.model.ProductDetail;
-import com.one.repository.ProductDetailRepository;
-import com.one.repository.UserRepository;
+import com.one.frontend.model.ProductDetail;
+import com.one.frontend.repository.ProductDetailRepository;
+import com.one.frontend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
