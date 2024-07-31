@@ -26,21 +26,19 @@ public class JwtTokenProvider {
     // 生成 JWT token
     public String generateToken(Authentication authentication){
         String username = authentication.getName();
-
         Date currentDate = new Date();
-
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
 
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(new Date())
+                .setIssuedAt(currentDate)
                 .setExpiration(expireDate)
                 .signWith(key())
                 .compact();
-        return token;
     }
 
     private Key key(){
+        // 使用 Base64 解码密钥
         return Keys.hmacShaKeyFor(
                 Decoders.BASE64.decode(jwtSecret)
         );
@@ -53,17 +51,16 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        String username = claims.getSubject();
-        return username;
+        return claims.getSubject();
     }
 
     // 验证 Jwt token
     public boolean validateToken(String token){
-        try{
+        try {
             Jwts.parserBuilder()
                     .setSigningKey(key())
                     .build()
-                    .parse(token);
+                    .parseClaimsJws(token); // 使用 parseClaimsJws 来验证
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
