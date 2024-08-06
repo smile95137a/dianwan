@@ -1,5 +1,6 @@
 package com.one.frontend.service;
 
+import com.one.frontend.dto.UserDto;
 import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.UserRepository;
@@ -11,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -79,5 +82,30 @@ public class UserService implements UserDetailsService {
 
     public int getUserCountByRoleId(int roleId) {
         return userRepository.countByRoleId(roleId);
+    }
+
+    public String registerUser(UserDto userDto) throws Exception {
+        User check = userRepository.getUserByUserName(userDto.getUsername());
+        if(check != null){
+            throw new Exception("帳號已存在");
+        }
+
+        try {
+            User user = new User();
+            user.setUsername(userDto.getUsername());
+            user.setPassword(userDto.getPassword());
+            user.setEmail(userDto.getEmail());
+            user.setAddress(userDto.getAddress());
+            user.setCreatedAt(LocalDateTime.now());
+            user.setRoleId(2); //註冊即是正式會員
+            user.setBalance(BigDecimal.valueOf(0));
+            user.setBonus(BigDecimal.valueOf(0));
+            userRepository.createUser(user);
+            return "1";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "0";
+        }
+
     }
 }

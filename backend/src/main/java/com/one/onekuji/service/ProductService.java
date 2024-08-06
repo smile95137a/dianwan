@@ -1,6 +1,7 @@
 package com.one.onekuji.service;
 
 import com.one.onekuji.eenum.ProductStatus;
+import com.one.onekuji.eenum.ProductType;
 import com.one.onekuji.model.Product;
 import com.one.onekuji.model.User;
 import com.one.onekuji.repository.ProductRepository;
@@ -9,7 +10,7 @@ import com.one.onekuji.request.ProductReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -31,6 +32,7 @@ public class ProductService {
     public String createProduct(ProductReq productReq) {
         try {
             Product product = new Product();
+            Date date = new Date();
             User user = userRepository.getUserById(Math.toIntExact(productReq.getUserId()));
             product.setProductName(productReq.getProductName());
             product.setDescription(productReq.getDescription());
@@ -40,7 +42,7 @@ public class ProductService {
             product.setImageUrl(productReq.getImageUrl());
             product.setStartDate(productReq.getStartDate());
             product.setEndDate(productReq.getEndDate());
-            product.setCreatedAt(LocalDateTime.now());
+            product.setCreatedAt(date);
             product.setCreatedUser(user.getNickname());
             product.setProductType(productReq.getProductType());
             if(productReq.getPrizeCategory() != null){
@@ -58,7 +60,7 @@ public class ProductService {
     public String updateProduct(Integer productId, ProductReq productReq) {
         try {
             Product product = productRepository.getProductById(Math.toIntExact(productReq.getProductId()));
-            User user = userRepository.getUserById(Math.toIntExact(productReq.getUserId()));
+//            User user = userRepository.getUserById(Math.toIntExact(productReq.getUserId()));
 
             product.setProductName(productReq.getProductName());
             product.setDescription(productReq.getDescription());
@@ -68,8 +70,8 @@ public class ProductService {
             product.setImageUrl(productReq.getImageUrl());
             product.setStartDate(productReq.getStartDate());
             product.setEndDate(productReq.getEndDate());
-            product.setUpdatedAt(LocalDateTime.now());
-            product.setUpdateUser(user.getNickname());
+            product.setUpdatedAt(new Date());
+//            product.setUpdateUser(user.getNickname());
             product.setProductType(productReq.getProductType());
             if(productReq.getPrizeCategory() != null){
                 product.setPrizeCategory(productReq.getPrizeCategory());
@@ -91,5 +93,9 @@ public class ProductService {
         }catch (Exception e){
             return "0";
         }
+    }
+
+    public List<Product> getAllProductByType(ProductType productType) {
+        return productRepository.getAllProductByType(productType);
     }
 }

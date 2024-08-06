@@ -14,8 +14,8 @@ public interface ProductDetailRepository {
     ProductDetail getProductDetailById(Integer productDetailId);
 
     @Insert("INSERT INTO product_detail (" +
-            "product_id, product_name, description, size, grade, image, create_date) " +
-            "VALUES (#{productId}, #{productName}, #{description}, #{size}, #{grade}, #{image}, #{createDate})")
+            "product_id, product_name, quantity , description, size, grade, image, create_date) " +
+            "VALUES (#{productId}, #{productName} , #{quantity}, #{description}, #{size}, #{grade}, #{image}, #{createDate})")
     @Options(useGeneratedKeys = true, keyProperty = "productDetailId")
     void createProductDetail(ProductDetail productDetail);
 

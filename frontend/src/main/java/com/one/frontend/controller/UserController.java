@@ -1,5 +1,6 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.dto.UserDto;
 import com.one.frontend.model.User;
 import com.one.frontend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,6 +43,17 @@ public class UserController {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) throws Exception {
+
+        String isSuccess = userService.registerUser(userDto);
+        if ("1".equals(isSuccess)) {
+            return new ResponseEntity<>("創建成功", HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>("創建失敗", HttpStatus.BAD_REQUEST);
         }
     }
 

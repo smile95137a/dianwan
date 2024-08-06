@@ -1,8 +1,11 @@
 package com.one.onekuji.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ProductDetail;
 import com.one.onekuji.request.ProductDetailReq;
 import com.one.onekuji.service.ProductDetailService;
+import com.one.onekuji.util.ImageUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @RestController
@@ -33,6 +38,8 @@ public class ProductDetailController {
         List<ProductDetail> products = productDetailService.getAllProductDetail();
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
+
+
 
     @Operation(summary = "通過 ID 獲取獎品", description = "根據其 ID 獲取獎品")
     @ApiResponses({
@@ -50,20 +57,17 @@ public class ProductDetailController {
         }
     }
 
-    @Operation(summary = "创建新的奖品", description = "创建一个新的奖品")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "奖品创建成功"),
-            @ApiResponse(responseCode = "400", description = "无效的输入")
-    })
     @PostMapping("/add")
     public ResponseEntity<String> createPrize(
-            @Parameter(description = "要创建的奖品详细信息") @RequestParam(required = false) MultipartFile image,
-            @Parameter(description = "奖品详细信息") @RequestPart ProductDetailReq productDetailReq) {
+            @Parameter(description = "要创建的奖品详细信息") @RequestPart(value = "image", required = false) MultipartFile image,
+            @Parameter(description = "奖品详细信息") @RequestPart("productDetailReq") String productDetailReqJson) throws JsonProcessingException {
 
+        ProductDetailReq productDetailReq = new ObjectMapper().readValue(productDetailReqJson, ProductDetailReq.class);
+        String fileUrl = null;
         if (image != null && !image.isEmpty()) {
             // 保存上传的图片并获取 URL
-            String imageUrl = saveImage(image);
-            productDetailReq.setImage(imageUrl); // 更新请求对象中的图片 URL
+            fileUrl = ImageUtil.upload(image);
+            productDetailReq.setImage(fileUrl); // 更新请求对象中的图片 URL
         }
 
         String isSuccess = productDetailService.createProductDetail(productDetailReq);
@@ -82,48 +86,54 @@ public class ProductDetailController {
     @PutMapping("/{productDetailId}")
     public ResponseEntity<String> updatePrize(
             @Parameter(description = "奖品的 ID", example = "1") @PathVariable Integer productDetailId,
-            @RequestParam(required = false) MultipartFile image,
-            @RequestParam ProductDetailReq productReq) {
+            @Parameter(description = "奖品图片") @RequestPart(value = "image", required = false) MultipartFile image,
+            @Parameter(description = "奖品详细信息") @RequestPart("productDetailReq") String productDetailReqJson) throws JsonProcessingException {
 
-        ProductDetail product = productDetailService.getProductDetailById(productDetailId);
-        if (product != null) {
-            if (image != null && !image.isEmpty()) {
-                // 保存上传的图片并获取 URL
-                String imageUrl = saveImage(image);
-                productReq.setImage(imageUrl); // 更新请求对象中的图片 URL
-            }
+        ProductDetailReq productDetailReq = new ObjectMapper().readValue(productDetailReqJson, ProductDetailReq.class);
 
-            String isSuccess = productDetailService.updateProductDetail(productDetailId, productReq);
+        String fileUrl = null;
+        if (image != null && !image.isEmpty()) {
+            // 保存上传的图片并获取 URL
+            fileUrl = ImageUtil.upload(image);
+            productDetailReq.setImage(fileUrl); // 更新请求对象中的图片 URL
+        }
+
+            String isSuccess = productDetailService.updateProductDetail(productDetailId, productDetailReq);
             if ("1".equals(isSuccess)) {
                 return new ResponseEntity<>("更新成功", HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("更新失败", HttpStatus.BAD_REQUEST);
             }
-        } else {
-            return new ResponseEntity<>("奖品未找到", HttpStatus.NOT_FOUND);
-        }
     }
 
+
     private String saveImage(MultipartFile file) {
+        // 确保文件名安全
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+
         try {
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            // 创建文件存储路径
             Path uploadPath = Paths.get("uploads");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
+            // 目标文件路径
             Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
+
+            // 保存文件到目标路径
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             // 构造图片的 URL
             return ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/uploads/")
                     .path(fileName)
                     .toUriString();
-        } catch (Exception e) {
-            throw new RuntimeException("无法保存文件: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException("无法保存文件: " + e.getMessage(), e);
         }
     }
+
 
     @Operation(summary = "刪除獎品", description = "根據 ID 刪除獎品")
     @ApiResponses({

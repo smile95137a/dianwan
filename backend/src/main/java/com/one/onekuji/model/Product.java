@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -41,13 +41,13 @@ public class Product {
     private Integer rarity;
 
     @Schema(description = "商品的創建日期", example = "2023-07-01T12:34:56")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Schema(description = "商品的開始日期", example = "2023-07-01T12:34:56")
-    private LocalDateTime startDate;
+    private Date startDate;
 
     @Schema(description = "商品的結束日期", example = "2023-08-01T12:34:56")
-    private LocalDateTime endDate;
+    private Date endDate;
 
     @Schema(description = "創建商品的用戶", example = "testUser")
     private String createdUser;
@@ -55,7 +55,7 @@ public class Product {
     @Schema(description = "更新商品的用戶", example = "updatedUser")
     private String updateUser;
 
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     private ProductType productType;
 

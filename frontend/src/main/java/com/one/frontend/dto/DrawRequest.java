@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 public class DrawRequest {
     private Long productId;
     private Long productDetailId;
+    private String productName;
     private ProductType productType;
     private PrizeCategory prizeCategory;
     private BigDecimal amount;

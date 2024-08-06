@@ -36,9 +36,11 @@ public class DrawResultService {
     @Autowired
     private ProductDetailRepository productDetailRepository;
 
+    @Autowired
+    private PrizeNumberMapper prizeNumberMapper;
 
 
-    public void handleDraw(Integer userId, List<DrawRequest> drawRequests , Long productId) throws Exception {
+    public DrawResult handleDraw(Integer userId, List<DrawRequest> drawRequests , Long productId) throws Exception {
         // 先確認商品是否還有貨
         List<ProductDetail> check = productDetailRepository.getProductDetailByProductId(productId);
         check.forEach(System.out::println);
@@ -120,6 +122,7 @@ public class DrawResultService {
             drawResult.setUserId(Long.valueOf(userId));
             drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
             drawResult.setDrawTime(LocalDateTime.now());
+            drawResult.setProductName(request.getProductName());
             drawResult.setAmount(request.getAmount());
             drawResult.setTotalDrawCount(request.getTotalDrawCount());
             drawResult.setRemainingDrawCount(request.getRemainingDrawCount());
@@ -160,13 +163,99 @@ public class DrawResultService {
             orderDetailRepository.insertOrderDetail(orderDetail);
         });
 
+        //返回抽獎結果
 
 
 
         System.out.println("抽獎結果");
         drawResults.forEach(System.out::println);
+
+        return drawResults.get(0);
     }
 
+    // 获取所有奖项，随机打乱未被抽中的奖项
+    // 获取所有奖品详情，显示哪些奖品已被抽走
+    public List<PrizeNumber> getAllPrizes(Long productId) {
+        // 获取产品的所有详细信息
+        List<ProductDetail> productDetails = productDetailRepository.getAllProductDetailsByProductId(productId);
+
+        // 存储所有的奖品编号
+        List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
+
+        // 遍历每个产品详细信息，获取对应的奖品编号
+        for (ProductDetail productDetail : productDetails) {
+            List<PrizeNumber> prizeNumbers = prizeNumberMapper.getAllPrizeNumbersByProductDetailId(Long.valueOf(productDetail.getProductDetailId()));
+            allPrizeNumbers.addAll(prizeNumbers);
+        }
+
+        return allPrizeNumbers;
+    }
+
+    // 处理抽奖
+    // 处理自选抽奖
+    public DrawResult handleDraw(Long userId, Long productId, Integer prizeNumber) throws Exception {
+        // 获取未抽走的奖品编号
+        List<PrizeNumber> availablePrizeNumbers = prizeNumberMapper.getAvailablePrizeNumbersByProductDetailId(productId);
+        if (availablePrizeNumbers.isEmpty()) {
+            throw new Exception("所有奖品已被抽完");
+        }
+        //
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        Product product = productRepository.getProductById(Math.toIntExact(productId));
+        BigDecimal amount = BigDecimal.valueOf(product.getPrice());
+
+
+        // 从未抽走的奖品编号中选择一个
+        PrizeNumber selectedPrizeNumber = availablePrizeNumbers.stream()
+                .filter(pn -> pn.getNumber().equals(prizeNumber))
+                .findFirst()
+                .orElseThrow(() -> new Exception("该奖品编号已被抽走或不存在"));
+
+        // 标记奖品编号为已抽走
+        prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId() , selectedPrizeNumber.getProductId() , selectedPrizeNumber.getProductDetailId());
+
+        // 更新奖品数量
+        ProductDetail selectedPrizeDetail = productDetailRepository.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
+        selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
+        productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
+        List<DrawResult> drawResults = new ArrayList<>();
+        // 记录抽奖结果
+        DrawResult drawResult = new DrawResult();
+        drawResult.setUserId(Long.valueOf(userId));
+        drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
+        drawResult.setDrawTime(LocalDateTime.now());
+        drawResult.setAmount(amount);
+        drawResult.setTotalDrawCount(1);
+        drawResult.setDrawCount(1);
+        drawResult.setCreateDate(LocalDateTime.now());
+        drawRepository.insertBatch(drawResults);
+        // 记录订单和订单明细
+        // 生成订单
+        Order order = new Order();
+        order.setUserId(userId);
+        order.setOrderNumber(UUID.randomUUID().toString());
+        order.setCreatedAt(LocalDateTime.now());
+        order.setStatus(OrderStatus.PREPARING_SHIPMENT.getDescription());
+        order.setTotalAmount(amount); // 总金额
+
+        orderRepository.insertOrder(order);
+        Long orderId = orderRepository.getOrderIdByOrderNumber(order.getOrderNumber());
+
+        // 生成订单明细
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderId(orderId);
+        orderDetail.setProductId(productId);
+        orderDetail.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
+        orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
+        orderDetail.setQuantity(1);
+        orderDetail.setUnitPrice(amount);
+        orderDetail.setTotalPrice(amount);
+        orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT.getDescription());
+
+        orderDetailRepository.insertOrderDetail(orderDetail);
+
+        return drawResult;
+    }
 
 
     public static void main(String[] args) throws Exception {

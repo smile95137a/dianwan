@@ -1,5 +1,6 @@
 package com.one.onekuji.repository;
 
+import com.one.onekuji.eenum.ProductType;
 import com.one.onekuji.model.Product;
 import org.apache.ibatis.annotations.*;
 
@@ -30,11 +31,11 @@ public interface ProductRepository {
             "stock_quantity = #{stockQuantity}, " +
             "sold_quantity = #{soldQuantity}, " +
             "image_url = #{imageUrl}, " +
-            "rarity = #{rarity}, " +
+//            "rarity = #{rarity}, " +
             "updated_at = #{updatedAt}, " +
             "start_date = #{startDate}, " +
             "end_date = #{endDate}, " +
-            "update_user = #{updateUser} " +
+//            "update_user = #{updateUser} " +
             "product_type = #{productType}" +
             "prize_category = #{prizeCategory}" +
             "status = #{status]" +
@@ -49,4 +50,10 @@ public interface ProductRepository {
             "sold_quantity = #{soldQuantity} " +
             "WHERE product_id = #{productId}")
     void updateProductQuantity(Product product);
+
+    @Select("select * from product where product_type = #{productType}")
+    List<Product> getAllProductByType(ProductType productType);
+
+    @Update("UPDATE `product` SET `image_url` = #{base64} WHERE `product_id` IN (1,2,3,4,5,6,7,8,9,10,11,12,13)")
+    void updateImageUrlForProducts(@Param("base64") String base64);
 }

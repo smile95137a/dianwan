@@ -34,16 +34,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // 获取当前请求的路径
+        String path = request.getRequestURI();
+
+        // 如果请求路径是 /returnUrl，直接跳过 JWT 验证
+        if ("/returnUrl".equals(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 从 request 获取 JWT token
         String token = getTokenFromRequest(request);
 
         // 校验 token
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-
             // 从 token 获取 username
             String username = jwtTokenProvider.getUsername(token);
 
-            // 加载与令 token 关联的用户
+            // 加载与 token 关联的用户
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

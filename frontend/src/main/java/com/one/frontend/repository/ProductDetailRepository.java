@@ -43,4 +43,16 @@ public interface ProductDetailRepository {
 
     @Select("select product_name from product_detail where product_id = #{productId}")
     String getProductDetailByProduct(Long productId);
+
+    // 获取指定产品的所有奖品详情
+    @Select("SELECT * FROM product_detail WHERE product_id = #{productId}")
+    List<ProductDetail> getAllProductDetailsByProductId(Long productId);
+
+    // 根据产品ID和奖品编号获取奖品详情
+    @Select("SELECT * FROM product_detail WHERE product_id = #{productId} AND prize_number = #{prizeNumber} AND quantity > 0")
+    ProductDetail getProductDetailByNumber(@Param("productId") Long productId, @Param("prizeNumber") Integer prizeNumber);
+
+    // 更新奖品数量和已抽中的奖品编号
+    @Update("UPDATE product_detail SET quantity = #{quantity}, drawn_numbers = #{drawnNumbers} WHERE product_detail_id = #{productDetailId}")
+    void updateProductDetailQuantityAndDrawnNumbers(ProductDetail productDetail);
 }

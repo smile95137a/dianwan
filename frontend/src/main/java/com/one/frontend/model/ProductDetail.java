@@ -52,4 +52,8 @@ public class ProductDetail {
     @Schema(description = "商品的圖片 URL", example = "http://example.com/product.jpg")
     private String image;
 
+
+    private Integer prizeNumber;
+
+    private String drawnNumbers;
 }

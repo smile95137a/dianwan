@@ -67,4 +67,6 @@ public class User {
 
     @Schema(description = "用戶狀態" , example = "Y等於啟用 N等於未啟用")
     private String status;
+
+    private String googleId;
 }

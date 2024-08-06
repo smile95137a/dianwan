@@ -19,8 +19,8 @@ public interface UserRepository{
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, nickname, email, phoneNumber, address, createdAt , balance , bonus) " +
-            "VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus})")
+    @Insert("INSERT INTO `user` (username, password, email, phoneNumber, address, createdAt , balance , bonus ) " +
+            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus})")
     void createUser(User user);
 
     @Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, " +
@@ -63,4 +63,15 @@ public interface UserRepository{
     Integer getBonusPoints(Integer userId);
 
     void deductUserBonusPoints(Integer userId, BigDecimal newBonusPoints);
+    @Update("update `user` set balance = balance + 50 where id = #{userId}")
+    void updateAccoutnt(String tradeAmt , String userId);
+    @Select("select * from `user` where google_id = #{googleId}")
+    User findByGoogleId(String googleId);
+
+    @Insert("INSERT INTO `user` (username, password, email, phoneNumber, address, createdAt, balance, bonus, google_id) " +
+            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt}, #{balance}, #{bonus}, #{googleId})")
+    void createGoogleUser(User user);
+
+    @Select("select * from `user` where email  = #{email}")
+    User getUserByEmail(String email);
 }

@@ -37,6 +37,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateToken(String userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationDate);
+
+        return Jwts.builder()
+                .setSubject(userId) // 设置 JWT 的 subject 为用户 ID
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key())
+                .compact();
+    }
+
     private Key key(){
         // 使用 Base64 解码密钥
         return Keys.hmacShaKeyFor(

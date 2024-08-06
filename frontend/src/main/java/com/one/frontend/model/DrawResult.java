@@ -14,6 +14,7 @@ public class DrawResult {
     private Long userId;
     private Long productId;
     private Long productDetailId;
+    private String productName;
     private LocalDateTime drawTime;
     private String status;
     private BigDecimal amount;
@@ -22,5 +23,5 @@ public class DrawResult {
     private LocalDateTime updateDate;
     private Integer totalDrawCount; //總共抽獎次數
     private Integer remainingDrawCount; // 剩餘抽獎次數
-
+    private Integer prizeNumber;
 }

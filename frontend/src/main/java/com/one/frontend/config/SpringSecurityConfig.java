@@ -38,10 +38,14 @@ public class SpringSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests()
-                .requestMatchers("/auth/login" , "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" , "/product/**" , "/productDetail/**" ).permitAll()
-                .requestMatchers("/api/**").authenticated()
+//                .requestMatchers("/auth/login" , "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" , "/product/**" , "/productDetail/**" ).permitAll()
+//                .requestMatchers("/draw" , "/user").authenticated()
+                .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
+                .and().oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/auth/oauth2/google/success") // 登录成功后跳转
+                        .failureUrl("/loginFailure") // 登录失败后跳转
+                )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -19,4 +19,6 @@ public interface DrawRepository {
             "</script>")
     void insertBatch(@Param("drawResults") List<DrawResult> drawResults);
 
+    @Insert("INSERT INTO DrawResult (user_id, product_detail_id, draw_time, prize_number) VALUES (#{userId}, #{productDetailId}, #{drawTime}, #{prizeNumber})")
+    void insertDrawResult(DrawResult drawResult);
 }

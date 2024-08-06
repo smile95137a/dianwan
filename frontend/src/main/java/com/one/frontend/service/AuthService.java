@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AuthService {
     private AuthenticationManager authenticationManager;
@@ -44,4 +46,23 @@ public class AuthService {
 
         return new LoginResponse(token, Long.valueOf(user.getId()), user.getUsername());
     }
+
+        public LoginResponse googleLogin(String email, String name, String googleId) {
+            User user = userRepository.findByGoogleId(googleId);
+            System.out.println(googleId);
+            if (user == null) {
+                user = new User();
+                user.setEmail(email);
+                user.setUsername(name);
+                user.setGoogleId(googleId);
+                user.setPassword(passwordEncoder.encode("default_password")); // 设置默认密码或随机密码
+                user.setCreatedAt(LocalDateTime.now());
+                userRepository.createGoogleUser(user);
+            }
+            User userRes = userRepository.getUserByEmail(email);
+
+            String jwt = jwtTokenProvider.generateToken(userRes.getId().toString());
+
+            return new LoginResponse(jwt, Long.valueOf(userRes.getId()), userRes.getUsername());
+        }
 }
