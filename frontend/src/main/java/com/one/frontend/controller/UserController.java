@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,6 +55,29 @@ public class UserController {
             return new ResponseEntity<>("創建成功", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("創建失敗", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Operation(summary = "更新現有使用者", description = "根據 ID 更新現有的使用者")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "使用者更新成功"),
+            @ApiResponse(responseCode = "404", description = "使用者未找到")
+    })
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{userId}")
+    public ResponseEntity<String> updateUser(
+            @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
+            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserDto user) {
+        User existingUser = userService.getUserById(userId);
+        if (existingUser != null) {
+            String isSuccess = userService.updateUser(user);
+            if ("1".equals(isSuccess)) {
+                return new ResponseEntity<>("更新成功", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("更新失敗", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("使用者未找到", HttpStatus.NOT_FOUND);
         }
     }
 

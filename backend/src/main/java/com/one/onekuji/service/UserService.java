@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +29,8 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUser(){
         return userRepository.getAllUser();
@@ -37,11 +40,11 @@ public class UserService implements UserDetailsService {
         if(check != null){
             throw new Exception("用戶已存在");
         }
-
+        String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
         try {
             User user = new User();
             user.setUsername(userReq.getUsername());
-            user.setPassword(userReq.getPassword());
+            user.setPassword(encryptedPassword);
             user.setNickname(userReq.getNickname());
             user.setEmail(userReq.getEmail());
             user.setAddress(userReq.getAddress());
@@ -64,8 +67,9 @@ public class UserService implements UserDetailsService {
 
     public String updateUser(UserReq userReq) {
         try {
+            String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
             User user = userRepository.getUserById(userReq.getId());
-            user.setPassword(userReq.getPassword());
+            user.setPassword(encryptedPassword);
             user.setNickname(userReq.getNickname());
             user.setEmail(userReq.getEmail());
             user.setAddress(userReq.getAddress());

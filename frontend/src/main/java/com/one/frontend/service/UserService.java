@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +26,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUser(){
         return userRepository.getAllUser();
@@ -90,10 +94,12 @@ public class UserService implements UserDetailsService {
             throw new Exception("帳號已存在");
         }
 
+        String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
+
         try {
             User user = new User();
             user.setUsername(userDto.getUsername());
-            user.setPassword(userDto.getPassword());
+            user.setPassword(encryptedPassword);
             user.setEmail(userDto.getEmail());
             user.setAddress(userDto.getAddress());
             user.setCreatedAt(LocalDateTime.now());
@@ -107,5 +113,22 @@ public class UserService implements UserDetailsService {
             return "0";
         }
 
+    }
+
+    public String updateUser(UserDto userReq) {
+        try {
+            String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
+            User user = userRepository.getUserById(Math.toIntExact(userReq.getId()));
+            user.setPassword(encryptedPassword);
+            user.setNickname(userReq.getNickName());
+            user.setEmail(userReq.getEmail());
+            user.setAddress(userReq.getAddress());
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepository.update(user);
+            return "1";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "0";
+        }
     }
 }

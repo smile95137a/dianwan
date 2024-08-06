@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDto {
 
+    private Long id;
+
+    private String nickName;
+
     @Schema(description = "用戶名", example = "john_doe")
     private String username;
 
