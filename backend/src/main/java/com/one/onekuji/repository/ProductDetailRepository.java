@@ -43,4 +43,6 @@ public interface ProductDetailRepository {
 
     @Select("select product_name from product_detail where product_id = #{productId}")
     String getProductDetailByProduct(Long productId);
+    @Delete("DELETE FROM product_detail WHERE product_id = #{productId}")
+    void deleteProductDetailByProductId(Integer productId);
 }

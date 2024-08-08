@@ -1,9 +1,12 @@
 package com.one.onekuji.service;
 
+import com.one.onekuji.eenum.PrizeCategory;
 import com.one.onekuji.eenum.ProductStatus;
 import com.one.onekuji.eenum.ProductType;
 import com.one.onekuji.model.Product;
 import com.one.onekuji.model.User;
+import com.one.onekuji.repository.PrizeNumberMapper;
+import com.one.onekuji.repository.ProductDetailRepository;
 import com.one.onekuji.repository.ProductRepository;
 import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.request.ProductReq;
@@ -21,6 +24,13 @@ public class ProductService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PrizeNumberMapper prizeNumberMapper;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
+
     public List<Product> getAllProduct() {
         return productRepository.getAllProduct();
     }
@@ -88,14 +98,21 @@ public class ProductService {
 
     public String deleteProduct(Integer productId) {
         try {
+            prizeNumberMapper.deleteProductById(productId);
+            productDetailRepository.deleteProductDetailByProductId(productId);
             productRepository.deleteProduct(productId);
             return "1";
         }catch (Exception e){
+            e.printStackTrace();
             return "0";
         }
     }
 
     public List<Product> getAllProductByType(ProductType productType) {
         return productRepository.getAllProductByType(productType);
+    }
+
+    public List<Product> getOneKuJiType(PrizeCategory type) {
+        return productRepository.getOneKuJiType(type);
     }
 }

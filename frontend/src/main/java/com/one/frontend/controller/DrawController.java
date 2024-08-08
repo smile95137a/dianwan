@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/draw")
+    @RequestMapping("/draw")
 public class DrawController {
 
     @Autowired
     private DrawResultService drawResultService;
-
     @PutMapping("/oneprize")
     public ResponseEntity<DrawResult> drawPrize(@RequestParam Integer userId,
                                                 @RequestBody List<DrawRequest> drawRequests,
@@ -37,6 +36,16 @@ public class DrawController {
     public ResponseEntity<DrawResult> executeDraw(@PathVariable Long productId, @RequestParam Long userId, @RequestParam Integer prizeNumber) {
         try {
             DrawResult drawResult = drawResultService.handleDraw(userId, productId, prizeNumber);
+            return ResponseEntity.ok(drawResult);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
+    }
+
+    @PostMapping("/random/{productId}")
+    public ResponseEntity<DrawResult> executeRandom(@PathVariable Long productId, @RequestParam Long userId) {
+        try {
+            DrawResult drawResult = drawResultService.handleDrawRandom(userId, productId);
             return ResponseEntity.ok(drawResult);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);

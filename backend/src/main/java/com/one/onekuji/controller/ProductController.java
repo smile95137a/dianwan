@@ -2,6 +2,7 @@ package com.one.onekuji.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.one.onekuji.eenum.PrizeCategory;
 import com.one.onekuji.eenum.ProductType;
 import com.one.onekuji.model.Product;
 import com.one.onekuji.request.ProductReq;
@@ -65,12 +66,21 @@ public class ProductController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
+    @Operation(summary = "獲取所有獎品", description = "檢索所有獎品的列表")
+    @PostMapping("/OneKuJi/type")
+    public ResponseEntity<List<Product>> getOneKuJiType(@RequestBody PrizeCategory type) {
+        List<Product> products = productService.getOneKuJiType(type);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+
+
     @Operation(summary = "創建新的獎品", description = "創建一個新的獎品")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "獎品創建成功"),
             @ApiResponse(responseCode = "400", description = "無效的輸入")
     })
-    @PostMapping("/add")
+        @PostMapping("/add")
     public ResponseEntity<String> createPrize(
             @Parameter(description = "要創建的獎品詳細信息") @RequestPart("productReq") String productReqJson,
             @Parameter(description = "獎品圖片") @RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
@@ -111,10 +121,14 @@ public class ProductController {
 
         Product product = productService.getProductById(productId);
         if (product != null) {
-            // 處理文件上傳
-            String fileUrl = null;
-            fileUrl = ImageUtil.upload(image);
+            String fileUrl = product.getImageUrl();
 
+            // 如果上传了新的图片，则更新 fileUrl
+            if (image != null && !image.isEmpty()) {
+                fileUrl = ImageUtil.upload(image);
+            }
+
+            // 设置产品请求中的 imageUrl
             productDetailReq.setImageUrl(fileUrl);
 
             String isSuccess = productService.updateProduct(productId, productDetailReq);

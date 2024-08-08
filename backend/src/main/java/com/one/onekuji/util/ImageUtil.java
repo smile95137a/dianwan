@@ -1,35 +1,61 @@
 package com.one.onekuji.util;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 
+@Component
 public class ImageUtil {
 
     @Value("${pictureFile.path}")
-    private static String picturePath;
+    private String picturePath;
 
     @Value("${pictureFile.path-mapping}")
-    private  static String picturePath_mapping;
+    private String picturePathMapping;
+
+    private static String staticPicturePath;
+    private static String staticPicturePathMapping;
+
+    @PostConstruct
+    public void init() {
+        // 初始化时，确保路径以斜杠结尾
+        staticPicturePath = picturePath.endsWith("/") ? picturePath : picturePath + "/";
+        staticPicturePathMapping = picturePathMapping.endsWith("/") ? picturePathMapping : picturePathMapping + "/";
+    }
 
     public static String upload(MultipartFile file) {
-        String fileName = file.getOriginalFilename();  // 文件名
-        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
-        fileName = UUID.randomUUID() + suffixName; // 新文件名
-        File dest = new File(picturePath + fileName);
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
         }
+
+        String fileName = file.getOriginalFilename();  // 获取原始文件名
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 获取文件后缀名
+
+        // 生成新的文件名
+        fileName = UUID.randomUUID() + suffixName;
+        File dest = new File(staticPicturePath + fileName);
+
         try {
+            // 确保目录存在
+            Files.createDirectories(Paths.get(staticPicturePath));
+
+            // 将文件传输到指定的目标文件
             file.transferTo(dest);
         } catch (IOException e) {
             e.printStackTrace();
+            throw new RuntimeException("文件上传失败", e);
         }
-        String final_fileName = "http://localhost:8282" + picturePath_mapping + fileName;
-        System.out.println(final_fileName);
-        return final_fileName;
+
+        // 生成并返回文件的访问 URL
+        String finalFileName = "http://localhost:8080" + staticPicturePathMapping + fileName;
+        System.out.println("File uploaded to: " + finalFileName);
+        return finalFileName;
     }
 }

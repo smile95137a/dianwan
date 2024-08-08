@@ -63,7 +63,7 @@ public interface UserRepository{
     Integer getBonusPoints(Integer userId);
 
     void deductUserBonusPoints(Integer userId, BigDecimal newBonusPoints);
-    @Update("update `user` set balance = balance + 50 where id = #{userId}")
+    @Update("update `user` set balance = balance + tradeAmt where id = #{userId}")
     void updateAccoutnt(String tradeAmt , String userId);
     @Select("select * from `user` where google_id = #{googleId}")
     User findByGoogleId(String googleId);
@@ -74,4 +74,7 @@ public interface UserRepository{
 
     @Select("select * from `user` where email  = #{email}")
     User getUserByEmail(String email);
+
+    @Update("update `user` set bonus = bonus + 1 , draw_count = 0 where id = #{userId}")
+    void updateBonus(Integer userId);
 }

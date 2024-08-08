@@ -55,4 +55,8 @@ public interface ProductDetailRepository {
     // 更新奖品数量和已抽中的奖品编号
     @Update("UPDATE product_detail SET quantity = #{quantity}, drawn_numbers = #{drawnNumbers} WHERE product_detail_id = #{productDetailId}")
     void updateProductDetailQuantityAndDrawnNumbers(ProductDetail productDetail);
+
+    @Select("SELECT * FROM product_details WHERE product_id = #{productId} AND prize_type = #{prizeType} LIMIT 1")
+    ProductDetail findFirstByProductIdAndPrizeType(@Param("productId") Long productId, @Param("prizeType") String prizeType);
+
 }

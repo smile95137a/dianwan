@@ -39,9 +39,6 @@ public class OrderController {
 			String merchantTradeNo = paymentData.get("MerchantTradeNo");
 			String tradeAmt = paymentData.get("TradeAmt");
 			String memberId = paymentData.get("CustomField1");
-			System.out.println(merchantTradeNo);
-			System.out.println(tradeAmt);
-			// TODO: 在这里更新用户的账户余额和订单状态
 			updateCustomerAccount(merchantTradeNo, tradeAmt , memberId);
 
 			// 返回 1|OK 告知绿界已成功接收

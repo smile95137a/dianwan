@@ -14,7 +14,7 @@ public interface OrderDetailMapper {
     @Select("SELECT * FROM order_detail")
     List<OrderDetail> getAllOrderDetails();
 
-    @Select("SELECT * FROM order_detail WHERE id = #{id}")
+    @Select("SELECT * FROM order_detail WHERE order_id = #{id}")
     OrderDetail getOrderDetailById(Long id);
 
     @Update("UPDATE order_detail SET id = #{id}, product_id = #{productId}, product_detail_id = #{productDetailId}, product_detail_name = #{productDetailName}, quantity = #{quantity}, unit_price = #{unitPrice}, total_price = #{totalPrice}, result_status = #{resultStatus}, result_item_id = #{resultItemId}, bonus_points_earned = #{bonusPointsEarned} WHERE id = #{id}")

@@ -1,6 +1,7 @@
 package com.one.onekuji.repository;
 
 import com.one.onekuji.model.PrizeNumber;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -14,4 +15,7 @@ public interface PrizeNumberMapper {
 
     @Select("SELECT MAX(number) FROM prizenumber WHERE product_id = #{productId}")
     Integer getMaxPrizeNumberByProductId(Long productId);
+
+    @Delete("DELETE FROM prizenumber WHERE product_id = #{productId}")
+    void deleteProductById(Integer productId);
 }
