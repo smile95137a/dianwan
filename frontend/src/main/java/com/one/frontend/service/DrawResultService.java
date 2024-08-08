@@ -166,7 +166,7 @@ public class DrawResultService {
         User user = userRepository.getUserById(userId);
         Long count = user.getDrawCount();
         if(count != 3L){
-            count = count + 1;
+            userRepository.addDrawCount();
         }else{
             userRepository.updateBonus(userId);
         }
@@ -287,7 +287,7 @@ public class DrawResultService {
         User user = userRepository.getUserById(Math.toIntExact(userId));
         Long count = user.getDrawCount();
         if(count != 3L){
-            count = count + 1;
+            userRepository.addDrawCount();
         }else{
             userRepository.updateBonus(Math.toIntExact(userId));
         }
@@ -381,15 +381,6 @@ public class DrawResultService {
         orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT.getDescription());
 
         orderDetailRepository.insertOrderDetail(orderDetail);
-
-        // Increase redemption bonus count
-        User user = userRepository.getUserById(Math.toIntExact(userId));
-        Long count = user.getDrawCount();
-        if (count != 3L) {
-            count = count + 1;
-        } else {
-            userRepository.updateBonus(Math.toIntExact(userId));
-        }
 
         return drawResult;
     }

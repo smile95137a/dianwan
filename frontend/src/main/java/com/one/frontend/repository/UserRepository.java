@@ -77,4 +77,7 @@ public interface UserRepository{
 
     @Update("update `user` set bonus = bonus + 1 , draw_count = 0 where id = #{userId}")
     void updateBonus(Integer userId);
+
+    @Update("update `user` set  draw_count = draw_count + 1 where id = #{userId} ")
+    void addDrawCount();
 }
