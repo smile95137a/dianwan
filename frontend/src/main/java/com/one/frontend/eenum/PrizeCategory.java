@@ -3,8 +3,8 @@ package com.one.frontend.eenum;
 public enum PrizeCategory {
 
     FIGURE("一番賞") ,
-    C_FIGURE("家電一番賞") ,
-    BONUS_FIGURE("紅利一番賞");
+    C3("家電一番賞") ,
+    BONUS("紅利一番賞");
 
     private final String description;
 

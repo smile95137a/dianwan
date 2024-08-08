@@ -64,7 +64,7 @@ public class DrawResultService {
         PrizeCategory category = product.getPrizeCategory();
         Integer balanceInt = userRepository.getBalance(userId);
         BigDecimal balance = new BigDecimal(balanceInt);
-        if (category == PrizeCategory.BONUS_FIGURE) {
+        if (category == PrizeCategory.BONUS) {
             Integer bonusPointsInt = userRepository.getBonusPoints(userId);
             BigDecimal bonusPoints = new BigDecimal(bonusPointsInt);
             if (bonusPoints.compareTo(totalAmount) >= 0) {
@@ -224,7 +224,7 @@ public class DrawResultService {
         PrizeCategory category = product.getPrizeCategory();
         Integer balanceInt = userRepository.getBalance(Math.toIntExact(userId));
         BigDecimal balance = new BigDecimal(balanceInt);
-        if (category == PrizeCategory.BONUS_FIGURE) {
+        if (category == PrizeCategory.BONUS) {
             Integer bonusPointsInt = userRepository.getBonusPoints(Math.toIntExact(userId));
             BigDecimal bonusPoints = new BigDecimal(bonusPointsInt);
             if (bonusPoints.compareTo(totalAmount) >= 0) {
@@ -330,7 +330,7 @@ public class DrawResultService {
         PrizeCategory category = product2.getPrizeCategory();
         Integer balanceInt = userRepository.getBalance(Math.toIntExact(userId));
         BigDecimal balance = new BigDecimal(balanceInt);
-        if (category == PrizeCategory.BONUS_FIGURE) {
+        if (category == PrizeCategory.BONUS) {
             Integer bonusPointsInt = userRepository.getBonusPoints(Math.toIntExact(userId));
             BigDecimal bonusPoints = new BigDecimal(bonusPointsInt);
             if (bonusPoints.compareTo(totalAmount) >= 0) {
