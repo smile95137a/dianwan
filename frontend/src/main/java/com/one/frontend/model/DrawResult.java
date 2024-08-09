@@ -24,4 +24,5 @@ public class DrawResult {
     private Integer totalDrawCount; //總共抽獎次數
     private Integer remainingDrawCount; // 剩餘抽獎次數
     private Integer prizeNumber;
+    private String level;
 }

@@ -18,4 +18,6 @@ public interface PrizeNumberMapper {
 
     @Delete("DELETE FROM prizenumber WHERE product_id = #{productId}")
     void deleteProductById(Integer productId);
+    @Delete("DELETE FROM prizenumber WHERE product_detail_id = #{productDetailId}")
+    void deteleByProductDetail(Integer productDetailId);
 }

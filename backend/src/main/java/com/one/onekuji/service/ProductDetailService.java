@@ -92,10 +92,13 @@ public class ProductDetailService {
     public String deleteProductDetail(Integer productDetailId) {
         try {
             productDetailRepository.deleteProductDetail(productDetailId);
+
+            prizeNumberMapper.deteleByProductDetail(productDetailId);
             return "1";
         }catch (Exception e){
             e.printStackTrace();
             return "0";
         }
     }
+
 }
