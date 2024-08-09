@@ -11,7 +11,7 @@ import java.util.List;
 public interface PrizeNumberMapper {
 
     // 获取指定产品明细的所有奖品编号
-    @Select("select a.number , a.is_drawn , b.grade from prizenumber a join product_detail b on a.product_detail_id = b.product_detail_id\n" +
+    @Select("select a.product_id ,  a.product_detail_id , a.prize_number_id , a.number , a.is_drawn , b.grade from prizenumber a join product_detail b on a.product_detail_id = b.product_detail_id\n" +
             "where a.product_detail_id = #{productDetailId}")
     List<PrizeNumber> getAllPrizeNumbersByProductDetailId(Long productDetailId);
 
