@@ -26,4 +26,7 @@ public class ProductDetailService {
     }
 
 
+    public List<ProductDetail> getProductDetailByProductId(Long productId) {
+        return productDetailRepository.getProductDetailByProductId(productId);
+    }
 }

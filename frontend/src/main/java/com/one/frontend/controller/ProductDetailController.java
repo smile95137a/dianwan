@@ -46,4 +46,16 @@ public class ProductDetailController {
         }
     }
 
+
+    @GetMapping("/query/{productId}")
+    public ResponseEntity<List<ProductDetail>> getProductById(
+            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Long productId) {
+        List<ProductDetail> prize = productDetailService.getProductDetailByProductId(productId);
+        if (prize != null) {
+            return new ResponseEntity<>(prize, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
