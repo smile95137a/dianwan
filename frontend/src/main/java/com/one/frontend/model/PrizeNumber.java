@@ -14,4 +14,6 @@ public class PrizeNumber {
     private Integer number; // 奖品的唯一编号
     private Boolean isDrawn; // 该编号是否已被抽走
 
+    private String grade; // 可能为 null
+
 }

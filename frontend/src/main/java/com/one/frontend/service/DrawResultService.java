@@ -190,7 +190,16 @@ public class DrawResultService {
 
         // 遍历每个产品详细信息，获取对应的奖品编号
         for (ProductDetail productDetail : productDetails) {
+            // 获取所有的奖品编号
             List<PrizeNumber> prizeNumbers = prizeNumberMapper.getAllPrizeNumbersByProductDetailId(Long.valueOf(productDetail.getProductDetailId()));
+
+            // 根据 is_drawn 值调整 grade
+            for (PrizeNumber prize : prizeNumbers) {
+                if (!prize.getIsDrawn()) {
+                    prize.setGrade(null); // 如果未抽中，设置 grade 为 null
+                }
+            }
+
             allPrizeNumbers.addAll(prizeNumbers);
         }
 
