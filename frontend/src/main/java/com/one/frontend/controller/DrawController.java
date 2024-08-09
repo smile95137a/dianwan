@@ -34,9 +34,8 @@ public class DrawController {
     })
     public ResponseEntity<DrawResult> drawPrize(
             @RequestParam Integer userId,
-            @RequestBody(description = "抽奖请求", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawRequest.class))) DrawRequest drawRequest,
-            @RequestParam Long productId) throws Exception {
-        DrawResult result = drawResultService.handleDraw(userId, drawRequest, productId);
+            @RequestBody(description = "抽奖请求", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawRequest.class))) DrawRequest drawRequest) throws Exception {
+        DrawResult result = drawResultService.handleDraw(userId, drawRequest);
         return ResponseEntity.ok(result);
     }
 

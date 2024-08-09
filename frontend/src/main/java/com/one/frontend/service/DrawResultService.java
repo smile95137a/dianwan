@@ -40,9 +40,9 @@ public class DrawResultService {
     private PrizeNumberMapper prizeNumberMapper;
 
 
-    public DrawResult handleDraw(Integer userId, DrawRequest drawRequests, Long productId) throws Exception {
+    public DrawResult handleDraw(Integer userId, DrawRequest drawRequests) throws Exception {
         // 先確認商品是否還有貨
-        List<ProductDetail> check = productDetailRepository.getProductDetailByProductId(productId);
+        List<ProductDetail> check = productDetailRepository.getProductDetailByProductId(drawRequests.getProductId());
         check.forEach(System.out::println);
         int total = check.stream().mapToInt(ProductDetail::getQuantity).sum();
         System.out.println(total);
@@ -51,13 +51,8 @@ public class DrawResultService {
         }
 
         // 計算總金額
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        Product product = productRepository.getProductById(Math.toIntExact(productId));
+        Product product = productRepository.getProductById(Math.toIntExact(drawRequests.getProductId()));
         BigDecimal amount = BigDecimal.valueOf(product.getPrice());
-        System.out.println("amout" + amount);
-        totalAmount = totalAmount.add(amount);
-        System.out.println("抽獎金額");
-        System.out.println(totalAmount);
 
         // 扣除會員內儲值金
         PrizeCategory category = product.getPrizeCategory();
@@ -66,16 +61,16 @@ public class DrawResultService {
         if (category == PrizeCategory.BONUS) {
             Integer bonusPointsInt = userRepository.getBonusPoints(userId);
             BigDecimal bonusPoints = new BigDecimal(bonusPointsInt);
-            if (bonusPoints.compareTo(totalAmount) >= 0) {
-                BigDecimal newBonusPoints = bonusPoints.subtract(totalAmount);
+            if (bonusPoints.compareTo(amount) >= 0) {
+                BigDecimal newBonusPoints = bonusPoints.subtract(amount);
                 userRepository.deductUserBonusPoints(userId, newBonusPoints);
             } else {
                 throw new Exception("紅利不足，請加值");
             }
         } else {
-            if (balance.compareTo(totalAmount) >= 0) {
-                BigDecimal newBalance = balance.subtract(totalAmount);
-                userRepository.deductUserBalance(userId, newBalance);
+            if (balance.compareTo(amount) >= 0) {
+                System.out.println("123" + " " + amount);
+                userRepository.deductUserBalance(userId, amount);
             } else {
                 throw new Exception("餘額不足，請加值");
             }
@@ -87,7 +82,7 @@ public class DrawResultService {
     開始抽獎
      */
         // step.1 獲得所有產品的數量
-        List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(productId);
+        List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(drawRequests.getProductId());
         int totalQuantity = productDetails.stream().mapToInt(ProductDetail::getQuantity).sum();
 
         // step.2 產品數量透過隨機數字抽獎
@@ -139,7 +134,7 @@ public class DrawResultService {
         order.setOrderNumber(UUID.randomUUID().toString());
         order.setCreatedAt(LocalDateTime.now());
         order.setStatus(OrderStatus.PREPARING_SHIPMENT.getDescription());
-        order.setTotalAmount(totalAmount); // 总金额
+        order.setTotalAmount(amount); // 总金额
 
         orderRepository.insertOrder(order);
         Long orderId = orderRepository.getOrderIdByOrderNumber(order.getOrderNumber());
@@ -147,11 +142,11 @@ public class DrawResultService {
         System.out.println(order);
 
         // 訂單明細
-        BigDecimal finalTotalAmount = totalAmount;
+        BigDecimal finalTotalAmount = amount;
         drawResults.forEach(drawResultItem -> {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrderId(orderId);
-            orderDetail.setProductId(productId);
+            orderDetail.setProductId(drawRequests.getProductId());
             orderDetail.setProductDetailId(drawResultItem.getProductDetailId());
             orderDetail.setProductDetailName(String.valueOf(productDetailRepository.getProductDetailById(Math.toIntExact(drawResultItem.getProductDetailId())).getProductName()));
             orderDetail.setQuantity(1);
