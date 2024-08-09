@@ -26,19 +26,20 @@ public class DrawController {
     @Autowired
     private DrawResultService drawResultService;
 
-    @PutMapping("/oneprize")
-    @Operation(summary = "扭蛋抽獎", description = "根据用户ID、请求列表和产品ID进行抽奖")
+    @PostMapping("/oneprize")
+    @Operation(summary = "扭蛋抽獎", description = "根据用户ID、请求和产品ID进行抽奖")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "抽奖成功", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawResult.class))),
             @ApiResponse(responseCode = "400", description = "请求错误")
     })
     public ResponseEntity<DrawResult> drawPrize(
             @RequestParam Integer userId,
-            @RequestBody(description = "抽奖请求列表", required = true, content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = DrawRequest.class)))) List<DrawRequest> drawRequests,
+            @RequestBody(description = "抽奖请求", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawRequest.class))) DrawRequest drawRequest,
             @RequestParam Long productId) throws Exception {
-        DrawResult results = drawResultService.handleDraw(userId, drawRequests, productId);
-        return ResponseEntity.ok(results);
+        DrawResult result = drawResultService.handleDraw(userId, drawRequest, productId);
+        return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/status/{productId}")
     @Operation(summary = "檢視抽況", description = "根据产品ID获取所有奖项状态")
@@ -61,7 +62,7 @@ public class DrawController {
             @RequestParam Long userId,
             @RequestParam Integer prizeNumber) {
         try {
-            DrawResult drawResult = drawResultService.handleDraw(userId, productId, prizeNumber);
+            DrawResult drawResult = drawResultService.handleDraw2(userId, productId, prizeNumber);
             return ResponseEntity.ok(drawResult);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);

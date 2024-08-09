@@ -40,7 +40,7 @@ public class DrawResultService {
     private PrizeNumberMapper prizeNumberMapper;
 
 
-    public DrawResult handleDraw(Integer userId, List<DrawRequest> drawRequests , Long productId) throws Exception {
+    public DrawResult handleDraw(Integer userId, DrawRequest drawRequests, Long productId) throws Exception {
         // 先確認商品是否還有貨
         List<ProductDetail> check = productDetailRepository.getProductDetailByProductId(productId);
         check.forEach(System.out::println);
@@ -55,11 +55,10 @@ public class DrawResultService {
         Product product = productRepository.getProductById(Math.toIntExact(productId));
         BigDecimal amount = BigDecimal.valueOf(product.getPrice());
         System.out.println("amout" + amount);
-        for (DrawRequest request : drawRequests) {
-            totalAmount = totalAmount.add(amount);
-        }
+        totalAmount = totalAmount.add(amount);
         System.out.println("抽獎金額");
         System.out.println(totalAmount);
+
         // 扣除會員內儲值金
         PrizeCategory category = product.getPrizeCategory();
         Integer balanceInt = userRepository.getBalance(userId);
@@ -73,7 +72,7 @@ public class DrawResultService {
             } else {
                 throw new Exception("紅利不足，請加值");
             }
-        }else{
+        } else {
             if (balance.compareTo(totalAmount) >= 0) {
                 BigDecimal newBalance = balance.subtract(totalAmount);
                 userRepository.deductUserBalance(userId, newBalance);
@@ -82,53 +81,54 @@ public class DrawResultService {
             }
         }
 
-
         List<DrawResult> drawResults = new ArrayList<>();
-        for (DrawRequest request : drawRequests) {
-        /*
-        開始抽獎
-         */
-            // step.1 獲得所有產品的數量
-            List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(productId);
-            int totalQuantity = productDetails.stream().mapToInt(ProductDetail::getQuantity).sum();
 
-            // step.2 產品數量透過隨機數字抽獎
-            Random random = new Random();
-            int cumulativeQuantity = 0;
-            int randomNumber = random.nextInt(totalQuantity);
-            ProductDetail selectedPrizeDetail = null;
-            for (ProductDetail productDetail : productDetails) {
-                cumulativeQuantity += productDetail.getQuantity();
-                if (randomNumber < cumulativeQuantity) {
-                    System.out.println(productDetail);
-                    selectedPrizeDetail = productDetail;
-                    break;
-                }
+    /*
+    開始抽獎
+     */
+        // step.1 獲得所有產品的數量
+        List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(productId);
+        int totalQuantity = productDetails.stream().mapToInt(ProductDetail::getQuantity).sum();
+
+        // step.2 產品數量透過隨機數字抽獎
+        Random random = new Random();
+        int cumulativeQuantity = 0;
+        int randomNumber = random.nextInt(totalQuantity);
+        ProductDetail selectedPrizeDetail = null;
+        for (ProductDetail productDetail : productDetails) {
+            cumulativeQuantity += productDetail.getQuantity();
+            if (randomNumber < cumulativeQuantity) {
+                System.out.println(productDetail);
+                selectedPrizeDetail = productDetail;
+                break;
             }
-            if (selectedPrizeDetail == null) {
-                throw new Exception("未抽獎，抽獎次數為0");
-            }
-            // step.3 更新抽獎數量
-            selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
-            productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
-            Product product1 = productRepository.getProductById(Math.toIntExact(selectedPrizeDetail.getProductId()));
-            product1.setStockQuantity(product1.getStockQuantity() - 1);
-            product1.setSoldQuantity(product1.getSoldQuantity() + 1);
-            productRepository.updateProductQuantity(product1);
-            System.out.println("取得剩餘結果" + product1.getStockQuantity());
-            // step.4 紀錄抽獎結果
-            DrawResult drawResult = new DrawResult();
-            drawResult.setUserId(Long.valueOf(userId));
-            drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
-            drawResult.setDrawTime(LocalDateTime.now());
-            drawResult.setProductName(request.getProductName());
-            drawResult.setAmount(request.getAmount());
-            drawResult.setTotalDrawCount(request.getTotalDrawCount());
-            drawResult.setRemainingDrawCount(request.getRemainingDrawCount());
-            drawResult.setDrawCount(1);
-            drawResult.setCreateDate(LocalDateTime.now());
-            drawResults.add(drawResult);
         }
+        if (selectedPrizeDetail == null) {
+            throw new Exception("未抽獎，抽獎次數為0");
+        }
+
+        // step.3 更新抽獎數量
+        selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
+        productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
+        Product product1 = productRepository.getProductById(Math.toIntExact(selectedPrizeDetail.getProductId()));
+        product1.setStockQuantity(product1.getStockQuantity() - 1);
+        product1.setSoldQuantity(product1.getSoldQuantity() + 1);
+        productRepository.updateProductQuantity(product1);
+        System.out.println("取得剩餘結果" + product1.getStockQuantity());
+
+        // step.4 紀錄抽獎結果
+        DrawResult drawResult = new DrawResult();
+        drawResult.setUserId(Long.valueOf(userId));
+        drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
+        drawResult.setDrawTime(LocalDateTime.now());
+        drawResult.setProductName(drawRequests.getProductName());
+        drawResult.setAmount(drawRequests.getAmount());
+        drawResult.setTotalDrawCount(drawRequests.getTotalDrawCount());
+        drawResult.setRemainingDrawCount(drawRequests.getRemainingDrawCount());
+        drawResult.setDrawCount(1);
+        drawResult.setCreateDate(LocalDateTime.now());
+        drawResults.add(drawResult);
+
         // 批量插入抽獎结果
         drawRepository.insertBatch(drawResults);
 
@@ -148,12 +148,12 @@ public class DrawResultService {
 
         // 訂單明細
         BigDecimal finalTotalAmount = totalAmount;
-        drawResults.forEach(drawResult -> {
+        drawResults.forEach(drawResultItem -> {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrderId(orderId);
             orderDetail.setProductId(productId);
-            orderDetail.setProductDetailId(drawResult.getProductDetailId());
-            orderDetail.setProductDetailName(String.valueOf(productDetailRepository.getProductDetailById(Math.toIntExact(drawResult.getProductDetailId())).getProductName()));
+            orderDetail.setProductDetailId(drawResultItem.getProductDetailId());
+            orderDetail.setProductDetailName(String.valueOf(productDetailRepository.getProductDetailById(Math.toIntExact(drawResultItem.getProductDetailId())).getProductName()));
             orderDetail.setQuantity(1);
             orderDetail.setUnitPrice(amount);
             orderDetail.setTotalPrice(finalTotalAmount);
@@ -162,22 +162,21 @@ public class DrawResultService {
             orderDetailRepository.insertOrderDetail(orderDetail);
         });
 
-        //增加兌換紅利的次數
+        // 增加兌換紅利的次數
         User user = userRepository.getUserById(userId);
         Long count = user.getDrawCount();
-        if(count != 3L){
+        if (count != 3L) {
             userRepository.addDrawCount();
-        }else{
+        } else {
             userRepository.updateBonus(userId);
         }
-
-
 
         System.out.println("抽獎結果");
         drawResults.forEach(System.out::println);
 
         return drawResults.get(0);
     }
+
 
     // 获取所有奖项，随机打乱未被抽中的奖项
     // 获取所有奖品详情，显示哪些奖品已被抽走
@@ -208,7 +207,7 @@ public class DrawResultService {
 
     // 处理抽奖
     // 处理自选抽奖
-    public DrawResult handleDraw(Long userId, Long productId, Integer prizeNumber) throws Exception {
+    public DrawResult handleDraw2(Long userId, Long productId, Integer prizeNumber) throws Exception {
         try {
             // 获取未抽走的奖品编号
             List<PrizeNumber> availablePrizeNumbers = prizeNumberMapper.getAvailablePrizeNumbersByProductDetailId(productId);
@@ -411,32 +410,5 @@ public class DrawResultService {
     // 獲取安慰獎詳細信息
     public ProductDetail getConsolationPrizeDetail(Long productId) {
         return productDetailRepository.findFirstByProductIdAndPrizeType(productId, "CONSOLATION");
-    }
-    public static void main(String[] args) throws Exception {
-        DrawResultService service = new DrawResultService();
-        List<DrawRequest> drawRequests = new ArrayList<>();
-
-
-        int totalDrawCount = 6;
-
-        DrawRequest drawRequest1 = new DrawRequest();
-        drawRequest1.setAmount(new BigDecimal("10.00"));
-        drawRequest1.setTotalDrawCount(totalDrawCount);
-        drawRequest1.setRemainingDrawCount(totalDrawCount - 1);
-        drawRequests.add(drawRequest1);
-
-        DrawRequest drawRequest2 = new DrawRequest();
-        drawRequest2.setAmount(new BigDecimal("20.00"));
-        drawRequest2.setTotalDrawCount(totalDrawCount);
-        drawRequest2.setRemainingDrawCount(totalDrawCount - 2);
-        drawRequests.add(drawRequest2);
-
-        DrawRequest drawRequest3 = new DrawRequest();
-        drawRequest3.setAmount(new BigDecimal("30.00"));
-        drawRequest3.setTotalDrawCount(totalDrawCount);
-        drawRequest3.setRemainingDrawCount(totalDrawCount - 3);
-        drawRequests.add(drawRequest3);
-
-        service.handleDraw(1 , drawRequests , 1L);
     }
 }
