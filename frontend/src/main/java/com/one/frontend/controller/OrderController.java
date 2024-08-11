@@ -1,14 +1,15 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.model.Order;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.service.OrderService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -20,6 +21,18 @@ public class OrderController {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	// 根据ID获取订单
+	@GetMapping("/order/{userId}")
+	public ResponseEntity<List<Order>> getOrderById(@PathVariable Long userId) {
+		List<Order> order = orderService.getOrderById(userId);
+		if (order != null) {
+			return new ResponseEntity<>(order, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 
 	@PostMapping("/ecpayCheckout")
 	public String ecpayCheckout(@RequestBody Integer userId) {

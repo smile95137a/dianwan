@@ -26,7 +26,7 @@ public class AuthController {
         LoginResponse loginResponse = authService.login(loginDto);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-        jwtAuthResponse.setAccessToken("Bearer " + loginResponse.getToken());
+        jwtAuthResponse.setAccessToken(loginResponse.getToken());
         jwtAuthResponse.setUserId(loginResponse.getId());
         jwtAuthResponse.setUsername(loginResponse.getUsername());
 

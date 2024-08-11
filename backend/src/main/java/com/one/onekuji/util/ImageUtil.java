@@ -54,7 +54,7 @@ public class ImageUtil {
         }
 
         // 生成并返回文件的访问 URL
-        String finalFileName = "http://localhost:8080" + staticPicturePathMapping + fileName;
+        String finalFileName = "https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app" + staticPicturePathMapping + fileName;
         System.out.println("File uploaded to: " + finalFileName);
         return finalFileName;
     }
