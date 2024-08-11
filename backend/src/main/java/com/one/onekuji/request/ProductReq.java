@@ -19,7 +19,7 @@ public class ProductReq {
     private Long userId;
     private String productName;
     private String description;
-    private Double price;
+    private Long price;
     private Integer stockQuantity;
     private Integer soldQuantity;
     private String imageUrl;

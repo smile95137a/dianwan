@@ -80,19 +80,31 @@ public class ProductController {
             @ApiResponse(responseCode = "201", description = "獎品創建成功"),
             @ApiResponse(responseCode = "400", description = "無效的輸入")
     })
-        @PostMapping("/add")
+    @PostMapping("/add")
     public ResponseEntity<String> createPrize(
             @Parameter(description = "要創建的獎品詳細信息") @RequestPart("productReq") String productReqJson,
             @Parameter(description = "獎品圖片") @RequestPart(value = "image", required = false) MultipartFile image) throws JsonProcessingException {
 
+        // 反序列化 productReqJson 为 ProductReq 对象
         ProductReq productDetailReq = new ObjectMapper().readValue(productReqJson, ProductReq.class);
 
         // 處理文件上傳
         String fileUrl = null;
-        fileUrl = ImageUtil.upload(image);
 
+        if (image != null && !image.isEmpty()) {
+            // 只有在图像非空时才进行上传
+            fileUrl = ImageUtil.upload(image);
+        } else {
+            // 如果图像为空，可以选择设置默认图片 URL 或者处理其他逻辑
+            fileUrl = "default-image-url"; // 假设这里设置了一个默认的图片 URL
+        }
+
+        // 设置图像 URL
         productDetailReq.setImageUrl(fileUrl);
+
+        // 调用服务方法创建产品
         String isSuccess = productService.createProduct(productDetailReq);
+
         if ("1".equals(isSuccess)) {
             return new ResponseEntity<>("創建成功", HttpStatus.CREATED);
         } else {

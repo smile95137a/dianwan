@@ -43,17 +43,15 @@ public class ProductService {
         try {
             Product product = new Product();
             Date date = new Date();
-            User user = userRepository.getUserById(Math.toIntExact(productReq.getUserId()));
             product.setProductName(productReq.getProductName());
             product.setDescription(productReq.getDescription());
-            product.setPrice(productReq.getPrice());
+            product.setPrice(Double.valueOf(productReq.getPrice()));
             product.setStockQuantity(productReq.getStockQuantity());
             product.setSoldQuantity(productReq.getStockQuantity());
             product.setImageUrl(productReq.getImageUrl());
             product.setStartDate(productReq.getStartDate());
             product.setEndDate(productReq.getEndDate());
             product.setCreatedAt(date);
-            product.setCreatedUser(user.getNickname());
             product.setProductType(productReq.getProductType());
             if(productReq.getPrizeCategory() != null){
                 product.setPrizeCategory(productReq.getPrizeCategory());
@@ -74,7 +72,7 @@ public class ProductService {
 
             product.setProductName(productReq.getProductName());
             product.setDescription(productReq.getDescription());
-            product.setPrice(productReq.getPrice());
+            product.setPrice(Double.valueOf(productReq.getPrice()));
             product.setStockQuantity(productReq.getStockQuantity());
             product.setSoldQuantity(productReq.getStockQuantity());
             product.setImageUrl(productReq.getImageUrl());

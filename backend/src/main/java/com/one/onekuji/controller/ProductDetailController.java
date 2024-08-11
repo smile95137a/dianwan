@@ -65,10 +65,14 @@ public class ProductDetailController {
         ProductDetailReq productDetailReq = new ObjectMapper().readValue(productDetailReqJson, ProductDetailReq.class);
         String fileUrl = null;
         if (image != null && !image.isEmpty()) {
-            // 保存上传的图片并获取 URL
+            // 只有在图像非空时才进行上传
             fileUrl = ImageUtil.upload(image);
-            productDetailReq.setImage(fileUrl); // 更新请求对象中的图片 URL
+        } else {
+            // 如果图像为空，可以选择设置默认图片 URL 或者处理其他逻辑
+            fileUrl = "default-image-url"; // 假设这里设置了一个默认的图片 URL
         }
+
+        productDetailReq.setImage(fileUrl);
 
         String isSuccess = productDetailService.createProductDetail(productDetailReq);
         if ("1".equals(isSuccess)) {
@@ -93,11 +97,13 @@ public class ProductDetailController {
 
         String fileUrl = null;
         if (image != null && !image.isEmpty()) {
-            // 保存上传的图片并获取 URL
+            // 只有在图像非空时才进行上传
             fileUrl = ImageUtil.upload(image);
-            productDetailReq.setImage(fileUrl); // 更新请求对象中的图片 URL
+        } else {
+            // 如果图像为空，可以选择设置默认图片 URL 或者处理其他逻辑
+            fileUrl = "default-image-url"; // 假设这里设置了一个默认的图片 URL
         }
-
+        productDetailReq.setImage(fileUrl);
             String isSuccess = productDetailService.updateProductDetail(productDetailId, productDetailReq);
             if ("1".equals(isSuccess)) {
                 return new ResponseEntity<>("更新成功", HttpStatus.OK);
