@@ -43,8 +43,8 @@ public class SpringSecurityConfig {
                 .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and().oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/auth/oauth2/google/success") // 登录成功后跳转
-                        .failureUrl("/loginFailure") // 登录失败后跳转
+                        .defaultSuccessUrl("https://c01b-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/auth/oauth2/google/success")
+                        .failureUrl("/loginFailure")
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
