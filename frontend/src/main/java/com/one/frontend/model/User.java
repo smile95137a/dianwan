@@ -71,4 +71,6 @@ public class User {
     private String googleId;
 
     private Long drawCount;
+    
+    private String provider;
 }
