@@ -93,5 +93,8 @@ public class User{
     private Long drawCount;
     
     private String provider;
+<<<<<<< HEAD
+>>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
+=======
 >>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
 }

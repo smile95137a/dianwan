@@ -40,6 +40,7 @@ public class AuthService {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public LoginResponse googleLogin(String email, String name, String googleId) {
             User user = userRepository.findByGoogleId(googleId);
             System.out.println(googleId);
@@ -57,6 +58,8 @@ public class AuthService {
 
             return new LoginResponse(jwt, Long.valueOf(userRes.getId()), userRes.getUsername());
         }
+=======
+>>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
 =======
 >>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
 }

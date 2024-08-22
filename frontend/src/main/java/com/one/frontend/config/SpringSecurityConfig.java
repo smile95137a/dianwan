@@ -22,6 +22,14 @@ import com.one.frontend.config.security.oauth2.OAuth2AuthenticationSuccessHandle
 
 import lombok.AllArgsConstructor;
 
+import com.one.frontend.config.security.JwtAuthenticationFilter;
+import com.one.frontend.config.security.JwtTokenProvider;
+import com.one.frontend.config.security.oauth2.CustomOAuth2UserService;
+import com.one.frontend.config.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.one.frontend.config.security.oauth2.OAuth2AuthenticationSuccessHandler;
+
+import lombok.AllArgsConstructor;
+
 @Configuration
 @AllArgsConstructor
 public class SpringSecurityConfig {
