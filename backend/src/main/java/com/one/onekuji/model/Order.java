@@ -1,63 +1,67 @@
 package com.one.onekuji.model;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Schema(description = "訂單實體類")
-public class Order {
+@Entity
+@Schema(description = "訂單模型")
+@Table(name = "order")
+public class Order{
 
-    @Schema(description = "訂單ID")
-    private Long id;
+    @Schema(description = "訂單唯一識別碼", example = "1")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    @Schema(description = "訂單號")
+    @Schema(description = "訂單編號", example = "ORD123456")
+    @Column(name = "order_number", length = 50)
     private String orderNumber;
 
-    @Schema(description = "用戶信息")
-    private User user;
+    @Schema(description = "用戶 ID", example = "1")
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @Schema(description = "用戶ID")
-    private Long userId;
-
-    @Schema(description = "總金額")
+    @Schema(description = "總金額", example = "199.98")
+    @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
-    @Schema(description = "獲得的積分")
-    private BigDecimal bonusPointsEarned;
+    @Schema(description = "獲得的獎勳點數", example = "10")
+    @Column(name = "bonus_points_earned")
+    private Integer bonusPointsEarned;
 
-    @Schema(description = "使用的積分")
-    private BigDecimal bonusPointsUsed;
+    @Schema(description = "使用的獎勳點數", example = "5")
+    @Column(name = "bonus_points_used")
+    private Integer bonusPointsUsed;
 
-    @Schema(description = "訂單狀態")
+    @Schema(description = "狀態", example = "PENDING")
+    @Column(name = "status", length = 50)
     private String status;
 
-    @Schema(description = "支付方式")
+    @Schema(description = "支付方式", example = "CREDIT_CARD")
+    @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
-    @Schema(description = "支付狀態")
+    @Schema(description = "支付狀態", example = "PAID")
+    @Column(name = "payment_status", length = 50)
     private String paymentStatus;
 
-    @Schema(description = "創建時間")
+    @Schema(description = "創建日期", example = "2024-08-22T15:30:00")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Schema(description = "更新時間")
+    @Schema(description = "更新日期", example = "2024-08-22T15:30:00")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Schema(description = "支付時間")
+    @Schema(description = "支付日期", example = "2024-08-22T16:00:00")
+    @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-    @ArraySchema(schema = @Schema(description = "訂單詳情"))
-    private Set<OrderDetail> orderDetails;
-
-    @Schema(description = "備註")
+    @Schema(description = "備註", example = "Please deliver by end of the week.")
+    @Column(name = "notes")
     private String notes;
 }

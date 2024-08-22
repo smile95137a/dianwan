@@ -7,6 +7,7 @@ import com.one.frontend.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -24,6 +25,17 @@ public class AuthController {
     private AuthService authService;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private static  String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private static String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private static String redirectUri;
+
+    private final String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
     // Login REST API
     @PostMapping("/login")
@@ -68,9 +80,9 @@ public class AuthController {
 
         try {
             String tokenEndpoint = "https://oauth2.googleapis.com/token";
-            String clientId = "YOUR_CLIENT_ID";
-            String clientSecret = "YOUR_CLIENT_SECRET";
-            String redirectUri = "https://your-backend-url.com/api/oauth2/callback";
+            String clientId = AuthController.clientId;
+            String clientSecret = AuthController.clientSecret;
+            String redirectUri = AuthController.redirectUri;
 
             String requestBody = String.format(
                     "code=%s&client_id=%s&client_secret=%s&redirect_uri=%s&grant_type=authorization_code",

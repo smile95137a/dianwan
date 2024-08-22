@@ -1,8 +1,10 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.Order;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.service.OrderService;
+import com.one.frontend.util.ResponseUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,14 +26,18 @@ public class OrderController {
 
 	// 根据ID获取订单
 	@GetMapping("/order/{userId}")
-	public ResponseEntity<List<Order>> getOrderById(@PathVariable Long userId) {
+	public ResponseEntity<ApiResponse<List<Order>>> getOrderById(@PathVariable Long userId) {
 		List<Order> order = orderService.getOrderById(userId);
-		if (order != null) {
-			return new ResponseEntity<>(order, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+		if (order == null || order.isEmpty()) {
+			ApiResponse<List<Order>> response = ResponseUtils.failure(404, "沒有此ID", null);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
+
+		ApiResponse<List<Order>> response = ResponseUtils.success(200, null, order);
+		return ResponseEntity.ok(response);
 	}
+
 
 
 	@PostMapping("/ecpayCheckout")

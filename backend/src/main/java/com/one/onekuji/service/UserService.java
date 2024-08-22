@@ -48,9 +48,8 @@ public class UserService implements UserDetailsService {
             user.setNickname(userReq.getNickname());
             user.setEmail(userReq.getEmail());
             user.setAddress(userReq.getAddress());
-            user.setUserType(User.UserType.USER);
             user.setCreatedAt(LocalDateTime.now());
-            user.setRoleId(2);
+            user.setRoleId(2L);
             user.setBalance(BigDecimal.valueOf(0));
             user.setBonus(BigDecimal.valueOf(0));
             userRepository.createUser(user);
@@ -97,7 +96,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not exists by Username or Email"));
 
-        Role role = roleRepository.findById(user.getRoleId())
+        Role role = roleRepository.findById(Math.toIntExact(user.getRoleId()))
                 .orElseThrow(() -> new UsernameNotFoundException("Role not found"));
 
         Set<GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(role.getName()));

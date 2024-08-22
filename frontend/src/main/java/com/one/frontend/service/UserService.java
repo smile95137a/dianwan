@@ -103,7 +103,7 @@ public class UserService implements UserDetailsService {
             user.setEmail(userDto.getEmail());
             user.setAddress(userDto.getAddress());
             user.setCreatedAt(LocalDateTime.now());
-            user.setRoleId(2); //註冊即是正式會員
+            user.setRoleId(2L); //註冊即是正式會員
             user.setBalance(BigDecimal.valueOf(0));
             user.setBonus(BigDecimal.valueOf(0));
             userRepository.createUser(user);

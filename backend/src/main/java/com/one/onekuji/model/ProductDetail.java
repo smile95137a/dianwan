@@ -1,55 +1,87 @@
 package com.one.onekuji.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Schema(description = "ProductDetail 模型，表示商品的詳細信息")
-public class ProductDetail {
+@Schema(description = "產品詳細模型")
+@Table(name = "product_detail")
+@Entity
+public class ProductDetail{
 
-    @Schema(description = "商品的 ID", example = "1")
-    private Long productId;
-
-    @Schema(description = "商品的描述", example = "一個超級稀有的收藏品")
-    private String description;
-
-    @Schema(description = "商品的稀有度", example = "5")
-    private int rarity;
-
-    @Schema(description = "商品的尺寸", example = "中等")
-    private String size;
-
-    @Schema(description = "商品的材質", example = "塑膠")
-    private String material;
-
-    @Schema(description = "是否為秘密商品", example = "true")
-    private boolean isSecret;
-
-    @Schema(description = "商品的數量", example = "10")
-    private int quantity;
-
-    @Schema(description = "商品詳細信息的 ID", example = "1")
+    @Schema(description = "產品詳細唯一識別碼", example = "1")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer productDetailId;
 
-    @Schema(description = "商品名稱", example = "金色稀有徽章")
+    @Schema(description = "產品 ID", example = "1")
+    @Column(name = "product_id")
+    private Integer productId;
+
+    @Schema(description = "描述", example = "This is a detailed description.")
+    @Column(name = "description", length = 255)
+    private String description;
+
+    @Schema(description = "備註", example = "No special notes.")
+    @Column(name = "note", length = 255)
+    private String note;
+
+    @Schema(description = "稀有度", example = "Rare")
+    @Column(name = "rarity", length = 50)
+    private String rarity;
+
+    @Schema(description = "尺寸", example = "Medium")
+    @Column(name = "size", length = 50)
+    private String size;
+
+    @Schema(description = "材質", example = "Plastic")
+    @Column(name = "material", length = 50)
+    private String material;
+
+    @Schema(description = "數量", example = "100")
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Schema(description = "產品名稱", example = "Product Name")
+    @Column(name = "product_name", length = 100)
     private String productName;
 
-    @Schema(description = "商品的等級", example = "A")
+    @Schema(description = "等級", example = "A")
+    @Column(name = "grade", length = 50)
     private String grade;
 
-    @Schema(description = "商品詳細信息的創建日期", example = "2023-07-01T12:34:56")
+    @Schema(description = "價格", example = "199.99")
+    @Column(name = "price")
+    private BigDecimal price;
+
+    @Schema(description = "銀幣價格", example = "100.00")
+    @Column(name = "sliver_price")
+    private BigDecimal sliverPrice;
+
+    @Schema(description = "創建日期", example = "2024-08-22T15:30:00")
+    @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    @Schema(description = "商品詳細信息的更新日期", example = "2023-07-20T08:45:23")
+    @Schema(description = "更新日期", example = "2024-08-22T15:30:00")
+    @Column(name = "update_date")
     private LocalDateTime updateDate;
 
-    @Schema(description = "商品的圖片 URL", example = "http://example.com/product.jpg")
-    private String image;
+    @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
 
+    @Schema(description = "狀態", example = "AVAILABLE")
+    @Column(name = "status", length = 50)
+    private String status;
+
+    @Schema(description = "獎品編號", example = "PRIZE001")
+    @Column(name = "prize_number", length = 50)
+    private String prizeNumber;
+
+    @Schema(description = "抽中號碼", example = "PRIZE001,PRIZE002")
+    @Column(name = "drawn_numbers", length = 255)
+    private String drawnNumbers;
 }

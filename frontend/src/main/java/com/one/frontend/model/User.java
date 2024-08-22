@@ -1,74 +1,97 @@
 package com.one.frontend.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "User 模型，表示系統中的用戶信息")
-public class User {
+@Table(name = "user")
+public class User{
 
     public enum UserType {
         USER, // 正式会员
         EXP_USER // 体验会员
     }
 
-    @Schema(description = "用戶的 ID", example = "1")
-    private Integer id;
+    @Schema(description = "用戶唯一識別碼", example = "1")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Schema(description = "用戶名", example = "john_doe")
+    @Schema(description = "用戶名稱", example = "john_doe")
+    @Column(name = "username", length = 50)
     private String username;
 
     @Schema(description = "用戶密碼", example = "password123")
+    @Column(name = "password", length = 255)
     private String password;
 
-    @Schema(description = "用戶的暱稱", example = "John")
+    @Schema(description = "用戶暱稱", example = "John")
+    @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Schema(description = "用戶的電子郵件地址", example = "john.doe@example.com")
+    @Schema(description = "用戶電子郵件", example = "john.doe@example.com")
+    @Column(name = "email", length = 100)
     private String email;
 
-    @Schema(description = "用戶的電話號碼", example = "+1234567890")
+    @Schema(description = "用戶電話號碼", example = "+123456789")
+    @Column(name = "phoneNumber", length = 20)
     private String phoneNumber;
 
-    @Schema(description = "用戶的地址", example = "123 Main Street, City, Country")
+    @Schema(description = "用戶地址", example = "123 Main St, City, Country")
+    @Column(name = "address", length = 255)
     private String address;
 
-    @Schema(description = "用戶記錄的創建時間", example = "2023-07-01T12:34:56")
+    @Schema(description = "用戶創建時間", example = "2024-08-22T15:30:00")
+    @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
-    @Schema(description = "用戶記錄的最後更新時間", example = "2023-07-20T08:45:23")
+    @Schema(description = "用戶最後更新時間", example = "2024-08-22T15:30:00")
+    @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    private Set<Role> roles = new HashSet<>();
+    @Schema(description = "用戶角色識別碼", example = "1")
+    @Column(name = "role_id")
+    private Long roleId;
 
-    @Schema(description = "用戶的儲值餘額", example = "1000.00")
-    private BigDecimal balance;
-
-    @Schema(description = "用戶的紅利點數", example = "500")
-    private BigDecimal bonus;
-
-    @Schema(description = "最後儲值時間", example = "2023-07-25T10:30:00")
-    private LocalDateTime lastTopUpTime;
-
-    @Schema(description = "用户类型", example = "REGULAR")
-    private UserType userType;
-
-    @Schema(description = "用户角色 ID", example = "2")
-    private Integer roleId;
-
-    @Schema(description = "用戶狀態" , example = "Y等於啟用 N等於未啟用")
+    @Schema(description = "用戶狀態", example = "ACTIVE")
+    @Column(name = "status", length = 20)
     private String status;
 
-    private String googleId;
+    @Schema(description = "用戶餘額", example = "100.00")
+    @Column(name = "balance", length = 10)
+    private BigDecimal balance;
 
+<<<<<<< HEAD
+    @Schema(description = "用戶紅利", example = "50.00")
+    @Column(name = "bonus", length = 10)
+    private BigDecimal bonus;
+
+    @Schema(description = "用戶銀幣", example = "20.00")
+    @Column(name = "sliver_coin", length = 10)
+    private BigDecimal sliverCoin;
+
+    @Schema(description = "用戶提供者", example = "local")
+    @Column(name = "provider", length = 100)
+    private String provider;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Set<Role> roles;
+=======
     private Long drawCount;
+    
+    private String provider;
+>>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
 }
