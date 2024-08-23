@@ -72,7 +72,6 @@ public class User{
     @Column(name = "balance", length = 10)
     private BigDecimal balance;
 
-<<<<<<< HEAD
     @Schema(description = "用戶紅利", example = "50.00")
     @Column(name = "bonus", length = 10)
     private BigDecimal bonus;
@@ -89,12 +88,5 @@ public class User{
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Set<Role> roles;
-=======
-    private Long drawCount;
-    
-    private String provider;
-<<<<<<< HEAD
->>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
-=======
->>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
+
 }

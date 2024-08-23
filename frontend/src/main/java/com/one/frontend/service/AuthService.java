@@ -1,6 +1,13 @@
 package com.one.frontend.service;
 
 
+import com.one.frontend.config.security.JwtTokenProvider;
+import com.one.frontend.config.security.SecurityUtils;
+import com.one.frontend.dto.LoginDto;
+import com.one.frontend.dto.LoginResponse;
+import com.one.frontend.model.User;
+import com.one.frontend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,14 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.one.frontend.config.security.JwtTokenProvider;
-import com.one.frontend.config.security.SecurityUtils;
-import com.one.frontend.dto.LoginDto;
-import com.one.frontend.dto.LoginResponse;
-import com.one.frontend.model.User;
-import com.one.frontend.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +39,6 @@ public class AuthService {
         return new LoginResponse(token, Long.valueOf(user.getId()), user.getUsername());
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         public LoginResponse googleLogin(String email, String name, String googleId) {
             User user = userRepository.findByGoogleId(googleId);
             System.out.println(googleId);
@@ -53,13 +51,9 @@ public class AuthService {
                 userRepository.createGoogleUser(user);
             }
             User userRes = userRepository.getUserByEmail(email);
-
-            String jwt = jwtTokenProvider.generateToken(userRes.getId().toString());
+            var userDetail = SecurityUtils.getCurrentUserPrinciple();
+            String jwt = jwtTokenProvider.generateToken(userDetail);
 
             return new LoginResponse(jwt, Long.valueOf(userRes.getId()), userRes.getUsername());
         }
-=======
->>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
-=======
->>>>>>> fa3ec0c84c03b894e99ba8716680cabeb2b2bf08
 }
