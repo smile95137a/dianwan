@@ -23,14 +23,14 @@ public interface UserRepository{
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, email, phoneNumber, address, createdAt , balance , bonus ) " +
+    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus ) " +
             "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus})")
     void createUser(User user);
 
-    @Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, " +
-            "email = #{email}, phoneNumber = #{phoneNumber}, address = #{address}, updatedAt = #{updatedAt} " +
+    @Update("UPDATE `user` SET password = #{password}, nickname = #{nickName}, " +
+            "email = #{email}, phone_number = #{phoneNumber}, address = #{address}, updated_at = #{updatedAt} " +
             "WHERE id = #{id}")
-    void update(User user);
+    void update(UserRes user);
 
     @Delete("DELETE FROM user WHERE id = #{userId}")
     void deleteUser(@Param("userId") Integer userId);
@@ -73,7 +73,7 @@ public interface UserRepository{
     @Select("select * from `user` where google_id = #{googleId}")
     User findByGoogleId(String googleId);
 
-    @Insert("INSERT INTO `user` (username, password, email, phoneNumber, address, createdAt, balance, bonus, google_id) " +
+    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, createdAt, balance, bonus, google_id) " +
             "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt}, #{balance}, #{bonus}, #{googleId})")
     void createGoogleUser(User user);
 
