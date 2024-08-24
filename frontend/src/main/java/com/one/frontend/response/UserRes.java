@@ -1,4 +1,4 @@
-package com.one.frontend.dto;
+package com.one.frontend.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserRes {
 
     private Long id;
 

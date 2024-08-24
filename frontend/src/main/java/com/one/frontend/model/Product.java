@@ -1,5 +1,8 @@
 package com.one.frontend.model;
 
+import com.one.frontend.eenum.PrizeCategory;
+import com.one.frontend.eenum.PrizeStatus;
+import com.one.frontend.eenum.ProductType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -73,13 +76,13 @@ public class Product{
 
     @Schema(description = "產品類型", example = "GACHA")
     @Column(name = "product_type", length = 50)
-    private String productType;
+    private ProductType productType;
 
     @Schema(description = "獎品類別", example = "Bonus")
     @Column(name = "prize_category", length = 50)
-    private String prizeCategory;
+    private PrizeCategory prizeCategory;
 
     @Schema(description = "狀態", example = "AVAILABLE")
     @Column(name = "status", length = 50)
-    private String status;
+    private PrizeStatus status;
 }

@@ -45,6 +45,9 @@ public class ProductDetail{
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
+
     @Schema(description = "產品名稱", example = "Product Name")
     @Column(name = "product_name", length = 100)
     private String productName;
@@ -72,10 +75,6 @@ public class ProductDetail{
     @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
     @Column(name = "image_url", length = 255)
     private String imageUrl;
-
-    @Schema(description = "狀態", example = "AVAILABLE")
-    @Column(name = "status", length = 50)
-    private String status;
 
     @Schema(description = "獎品編號", example = "PRIZE001")
     @Column(name = "prize_number", length = 50)

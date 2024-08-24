@@ -1,8 +1,8 @@
 package com.one.frontend.service;
 
-import com.one.frontend.model.ProductDetail;
 import com.one.frontend.repository.ProductDetailRepository;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.response.ProductDetailRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +17,11 @@ public class ProductDetailService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<ProductDetail> getAllProductDetail() {
+    public List<ProductDetailRes> getAllProductDetail() {
         return productDetailRepository.getAllProductDetail();
     }
 
-    public List<ProductDetail> getProductDetailById(Integer productDetailId) {
-        return productDetailRepository.getProductDetailByProductId(Long.valueOf(productDetailId));
-    }
-
-
-    public List<ProductDetail> getProductDetailByProductId(Long productId) {
+    public List<ProductDetailRes> getProductDetailByProductId(Long productId) {
         return productDetailRepository.getProductDetailByProductId(productId);
     }
 }

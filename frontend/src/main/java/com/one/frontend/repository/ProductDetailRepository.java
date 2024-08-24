@@ -1,6 +1,7 @@
 package com.one.frontend.repository;
 
 import com.one.frontend.model.ProductDetail;
+import com.one.frontend.response.ProductDetailRes;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 public interface ProductDetailRepository {
 
     @Select("select * from product_detail")
-    List<ProductDetail> getAllProductDetail();
+    List<ProductDetailRes> getAllProductDetail();
     @Select("select * from product_detail where product_detail_id = #{productDetailId}")
     ProductDetail getProductDetailById(Integer productDetailId);
 
@@ -33,7 +34,7 @@ public interface ProductDetailRepository {
     @Delete("DELETE FROM product_detail WHERE product_detail_id = #{productDetailId}")
     void deleteProductDetail(Integer productDetailId);
     @Select("select * from product_detail where product_id = #{productId}")
-    List<ProductDetail> getProductDetailByProductId(Long productId);
+    List<ProductDetailRes> getProductDetailByProductId(Long productId);
 
 
     @Update("UPDATE product_detail SET " +

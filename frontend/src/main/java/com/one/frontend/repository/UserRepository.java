@@ -3,6 +3,7 @@ package com.one.frontend.repository;
 import com.one.frontend.model.DrawResult;
 import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
+import com.one.frontend.response.UserRes;
 import org.apache.ibatis.annotations.*;
 
 import java.math.BigDecimal;
@@ -13,7 +14,10 @@ import java.util.Set;
 @Mapper
 public interface UserRepository{
     @Select("select * from user where id = ${userId}")
-    User getUserById(@Param("userId") Integer userId);
+    UserRes getUserById(@Param("userId") Integer userId);
+
+    @Select("select * from user where id = ${userId}")
+    User getUserBId(@Param("userId") Integer userId);
 
     @Select("SELECT * FROM user")
     List<User> getAllUser();

@@ -1,9 +1,10 @@
 package com.one.frontend.service;
 
-import com.one.frontend.dto.UserDto;
 import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.request.UserReq;
+import com.one.frontend.response.UserRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,26 +35,9 @@ public class UserService implements UserDetailsService {
         return userRepository.getAllUser();
     }
 
-    public String createUser(User user) {
-        try {
-            userRepository.createUser(user);
-            return "1";
-        } catch (Exception e) {
-            return "0";
-        }
-    }
 
-    public User getUserById(Integer userId) {
+    public UserRes getUserById(Integer userId) {
         return userRepository.getUserById(userId);
-    }
-
-    public String updateUser(User user) {
-        try {
-            userRepository.update(user);
-            return "1";
-        } catch (Exception e) {
-            return "0";
-        }
     }
 
     public String deleteUser(Integer userId) {
@@ -88,7 +72,7 @@ public class UserService implements UserDetailsService {
         return userRepository.countByRoleId(roleId);
     }
 
-    public String registerUser(UserDto userDto) throws Exception {
+    public UserRes registerUser(UserReq userDto) throws Exception {
         User check = userRepository.getUserByUserName(userDto.getUsername());
         if(check != null){
             throw new Exception("帳號已存在");
@@ -96,39 +80,34 @@ public class UserService implements UserDetailsService {
 
         String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
 
-        try {
             User user = new User();
             user.setUsername(userDto.getUsername());
             user.setPassword(encryptedPassword);
             user.setEmail(userDto.getEmail());
             user.setAddress(userDto.getAddress());
+            user.setPhoneNumber(userDto.getPhoneNumber());
             user.setCreatedAt(LocalDateTime.now());
             user.setRoleId(2L); //註冊即是正式會員
             user.setBalance(BigDecimal.valueOf(0));
             user.setBonus(BigDecimal.valueOf(0));
             userRepository.createUser(user);
-            return "1";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "0";
-        }
-
+            UserRes userRes = new UserRes();
+            userRes.setUsername(user.getUsername());
+            userRes.setEmail(user.getEmail());
+            userRes.setPhoneNumber(user.getPhoneNumber());
+            userRes.setAddress(user.getAddress());
+            return userRes;
     }
 
-    public String updateUser(UserDto userReq) {
-        try {
+    public UserRes updateUser(UserReq userReq , Integer id) {
             String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
-            User user = userRepository.getUserById(Math.toIntExact(userReq.getId()));
+            User user = userRepository.getUserBId(Math.toIntExact(id));
             user.setPassword(encryptedPassword);
-            user.setNickname(userReq.getNickName());
+            user.setNickname(userReq.getNickname());
             user.setEmail(userReq.getEmail());
             user.setAddress(userReq.getAddress());
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.update(user);
-            return "1";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "0";
-        }
+            return userRepository.getUserById(id);
     }
 }

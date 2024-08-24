@@ -46,6 +46,9 @@ public class ProductDetail{
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
+
     @Schema(description = "產品名稱", example = "Product Name")
     @Column(name = "product_name", length = 100)
     private String productName;

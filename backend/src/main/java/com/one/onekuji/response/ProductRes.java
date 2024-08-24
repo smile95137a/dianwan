@@ -1,4 +1,4 @@
-package com.one.onekuji.request;
+package com.one.onekuji.response;
 
 import com.one.onekuji.eenum.PrizeCategory;
 import com.one.onekuji.eenum.ProductStatus;
@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-public class ProductReq {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductRes {
 
-    private Long productId;
+    private Integer productId;
     private String productName;
     private String description;
-    private Long price;
+    private BigDecimal price;
     private BigDecimal sliverPrice;
     private Integer stockQuantity;
     private String imageUrl;

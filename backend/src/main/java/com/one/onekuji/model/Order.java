@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Schema(description = "訂單模型")
-@Table(name = "order")
+@Table(name = "`order`")
 public class Order{
 
     @Schema(description = "訂單唯一識別碼", example = "1")

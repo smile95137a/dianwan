@@ -1,6 +1,7 @@
 package com.one.frontend.repository;
 
 import com.one.frontend.model.Product;
+import com.one.frontend.response.ProductRes;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -9,10 +10,10 @@ import java.util.List;
 public interface ProductRepository {
 
     @Select("SELECT * FROM product")
-    List<Product> getAllProduct();
+    List<ProductRes> getAllProduct();
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
-    Product getProductById(@Param("productId") Integer productId);
+    ProductRes getProductById(@Param("productId") Integer productId);
 
     @Insert("INSERT INTO product (" +
             "product_name, description, price, stock_quantity, sold_quantity, " +

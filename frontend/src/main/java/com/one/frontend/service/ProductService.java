@@ -3,6 +3,7 @@ package com.one.frontend.service;
 import com.one.frontend.model.Product;
 import com.one.frontend.repository.ProductRepository;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.response.ProductRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,11 @@ public class ProductService {
 
     @Autowired
     private UserRepository userRepository;
-    public List<Product> getAllProduct() {
+    public List<ProductRes> getAllProduct() {
         return productRepository.getAllProduct();
     }
 
-    public Product getProductById(Integer productId) {
+    public ProductRes getProductById(Integer productId) {
         return productRepository.getProductById(productId);
     }
 

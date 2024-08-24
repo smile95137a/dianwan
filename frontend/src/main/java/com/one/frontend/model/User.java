@@ -35,6 +35,8 @@ public class User{
     @Schema(description = "用戶密碼", example = "password123")
     @Column(name = "password", length = 255)
     private String password;
+    @Column(name = "nat_id", length = 50)
+    private String natId;
 
     @Schema(description = "用戶暱稱", example = "John")
     @Column(name = "nickname", length = 50)

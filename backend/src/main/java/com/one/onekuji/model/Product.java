@@ -1,8 +1,12 @@
 package com.one.onekuji.model;
 
+import com.one.onekuji.eenum.PrizeCategory;
+import com.one.onekuji.eenum.ProductStatus;
+import com.one.onekuji.eenum.ProductType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -72,13 +76,19 @@ public class Product{
 
     @Schema(description = "產品類型", example = "GACHA")
     @Column(name = "product_type", length = 50)
-    private String productType;
+    @Enumerated(EnumType.STRING)  // 新增此行
+    private ProductType productType;
 
     @Schema(description = "獎品類別", example = "Bonus")
     @Column(name = "prize_category", length = 50)
-    private String prizeCategory;
+    @Enumerated(EnumType.STRING)  // 新增此行
+    private PrizeCategory prizeCategory;
 
     @Schema(description = "狀態", example = "AVAILABLE")
     @Column(name = "status", length = 50)
-    private String status;
+    @Enumerated(EnumType.STRING)  // 新增此行
+    private ProductStatus status;
+
+    @Column(name = "bonus_price")
+    private BigDecimal bonusPrice;
 }

@@ -1,11 +1,11 @@
 package com.one.frontend.controller;
 
-import com.one.frontend.model.ProductDetail;
+import com.one.frontend.model.ApiResponse;
+import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.service.ProductDetailService;
+import com.one.frontend.util.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,37 +25,29 @@ public class ProductDetailController {
 
     @Operation(summary = "獲取所有獎品", description = "檢索所有獎品的列表")
     @GetMapping("/query")
-    public ResponseEntity<List<ProductDetail>> getAllProduct() {
-        List<ProductDetail> products = productDetailService.getAllProductDetail();
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @Operation(summary = "通過 ID 獲取獎品", description = "根據其 ID 獲取獎品")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "獎品檢索成功"),
-            @ApiResponse(responseCode = "404", description = "獎品未找到")
-    })
-    @GetMapping("/{productDetailId}")
-    public ResponseEntity<List<ProductDetail>> getProductById(
-            @Parameter(description = "獎品的 ID", example = "1") @PathVariable Integer productDetailId) {
-        List<ProductDetail> prize = productDetailService.getProductDetailById(productDetailId);
-        if (prize != null) {
-            return new ResponseEntity<>(prize, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<List<ProductDetailRes>>> getAllProduct() {
+        List<ProductDetailRes> products = productDetailService.getAllProductDetail();
+        if (products == null || products.isEmpty()) {
+            ApiResponse<List<ProductDetailRes>> response = ResponseUtils.failure(404, null, null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+
+        ApiResponse<List<ProductDetailRes>> response = ResponseUtils.success(200, null, products);
+        return ResponseEntity.ok(response);
     }
 
 
     @GetMapping("/query/{productId}")
-    public ResponseEntity<List<ProductDetail>> getProductById(
+    public ResponseEntity<ApiResponse<List<ProductDetailRes>>> getProductById(
             @Parameter(description = "獎品的 ID", example = "1") @PathVariable Long productId) {
-        List<ProductDetail> prize = productDetailService.getProductDetailByProductId(productId);
-        if (prize != null) {
-            return new ResponseEntity<>(prize, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<ProductDetailRes> products = productDetailService.getProductDetailByProductId(productId);
+        if (products == null || products.isEmpty()) {
+            ApiResponse<List<ProductDetailRes>> response = ResponseUtils.failure(404, null, null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+
+        ApiResponse<List<ProductDetailRes>> response = ResponseUtils.success(200, null, products);
+        return ResponseEntity.ok(response);
     }
 
 }

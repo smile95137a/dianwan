@@ -34,10 +34,8 @@ public class ImageUtil {
         }
 
         String fileName = file.getOriginalFilename();  // 获取原始文件名
-        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 获取文件后缀名
         String filePath = staticPicturePath + fileName;
         File dest = new File(filePath);
-
 
         try {
             Files.createDirectories(Paths.get(staticPicturePath));
@@ -50,7 +48,8 @@ public class ImageUtil {
             throw new RuntimeException("文件上传失败", e);
         }
 
-        String finalFileName = staticPicturePathMapping + fileName;
+        // 返回静态资源映射路径
+        String finalFileName = fileName;
         System.out.println("File uploaded to: " + finalFileName);
         return finalFileName;
     }

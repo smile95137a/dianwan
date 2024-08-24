@@ -1,102 +1,71 @@
-//package com.one.onekuji.service;
-//
-//import com.one.onekuji.repository.PrizeNumberMapper;
-//import com.one.onekuji.repository.ProductDetailRepository;
-//import com.one.onekuji.repository.UserRepository;
-//import com.one.onekuji.request.ProductDetailReq;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import java.time.LocalDateTime;
-//import java.util.List;
-//import java.util.stream.IntStream;
-//
-//@Service
-//public class ProductDetailService {
-//
-//    @Autowired
-//    private ProductDetailRepository productDetailRepository;
-//
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Autowired
-//    private PrizeNumberMapper prizeNumberMapper;
-//
-//    public List<ProductDetail> getAllProductDetail() {
-//        return productDetailRepository.getAllProductDetail();
-//    }
-//
-//    public ProductDetail getProductDetailById(Integer productDetailId) {
-//        return productDetailRepository.getProductDetailById(productDetailId);
-//    }
-//
-//    public String createProductDetail(ProductDetailReq product) {
-//        try {
-//            ProductDetail productDetail = new ProductDetail();
-//            productDetail.setProductId(product.getProductId());
-//            productDetail.setProductName(product.getProductName());
-//            productDetail.setDescription(product.getDescription());
-//            productDetail.setQuantity(product.getQuantity());
-//            productDetail.setSize(product.getSize());
-//            productDetail.setGrade(product.getGrade());
-//            productDetail.setImage(product.getImage());
-//            productDetail.setCreateDate(LocalDateTime.now());
-//            productDetailRepository.createProductDetail(productDetail);
-//
-//            // 生成奖品编号
-//            generatePrizeNumbersForProductDetail(productDetail);
-//
-//            return "1";
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "0";
-//        }
-//    }
-//
-//    private void generatePrizeNumbersForProductDetail(ProductDetail productDetail) {
-//        Integer currentMaxNumber = prizeNumberMapper.getMaxPrizeNumberByProductId(productDetail.getProductId());
-//        int startNumber = (currentMaxNumber != null ? currentMaxNumber : 0) + 1;
-//
-//        int quantity = productDetail.getQuantity();
-//        IntStream.range(0, quantity).forEach(i -> {
-//            PrizeNumber prizeNumber = new PrizeNumber();
-//            prizeNumber.setProductId(productDetail.getProductId()); // 设置 productId
-//            prizeNumber.setProductDetailId(Long.valueOf(productDetail.getProductDetailId()));
-//            prizeNumber.setNumber(startNumber + i); // 从当前产品最大编号的下一个开始
-//            prizeNumber.setIsDrawn(false);
-//            prizeNumberMapper.insertPrizeNumber(prizeNumber);
-//        });
-//    }
-//
-//    public String updateProductDetail(Integer productDetailId, ProductDetailReq product) {
-//        try {
-//            ProductDetail productDetail = productDetailRepository.getProductDetailById(product.getProductDetailId());
-//            productDetail.setProductId(product.getProductId());
-//            productDetail.setProductName(product.getProductName());
-//            productDetail.setDescription(product.getDescription());
-//            productDetail.setSize(product.getSize());
-//            productDetail.setGrade(product.getGrade());
-//            productDetail.setImage(product.getImage());
-//            productDetail.setUpdateDate(LocalDateTime.now());
-//            productDetailRepository.updateProductDetail(productDetail);
-//            return "1";
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            return "0";
-//        }
-//    }
-//
-//    public String deleteProductDetail(Integer productDetailId) {
-//        try {
-//            productDetailRepository.deleteProductDetail(productDetailId);
-//
-//            prizeNumberMapper.deteleByProductDetail(productDetailId);
-//            return "1";
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            return "0";
-//        }
-//    }
-//
-//}
+package com.one.onekuji.service;
+
+import com.one.onekuji.repository.ProductDetailRepository;
+import com.one.onekuji.request.DetailReq;
+import com.one.onekuji.response.DetailRes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class ProductDetailService {
+
+    @Autowired
+    private ProductDetailRepository productDetailMapper;
+
+    public List<DetailRes> getAllProductDetails() {
+        return productDetailMapper.findAll();
+    }
+
+    public DetailRes addProductDetail(DetailReq productDetailReq) {
+        productDetailMapper.insert(productDetailReq);
+        return productDetailMapper.findById(Long.valueOf(productDetailReq.getProductDetailId()));
+    }
+
+    public List<DetailRes> addProductDetails(List<DetailReq> detailReqs) {
+        List<DetailRes> detailResList = new ArrayList<>();
+
+        for (DetailReq detailReq : detailReqs) {
+            // 假设 insert 方法没有返回值，但会插入到数据库
+            productDetailMapper.insert(detailReq);
+
+            // 获取插入后的 DetailRes 对象，可能需要从数据库中查询
+            DetailRes detailRes = productDetailMapper.findById(Long.valueOf(detailReq.getProductDetailId()));
+
+            detailResList.add(detailRes);
+        }
+
+        return detailResList;
+    }
+
+
+    public DetailRes updateProductDetail(Long id, DetailReq productDetailReq) {
+        productDetailReq.setProductDetailId(Math.toIntExact(id));
+        productDetailMapper.update(productDetailReq);
+        return productDetailMapper.findById(id);
+    }
+
+    public boolean deleteProductDetail(Long id) {
+        int deleted = productDetailMapper.delete(id);
+        return deleted > 0;
+    }
+
+    private DetailRes convertToEntity(DetailReq detailReq) {
+        return new DetailRes(
+                detailReq.getProductDetailId(),
+                detailReq.getProductId(),
+                detailReq.getDescription(),
+                detailReq.getNote(),
+                detailReq.getSize(),
+                detailReq.getQuantity(),
+                detailReq.getStockQuantity(),
+                detailReq.getProductName(),
+                detailReq.getGrade(),
+                detailReq.getPrice(),
+                detailReq.getSliverPrice(),
+                detailReq.getImageUrl()
+        );
+    }
+}
