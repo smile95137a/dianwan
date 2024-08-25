@@ -12,9 +12,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+////将所有/static/** 访问都映射到classpath:/static/ 目录下
+//        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+//    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//将所有/static/** 访问都映射到classpath:/static/ 目录下
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+        // 映射 /img/** 到外部目录 /home/ec2-user/img/
+        registry.addResourceHandler("/img/**").addResourceLocations("file:/home/ec2-user/img/");
     }
 }

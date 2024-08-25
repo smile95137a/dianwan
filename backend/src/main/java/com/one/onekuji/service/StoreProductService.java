@@ -64,6 +64,7 @@ public class StoreProductService {
 
     private StoreProductRes convertToResponse(StoreProduct storeProduct) {
         return new StoreProductRes(
+                storeProduct.getStoreProductId(),
                 storeProduct.getProductName(),
                 storeProduct.getDescription(),
                 storeProduct.getPrice(),
