@@ -3,6 +3,7 @@ package com.one.frontend.response;
 import java.math.BigDecimal;
 
 public class ProductDetailRes {
+    private Integer productDetailId;
     private Integer productId;
     private String productName;
     private String description;
