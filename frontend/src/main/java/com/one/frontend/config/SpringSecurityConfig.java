@@ -35,21 +35,15 @@ import lombok.AllArgsConstructor;
 public class SpringSecurityConfig {
 	
     private final UserDetailsService userDetailsService;
-    private final JwtTokenProvider jwtTokenProvider;
-
 	private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 	private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 	private final CustomOAuth2UserService customOAuth2UserService;
-
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Bean
     public static PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,8 +59,8 @@ public class SpringSecurityConfig {
 						.userInfoEndpoint(
 								userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService))
 						.successHandler(oAuth2AuthenticationSuccessHandler)
-						.failureHandler(oAuth2AuthenticationFailureHandler))
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+						.failureHandler(oAuth2AuthenticationFailureHandler));
+    	http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

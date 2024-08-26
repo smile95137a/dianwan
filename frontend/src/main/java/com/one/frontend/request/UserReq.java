@@ -9,12 +9,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserReq {
 
-    private Long userId;
-    private String userName;
-    private String password;
-    private String natId;
-    private String nickName;
-    private String email;
-    private String phoneNumber;
-    private String address;
+	private Long userId;
+	private String username;
+	private String password;
+	private String natId;
+	private String nickName;
+	private String email;
+	private String phoneNumber;
+	private String addressName;
+	private String city; 
+	private String area;
+	private String address;
+	private String lineId;
 }
