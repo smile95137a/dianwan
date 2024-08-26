@@ -1,6 +1,7 @@
 package com.one.frontend.service;
 
 
+import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.config.security.JwtTokenProvider;
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.dto.LoginDto;
@@ -27,16 +28,14 @@ public class AuthService {
 
 
     public LoginResponse login(LoginDto loginDto) {
-
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword()));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        var userDetail = SecurityUtils.getCurrentUserPrinciple();
+        CustomUserDetails userDetail = SecurityUtils.getCurrentUserPrinciple();
         String token = jwtTokenProvider.generateToken(userDetail);
         User user = userRepository.getUserByUserName(loginDto.getUsername());
 
-        return new LoginResponse(token, Long.valueOf(user.getId()), user.getUsername());
+        return new LoginResponse(token, user.getId(), user.getUsername());
     }
 
         public LoginResponse googleLogin(String email, String name, String googleId) {

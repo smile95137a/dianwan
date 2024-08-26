@@ -6,6 +6,7 @@ import com.one.onekuji.response.DetailRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,19 +20,22 @@ public class ProductDetailService {
         return productDetailMapper.findAll();
     }
 
-    public DetailRes addProductDetail(DetailReq productDetailReq) {
-        productDetailMapper.insert(productDetailReq);
-        return productDetailMapper.findById(Long.valueOf(productDetailReq.getProductDetailId()));
-    }
-
     public List<DetailRes> addProductDetails(List<DetailReq> detailReqs) {
         List<DetailRes> detailResList = new ArrayList<>();
 
         for (DetailReq detailReq : detailReqs) {
-            // 假设 insert 方法没有返回值，但会插入到数据库
+            // Escape text for HTML in description and specification
+            detailReq.setDescription(escapeTextForHtml(detailReq.getDescription()));
+            detailReq.setSpecification(escapeTextForHtml(detailReq.getSpecification()));
+
+            // Calculate size
+            BigDecimal size = detailReq.getHeight()
+                    .multiply(detailReq.getWidth())
+                    .multiply(detailReq.getLength());
+            detailReq.setSize(size.toString());
+
             productDetailMapper.insert(detailReq);
 
-            // 获取插入后的 DetailRes 对象，可能需要从数据库中查询
             DetailRes detailRes = productDetailMapper.findById(Long.valueOf(detailReq.getProductDetailId()));
 
             detailResList.add(detailRes);
@@ -40,9 +44,19 @@ public class ProductDetailService {
         return detailResList;
     }
 
-
     public DetailRes updateProductDetail(Long id, DetailReq productDetailReq) {
         productDetailReq.setProductDetailId(Math.toIntExact(id));
+
+        // Escape text for HTML in description and specification
+        productDetailReq.setDescription(escapeTextForHtml(productDetailReq.getDescription()));
+        productDetailReq.setSpecification(escapeTextForHtml(productDetailReq.getSpecification()));
+
+        // Calculate size
+        BigDecimal size = productDetailReq.getHeight()
+                .multiply(productDetailReq.getWidth())
+                .multiply(productDetailReq.getLength());
+        productDetailReq.setSize(size.toString());
+
         productDetailMapper.update(productDetailReq);
         return productDetailMapper.findById(id);
     }
@@ -56,7 +70,7 @@ public class ProductDetailService {
         return new DetailRes(
                 detailReq.getProductDetailId(),
                 detailReq.getProductId(),
-                detailReq.getDescription(),
+                escapeTextForHtml(detailReq.getDescription()), // Escape HTML in description
                 detailReq.getNote(),
                 detailReq.getSize(),
                 detailReq.getQuantity(),
@@ -65,7 +79,22 @@ public class ProductDetailService {
                 detailReq.getGrade(),
                 detailReq.getPrice(),
                 detailReq.getSliverPrice(),
-                detailReq.getImageUrl()
+                detailReq.getImageUrls(),
+                detailReq.getLength(),
+                detailReq.getWidth(),
+                detailReq.getHeight(),
+                escapeTextForHtml(detailReq.getSpecification()) // Escape HTML in specification
         );
+    }
+
+    private String escapeTextForHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("\n", "<br/>")
+                .replace("\r", "");
     }
 }

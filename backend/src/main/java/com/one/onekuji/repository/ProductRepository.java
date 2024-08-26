@@ -10,10 +10,16 @@ import java.util.List;
 
 @Mapper
 public interface ProductRepository {
-    @Insert("INSERT INTO product (product_name, description, price, sliver_price, stock_quantity, image_url, product_type, prize_category, status, bonus_price) " +
-            "VALUES (#{productName}, #{description}, #{price}, #{sliverPrice}, #{stockQuantity}, #{imageUrl}, #{productType}, #{prizeCategory}, #{status}, #{bonusPrice})")
+    @Insert("INSERT INTO product (" +
+            "product_name, description, price, sliver_price, stock_quantity, image_urls, " +
+            "product_type, prize_category, status, bonus_price, length, width, height, specification, size) " +
+            "VALUES (" +
+            "#{productName}, #{description}, #{price}, #{sliverPrice}, #{stockQuantity}, #{imageUrls}, " +
+            "#{productType}, #{prizeCategory}, #{status}, #{bonusPrice}, #{length}, #{width}, #{height}, #{specification}, #{size})")
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insertProduct(Product product);
+
+
 
     @Select("SELECT * FROM product WHERE product_id = #{id}")
     Product selectProductById(Long id);
@@ -24,10 +30,25 @@ public interface ProductRepository {
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
     Product getProductById(@Param("productId") Integer productId);
 
-    @Update("UPDATE product SET product_name = #{productName}, description = #{description}, price = #{price}, sliver_price = #{sliverPrice}, " +
-            "stock_quantity = #{stockQuantity}, image_url = #{imageUrl}, product_type = #{productType}, prize_category = #{prizeCategory}, " +
-            "status = #{status}, bonus_price = #{bonusPrice} WHERE product_id = #{productId}")
+    @Update("UPDATE product SET " +
+            "product_name = #{productName}, " +
+            "description = #{description}, " +
+            "price = #{price}, " +
+            "sliver_price = #{sliverPrice}, " +
+            "stock_quantity = #{stockQuantity}, " +
+            "image_urls = #{imageUrls}, " +
+            "product_type = #{productType}, " +
+            "prize_category = #{prizeCategory}, " +
+            "status = #{status}, " +
+            "bonus_price = #{bonusPrice}, " +
+            "length = #{length}, " +
+            "width = #{width}, " +
+            "height = #{height}, " +
+            "specification = #{specification}, " +
+            "size = #{size} " +
+            "WHERE product_id = #{productId}")
     void updateProduct(Product product);
+
 
 
     @Delete("DELETE FROM product WHERE product_id = #{productId}")

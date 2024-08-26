@@ -39,12 +39,16 @@ public class ProductService {
         return productRepository.getOneKuJiType(type);
     }
 
-
     public ProductRes createProduct(ProductReq productReq) {
-        Product product = new Product();
-        convertReqToEntity(productReq, product);
-        productRepository.insertProduct(product);
-        return convertEntityToRes(product);
+        try {
+            Product product = new Product();
+            convertReqToEntity(productReq, product);
+            productRepository.insertProduct(product);
+            return convertEntityToRes(product);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public List<ProductRes> getAllProduct() {
@@ -76,21 +80,27 @@ public class ProductService {
         productDetailRepository.deleteProductDetailByProductId(Math.toIntExact(id));
         productRepository.deleteProduct(id);
 
-return true;
+        return true;
     }
 
     private void convertReqToEntity(ProductReq req, Product product) {
         product.setProductName(req.getProductName());
-        product.setDescription(req.getDescription());
+        product.setDescription(escapeTextForHtml(req.getDescription()));
         product.setPrice(BigDecimal.valueOf(req.getPrice()));
         product.setSliverPrice(req.getSliverPrice());
         product.setStockQuantity(req.getStockQuantity());
-        product.setImageUrl(req.getImageUrl());
+        product.setImageUrls(req.getImageUrls());
         product.setProductType(req.getProductType());
         product.setPrizeCategory(req.getPrizeCategory());
         product.setStatus(req.getStatus());
         product.setBonusPrice(req.getBonusPrice());
+        product.setHeight(req.getHeight());
+        product.setLength(req.getLength());
+        product.setWidth(req.getWidth());
+        product.setSpecification(escapeTextForHtml(req.getSpecification()));
+        product.setSize(req.getHeight().multiply(req.getWidth()).multiply(req.getLength()));
     }
+
 
     private ProductRes convertEntityToRes(Product product) {
         return new ProductRes(
@@ -100,11 +110,29 @@ return true;
                 product.getPrice(),
                 product.getSliverPrice(),
                 product.getStockQuantity(),
-                product.getImageUrl(),
+                product.getImageUrls(),
                 product.getProductType(),
                 product.getPrizeCategory(),
                 product.getStatus(),
-                product.getBonusPrice()
+                product.getBonusPrice(),
+                product.getLength(),
+                product.getWidth(),
+                product.getHeight(),
+                product.getSpecification(),
+                product.getSize()
         );
     }
+
+    private String escapeTextForHtml(String text) {
+        if (text == null) return "";
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                .replace("\n", "<br/>")
+                .replace("\r", "");
+    }
+
+
 }

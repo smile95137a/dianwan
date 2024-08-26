@@ -1,6 +1,5 @@
 package com.one.frontend.service;
 
-import com.one.frontend.model.Product;
 import com.one.frontend.repository.ProductRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.response.ProductRes;
@@ -18,7 +17,12 @@ public class ProductService {
     @Autowired
     private UserRepository userRepository;
     public List<ProductRes> getAllProduct() {
-        return productRepository.getAllProduct();
+        try {
+            return productRepository.getAllProduct();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public ProductRes getProductById(Integer productId) {

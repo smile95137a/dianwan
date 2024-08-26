@@ -16,10 +16,11 @@ public interface ProductDetailRepository {
     @Select("SELECT * FROM product_detail WHERE product_detail_id = #{id}")
     DetailRes findById(@Param("id") Long id);
 
-    @Insert("INSERT INTO product_detail (product_id, description, note, size, quantity, stock_quantity, product_name, grade, price, sliver_price, image_url) " +
-            "VALUES (#{productId}, #{description}, #{note}, #{size}, #{quantity}, #{stockQuantity}, #{productName}, #{grade}, #{price}, #{sliverPrice}, #{imageUrl})")
+    @Insert("INSERT INTO product_detail (product_id, description, note, size, quantity, stock_quantity, product_name, grade, price, sliver_price, image_url, length, width, height, specification) " +
+            "VALUES (#{productId}, #{description}, #{note}, #{size}, #{quantity}, #{stockQuantity}, #{productName}, #{grade}, #{price}, #{sliverPrice}, #{imageUrls}, #{length}, #{width}, #{height}, #{specification})")
     @Options(useGeneratedKeys = true, keyProperty = "productDetailId")
     int insert(DetailReq productDetailReq);
+
 
     @Update("UPDATE product_detail SET " +
             "product_id = #{productId}, " +
@@ -32,9 +33,14 @@ public interface ProductDetailRepository {
             "grade = #{grade}, " +
             "price = #{price}, " +
             "sliver_price = #{sliverPrice}, " +
-            "image_url = #{imageUrl} " +
+            "image_url = #{imageUrls}, " +
+            "length = #{length}, " +
+            "width = #{width}, " +
+            "height = #{height}, " +
+            "specification = #{specification} " +
             "WHERE product_detail_id = #{productDetailId}")
     int update(DetailReq productDetailReq);
+
 
     @Delete("DELETE FROM product_detail WHERE product_detail_id = #{id}")
     int delete(@Param("id") Long id);

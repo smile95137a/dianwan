@@ -1,19 +1,33 @@
 package com.one.frontend.response;
 
-import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class ProductDetailRes {
     private Integer productDetailId;
     private Integer productId;
-    private String productName;
     private String description;
     private String note;
     private String size;
     private Integer quantity;
     private Integer stockQuantity;
+    private String productName;
     private String grade;
     private BigDecimal price;
     private BigDecimal sliverPrice;
-    private String imageUrl;
+    private List<String> imageUrls;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private String specification;
+    private String status;
     private String prizeNumber;
+    private String drawnNumbers;
 }

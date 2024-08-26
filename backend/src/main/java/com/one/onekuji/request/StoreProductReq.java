@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,11 +16,15 @@ public class StoreProductReq {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
-    private String imageUrl;
+    private List<String> imageUrls;
     private String categoryId;
     private StoreProductStatus status;
     private BigDecimal specialPrice;
     private String shippingMethod;
     private BigDecimal size;
     private BigDecimal shippingPrice;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private String specification;
 }

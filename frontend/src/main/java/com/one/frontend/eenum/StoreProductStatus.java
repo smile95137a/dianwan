@@ -1,20 +1,16 @@
 package com.one.frontend.eenum;
 
-public enum PrizeCategory {
-
-    FIGURE("一番賞") ,
-    C3("家電一番賞") ,
-    BONUS("紅利一番賞"),
-    NONE("無");
+public enum StoreProductStatus {
+    AVAILABLE("上架"),
+    UNAVAILABLE("下架");
 
     private final String description;
 
-    PrizeCategory(String description) {
+    StoreProductStatus(String description) {
         this.description = description;
     }
 
     public String getDescription() {
         return description;
     }
-
 }

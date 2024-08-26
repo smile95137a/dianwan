@@ -1,5 +1,6 @@
 package com.one.onekuji.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,12 +45,14 @@ public class ProductDetailController {
     public ResponseEntity<ApiResponse<List<DetailRes>>> addProductDetails(
             @RequestParam("productDetailReqs") String productDetailReqsJson,
             @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
-
-        List<DetailReq> detailReqs = new ObjectMapper().readValue(productDetailReqsJson, new TypeReference<List<DetailReq>>() {});
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+        List<DetailReq> detailReqs = objectMapper.readValue(productDetailReqsJson, new TypeReference<List<DetailReq>>() {});
 
         Map<Integer, String> imageUrlsMap = new HashMap<>();
-
+        List<String> fileUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
+            // 上传图片并获取其 URL
             for (int i = 0; i < images.size(); i++) {
                 MultipartFile image = images.get(i);
                 if (!image.isEmpty() && i < detailReqs.size()) {
@@ -63,10 +66,12 @@ public class ProductDetailController {
             DetailReq detailReq = detailReqs.get(i);
             String imageUrl = imageUrlsMap.get(i);
             if (imageUrl != null) {
-                detailReq.setImageUrl(imageUrl);
+                if (detailReq.getImageUrls() == null) {
+                    detailReq.setImageUrls(new ArrayList<>());
+                }
+                detailReq.getImageUrls().add(imageUrl);
             }
         }
-
         List<DetailRes> detailResList = productDetailService.addProductDetails(detailReqs);
 
         ApiResponse<List<DetailRes>> response = ResponseUtils.success(201, null, detailResList);
@@ -79,7 +84,9 @@ public class ProductDetailController {
             @PathVariable Long id,
             @RequestPart("productDetailReq") String productDetailReqJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
-        DetailReq productDetailReq = new ObjectMapper().readValue(productDetailReqJson, DetailReq.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+        DetailReq productDetailReq = objectMapper.readValue(productDetailReqJson, DetailReq.class);
         if (productDetailReq == null) {
             ApiResponse<DetailRes> response = ResponseUtils.failure(404, "未找到該商品", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -95,7 +102,14 @@ public class ProductDetailController {
             }
         }
 
-        productDetailReq.setImageUrl(String.join(",", fileUrls));
+        if (!fileUrls.isEmpty()) {
+            if (productDetailReq.getImageUrls() == null) {
+                productDetailReq.setImageUrls(new ArrayList<>());
+            }
+            productDetailReq.getImageUrls().addAll(fileUrls);
+        }
+
+
         DetailRes productDetailRes = productDetailService.updateProductDetail(id, productDetailReq);
         ApiResponse<DetailRes> response = ResponseUtils.success(200, "商品已成功更新", productDetailRes);
         return ResponseEntity.ok(response);

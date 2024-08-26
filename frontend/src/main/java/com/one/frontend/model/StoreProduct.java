@@ -1,21 +1,24 @@
 package com.one.frontend.model;
 
+import com.one.frontend.util.StringListConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "商店產品模型")
 @Table(name = "store_product")
 @Entity
-public class StoreProduct{
+public class StoreProduct {
 
     @Schema(description = "商店產品唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "store_product_id")
     private Long storeProductId;
 
     @Schema(description = "產品名稱", example = "Product A")
@@ -39,12 +42,13 @@ public class StoreProduct{
     private Integer soldQuantity;
 
     @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "image_urls", columnDefinition = "JSON")
+    @Convert(converter = StringListConverter.class)
+    private List<String> imageUrls;
 
     @Schema(description = "類別", example = "Electronics")
-    @Column(name = "category", length = 100)
-    private String category;
+    @Column(name = "category_id", length = 100)
+    private String categoryId;
 
     @Schema(description = "狀態", example = "ACTIVE")
     @Column(name = "status", length = 50)
@@ -69,4 +73,24 @@ public class StoreProduct{
     @Schema(description = "特價", example = "89.99")
     @Column(name = "special_price")
     private BigDecimal specialPrice;
+    @Column(name = "shipping_method")
+    private String shippingMethod;
+    @Column(name = "size")
+    private BigDecimal size;
+
+    @Column(name = "length")
+    private BigDecimal length;
+
+    @Column(name = "width")
+    private BigDecimal width;
+
+    @Column(name = "height")
+    private BigDecimal height;
+
+
+    @Column(name = "shipping_price")
+    private BigDecimal shippingPrice;
+
+    @Column(name= "specification")
+    private String specification;
 }

@@ -1,6 +1,6 @@
 package com.one.onekuji.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.request.StoreProductReq;
@@ -39,21 +39,23 @@ public class StoreProductController {
     @PostMapping(value = "/add")
     public ResponseEntity<ApiResponse<StoreProductRes>> addStoreProduct(
             @RequestPart("productReq") String storeProductReqJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
 
-        StoreProductReq storeProductReq = new ObjectMapper().readValue(storeProductReqJson, StoreProductReq.class);
+        StoreProductReq storeProductReq = objectMapper.readValue(storeProductReqJson, StoreProductReq.class);
 
         List<String> fileUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
-                    String fileUrl = ImageUtil.upload(image);
+                    String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
                 }
             }
         }
 
-        storeProductReq.setImageUrl(String.join(",", fileUrls));
+        storeProductReq.setImageUrls(fileUrls);
 
         StoreProductRes storeProductRes = storeProductService.addStoreProduct(storeProductReq);
 
@@ -66,8 +68,10 @@ public class StoreProductController {
     public ResponseEntity<ApiResponse<StoreProductRes>> updateStoreProduct(
             @PathVariable Long id,
             @RequestPart("storeProductReq") String storeProductReqJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
-        StoreProductReq storeProductReq = new ObjectMapper().readValue(storeProductReqJson, StoreProductReq.class);
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+        StoreProductReq storeProductReq = objectMapper.readValue(storeProductReqJson, StoreProductReq.class);
         if (storeProductReq == null) {
             ApiResponse<StoreProductRes> response = ResponseUtils.failure(404, "未找到該商品", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -76,13 +80,13 @@ public class StoreProductController {
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
-                    String fileUrl = ImageUtil.upload(image);
+                    String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
                 }
             }
         }
 
-        storeProductReq.setImageUrl(String.join(",", fileUrls));
+        storeProductReq.setImageUrls(fileUrls);
         StoreProductRes storeProductRes = storeProductService.updateStoreProduct(id, storeProductReq);
         ApiResponse<StoreProductRes> response = ResponseUtils.success(200, "商品已成功更新", storeProductRes);
         return ResponseEntity.ok(response);

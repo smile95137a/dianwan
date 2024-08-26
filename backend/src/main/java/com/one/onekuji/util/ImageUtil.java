@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Component
 public class ImageUtil {
@@ -33,24 +34,25 @@ public class ImageUtil {
             throw new IllegalArgumentException("File is empty");
         }
 
-        String fileName = file.getOriginalFilename();  // 获取原始文件名
-        String filePath = staticPicturePath + fileName;
+        // Generate a unique file name
+        String originalFileName = file.getOriginalFilename();
+        String uniqueFileName = UUID.randomUUID().toString() + "_" + originalFileName;
+        String filePath = staticPicturePath + uniqueFileName;
         File dest = new File(filePath);
 
         try {
             Files.createDirectories(Paths.get(staticPicturePath));
 
-            // 将文件保存到目标路径
+            // Save the file to the target path
             file.transferTo(dest);
 
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("文件上传失败", e);
+            throw new RuntimeException("File upload failed", e);
         }
 
-        // 返回静态资源映射路径
-        String finalFileName = fileName;
-        System.out.println("File uploaded to: " + finalFileName);
-        return finalFileName;
+        // Return the URL mapping path
+        return staticPicturePathMapping + uniqueFileName;
     }
+
 }

@@ -40,7 +40,7 @@ public class StoreCategoryController {
     public ResponseEntity<ApiResponse<StoreCategory>> getCategoryById(@PathVariable Long id) {
         StoreCategory category = storeCategoryService.getCategoryById(id);
         if (category == null) {
-            ApiResponse<StoreCategory> response = ResponseUtils.failure(404, "类别不存在", null);
+            ApiResponse<StoreCategory> response = ResponseUtils.failure(404, "類別不存在", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 

@@ -1,27 +1,18 @@
 package com.one.frontend.service;
 
 import com.one.frontend.model.Cart;
-import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.CartRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {

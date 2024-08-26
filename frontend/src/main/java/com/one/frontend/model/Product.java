@@ -1,8 +1,9 @@
 package com.one.frontend.model;
 
 import com.one.frontend.eenum.PrizeCategory;
-import com.one.frontend.eenum.PrizeStatus;
+import com.one.frontend.eenum.ProductStatus;
 import com.one.frontend.eenum.ProductType;
+import com.one.frontend.util.StringListConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,12 +11,13 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "產品模型")
 @Table(name = "product")
 @Entity
-public class Product{
+public class Product {
 
     @Schema(description = "產品唯一識別碼", example = "1")
     @Id
@@ -43,8 +45,9 @@ public class Product{
     private Integer stockQuantity;
 
     @Schema(description = "圖片 URL", example = "http://example.com/product_image.jpg")
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "image_urls", columnDefinition = "JSON")
+    @Convert(converter = StringListConverter.class)
+    private List<String> imageUrls;
 
     @Schema(description = "稀有度", example = "Rare")
     @Column(name = "rarity", length = 50)
@@ -76,13 +79,34 @@ public class Product{
 
     @Schema(description = "產品類型", example = "GACHA")
     @Column(name = "product_type", length = 50)
+    @Enumerated(EnumType.STRING)  // 新增此行
     private ProductType productType;
 
     @Schema(description = "獎品類別", example = "Bonus")
     @Column(name = "prize_category", length = 50)
+    @Enumerated(EnumType.STRING)  // 新增此行
     private PrizeCategory prizeCategory;
 
     @Schema(description = "狀態", example = "AVAILABLE")
     @Column(name = "status", length = 50)
-    private PrizeStatus status;
+    @Enumerated(EnumType.STRING)  // 新增此行
+    private ProductStatus status;
+
+    @Column(name = "bonus_price")
+    private BigDecimal bonusPrice;
+
+    @Column(name= "specification")
+    private String specification;
+
+    @Column(name = "length")
+    private BigDecimal length;
+
+    @Column(name = "width")
+    private BigDecimal width;
+
+    @Column(name = "height")
+    private BigDecimal height;
+
+    @Column(name = "size")
+    private BigDecimal size;
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,9 +21,14 @@ public class ProductReq {
     private Long price;
     private BigDecimal sliverPrice;
     private Integer stockQuantity;
-    private String imageUrl;
+    private List<String> imageUrls;
     private ProductType productType;
     private PrizeCategory prizeCategory;
     private ProductStatus status;
     private BigDecimal bonusPrice;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private String specification;
+    private BigDecimal size;
 }

@@ -1,5 +1,10 @@
 package com.one.frontend.config;
 
+import com.one.frontend.config.security.JwtAuthenticationFilter;
+import com.one.frontend.config.security.oauth2.CustomOAuth2UserService;
+import com.one.frontend.config.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.one.frontend.config.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,22 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
-
-import com.one.frontend.config.security.JwtAuthenticationFilter;
-import com.one.frontend.config.security.JwtTokenProvider;
-import com.one.frontend.config.security.oauth2.CustomOAuth2UserService;
-import com.one.frontend.config.security.oauth2.OAuth2AuthenticationFailureHandler;
-import com.one.frontend.config.security.oauth2.OAuth2AuthenticationSuccessHandler;
-
-import lombok.AllArgsConstructor;
-
-import com.one.frontend.config.security.JwtAuthenticationFilter;
-import com.one.frontend.config.security.JwtTokenProvider;
-import com.one.frontend.config.security.oauth2.CustomOAuth2UserService;
-import com.one.frontend.config.security.oauth2.OAuth2AuthenticationFailureHandler;
-import com.one.frontend.config.security.oauth2.OAuth2AuthenticationSuccessHandler;
-
-import lombok.AllArgsConstructor;
 
 @Configuration
 @AllArgsConstructor
@@ -52,6 +41,7 @@ public class SpringSecurityConfig {
                 .authorizeRequests()
 //                .requestMatchers("/auth/login" , "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" , "/product/**" , "/productDetail/**" ).permitAll()
 //                .requestMatchers("/draw" , "/user").authenticated()
+                .requestMatchers("/img/**").permitAll()
                 .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

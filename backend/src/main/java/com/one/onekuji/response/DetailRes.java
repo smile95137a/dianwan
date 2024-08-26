@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +22,9 @@ public class DetailRes {
     private String grade;
     private BigDecimal price;
     private BigDecimal sliverPrice;
-    private String imageUrl;
+    private List<String> imageUrls;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
+    private String specification;
 }

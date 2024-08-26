@@ -1,10 +1,12 @@
 package com.one.onekuji.model;
 
+import com.one.onekuji.util.StringListConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Schema(description = "產品詳細模型")
@@ -73,8 +75,9 @@ public class ProductDetail{
     private LocalDateTime updateDate;
 
     @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "image_urls", columnDefinition = "JSON")
+    @Convert(converter = StringListConverter.class)
+    private List<String> imageUrls;
 
     @Schema(description = "獎品編號", example = "PRIZE001")
     @Column(name = "prize_number", length = 50)
@@ -83,4 +86,17 @@ public class ProductDetail{
     @Schema(description = "抽中號碼", example = "PRIZE001,PRIZE002")
     @Column(name = "drawn_numbers", length = 255)
     private String drawnNumbers;
+
+    @Column(name= "specification")
+    private String specification;
+
+    @Column(name = "length")
+    private BigDecimal length;
+
+    @Column(name = "width")
+    private BigDecimal width;
+
+    @Column(name = "height")
+    private BigDecimal height;
+
 }

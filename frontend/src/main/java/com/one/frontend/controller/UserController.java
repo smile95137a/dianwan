@@ -20,6 +20,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    /*
+    只能拿到自己的 不能拿別人的 使用token去帶userId 從CustomUserDetails拿到要的資訊
+     */
     @Operation(summary = "通過 ID 獲取使用者", description = "根據其 ID 獲取使用者")
     @GetMapping("/{userId}")
     public ResponseEntity<com.one.frontend.model.ApiResponse<UserRes>> getUserById(
@@ -42,6 +46,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /*
+    只能拿到自己的 不能拿別人的 使用token去帶userId 從CustomUserDetails拿到要的資訊
+     */
     @Operation(summary = "更新現有使用者", description = "根據 ID 更新現有的使用者")
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserRes>> updateUser(

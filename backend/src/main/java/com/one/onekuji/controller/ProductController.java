@@ -1,5 +1,6 @@
 package com.one.onekuji.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.eenum.PrizeCategory;
@@ -97,18 +98,21 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductRes>> createProduct(
             @RequestPart("productReq") String productReqJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
-        ProductReq storeProductReq = new ObjectMapper().readValue(productReqJson, ProductReq.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+        ProductReq storeProductReq = objectMapper.readValue(productReqJson, ProductReq.class);
+
         List<String> fileUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
-                    String fileUrl = ImageUtil.upload(image);
+                    String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
                 }
             }
         }
 
-        storeProductReq.setImageUrl(String.join(",", fileUrls));
+        storeProductReq.setImageUrls(fileUrls);
 
         ProductRes productRes = productService.createProduct(storeProductReq);
         ApiResponse<ProductRes> response = ResponseUtils.success(201, "產品創建成功", productRes);
@@ -122,7 +126,9 @@ public class ProductController {
             @PathVariable Long id,
             @RequestPart("productReq") String productReqJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
-        ProductReq storeProductReq = new ObjectMapper().readValue(productReqJson, ProductReq.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+        ProductReq storeProductReq = objectMapper.readValue(productReqJson, ProductReq.class);
         if (storeProductReq == null) {
             ApiResponse<ProductRes> response = ResponseUtils.failure(404, "產品不存在", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -131,13 +137,13 @@ public class ProductController {
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
-                    String fileUrl = ImageUtil.upload(image);
+                    String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
                 }
             }
         }
 
-        storeProductReq.setImageUrl(String.join(",", fileUrls));
+        storeProductReq.setImageUrls(fileUrls);
         ProductRes productRes = productService.updateProduct(id, storeProductReq);
 
         ApiResponse<ProductRes> response = ResponseUtils.success(200, "產品更新成功", productRes);
