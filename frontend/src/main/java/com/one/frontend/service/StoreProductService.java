@@ -16,7 +16,7 @@ public class StoreProductService {
 
     public List<StoreProductRes> getAllStoreProducts(int page, int size) {
         int offset = page * size;
-        return storeProductRepository.findAll(page , size);
+        return storeProductRepository.findAll(offset , size);
     }
 
     public StoreProductRes getStoreProductById(Long id) {
