@@ -16,6 +16,7 @@ import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.util.RandomUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,15 +41,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				oAuth2User.getAttributes());
 
 		String userEmail = customAbstractOAuth2UserInfo.getEmail();
-		var oUser = userRepository.findByUsername(userEmail);
+		var oUser = userRepository.getUserByEmail(userEmail);
 		if (oUser.isEmpty()) {
 			oUser = Optional.of(registerNewOAuthUser(oAuth2UserRequest, customAbstractOAuth2UserInfo));
 		}
 
 		User user = oUser.get();
 
-		OAuth2Provider registeredProviderId = OAuth2Provider.valueOf(clientRegistrationId);
-		if (!user.getProvider().equals(registeredProviderId)) {
+		OAuth2Provider registeredProviderId = OAuth2Provider.fromString(clientRegistrationId);
+		if (!user.getProvider().equals(registeredProviderId.name())) {
 			String incorrectProviderChoice = String.format("抱歉，此電子郵件已與 %s 帳戶綁定。請使用 %s 帳戶登錄，而不是 %s。", user.getProvider(),
 					user.getProvider(), registeredProviderId);
 			throw new InternalAuthenticationServiceException(incorrectProviderChoice);
@@ -65,12 +66,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private User registerNewOAuthUser(OAuth2UserRequest oAuth2UserRequest,
 			CustomAbstractOAuth2UserInfo customAbstractOAuth2UserInfo) {
 		String clientRegistrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
-		OAuth2Provider provider = OAuth2Provider.valueOf(clientRegistrationId);
+		OAuth2Provider provider = OAuth2Provider.fromString(clientRegistrationId);
 		User userEntity = new User();
+		userEntity.setUsername(RandomUtils.genRandom(32));
+		userEntity.setNickname(customAbstractOAuth2UserInfo.getName());
+		userEntity.setEmail(customAbstractOAuth2UserInfo.getEmail());
 		userEntity.setProvider(provider.name());
 		userRepository.createUser(userEntity);
-		// 請做出來 還有把id帶回來
-
+		userEntity = userRepository.getUserByEmail(customAbstractOAuth2UserInfo.getEmail()).get();
 		return userEntity;
 	}
 

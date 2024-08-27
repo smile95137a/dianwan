@@ -1,15 +1,24 @@
 package com.one.frontend.repository;
 
-import com.one.frontend.model.DrawResult;
-import com.one.frontend.model.Role;
-import com.one.frontend.model.User;
-import com.one.frontend.response.UserRes;
-import org.apache.ibatis.annotations.*;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Many;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import com.one.frontend.model.DrawResult;
+import com.one.frontend.model.Role;
+import com.one.frontend.model.User;
+import com.one.frontend.response.UserRes;
 
 @Mapper
 public interface UserRepository{
@@ -23,8 +32,8 @@ public interface UserRepository{
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus ) " +
-            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus})")
+    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus, provider ) " +
+            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus}, #{provider})")
     void createUser(User user);
 
     @Update("UPDATE `user` SET password = #{password}, nickname = #{nickName}, " +
@@ -77,12 +86,13 @@ public interface UserRepository{
             "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt}, #{balance}, #{bonus}, #{googleId})")
     void createGoogleUser(User user);
 
-    @Select("select * from `user` where email  = #{email}")
-    User getUserByEmail(String email);
 
     @Update("update `user` set bonus = bonus + 1 , draw_count = 0 where id = #{userId}")
     void updateBonus(Integer userId);
 
     @Update("update `user` set  draw_count = draw_count + 1 where id = #{userId} ")
     void addDrawCount();
+    
+    @Select("select * from user where email  = #{email}")
+    Optional<User> getUserByEmail(String email);
 }

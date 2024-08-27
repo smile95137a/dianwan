@@ -49,7 +49,7 @@ public class AuthService {
                 user.setCreatedAt(LocalDateTime.now());
                 userRepository.createGoogleUser(user);
             }
-            User userRes = userRepository.getUserByEmail(email);
+            User userRes = userRepository.getUserByEmail(email).get();
             var userDetail = SecurityUtils.getCurrentUserPrinciple();
             String jwt = jwtTokenProvider.generateToken(userDetail);
 
