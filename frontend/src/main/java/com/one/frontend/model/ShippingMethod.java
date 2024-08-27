@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +16,7 @@ public class ShippingMethod{
     @Schema(description = "運輸方式唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long shippingMethodId;
 
     @Schema(description = "名稱", example = "Standard Shipping")
     @Column(name = "name", length = 255)
@@ -36,4 +37,9 @@ public class ShippingMethod{
     @Schema(description = "更新日期", example = "2024-08-22T15:30:00")
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    @Column(name = "size")
+    private BigDecimal size;
+    @Column(name = "shipping_price")
+    private BigDecimal shippingPrice;
 }

@@ -1,14 +1,16 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.CartItem;
 import com.one.frontend.repository.StoreProductRepository;
 import com.one.frontend.service.CartItemService;
+import com.one.frontend.service.CartService;
 import com.one.frontend.util.ResponseUtils;
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,20 +23,28 @@ public class CartItemController {
     @Autowired
     private StoreProductRepository storeProductRepository;
 
-    @Operation(summary = "添加购物车项", description = "将商品添加到购物车中")
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse<String>> addCartItem(@RequestBody CartItem cartItem) {
-        try {
-            cartItemService.addCartItem(cartItem);
-            ApiResponse<String> response = ResponseUtils.success(201, "商品已成功添加到购物车", null);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            ApiResponse<String> response = ResponseUtils.failure(500, "添加商品到购物车时发生错误", null);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
+    @Autowired
+    private CartService cartService;
 
-    @Operation(summary = "更新购物车项", description = "根据购物车项 ID 更新购物车中的商品数量")
+    @PostMapping("/add")
+        public ResponseEntity<ApiResponse<String>> addCartItem(@RequestBody CartItem cartItem , Authentication authentication) {
+            try {
+                //取得使用者ID
+                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                Long userId = userDetails.getId();
+
+                //透過userId搜尋cart
+                Long cartId = cartService.getCartIdByUserId(userId);
+                cartItem.setCartId(cartId);
+                cartItemService.addCartItem(cartItem);
+                ApiResponse<String> response = ResponseUtils.success(201, "商品成功加到購物車", null);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            } catch (Exception e) {
+                ApiResponse<String> response = ResponseUtils.failure(500, "商品新增失敗", null);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+        }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<String>> updateCartItem(
             @PathVariable Long id,
@@ -44,16 +54,15 @@ public class CartItemController {
             CartItem cartItem = cartItemService.getCartItemById(id);
             if (cartItem == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ResponseUtils.failure(404, "购物车项不存在", null));
+                        .body(ResponseUtils.failure(404, "購物車選項不存在", null));
             }
 
-            // 处理数量更新
             cartItemService.updateCartItemQuantity(id, quantity);
 
-            ApiResponse<String> response = ResponseUtils.success(200, "购物车项已更新", null);
+            ApiResponse<String> response = ResponseUtils.success(200, "購物車已更新", null);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            ApiResponse<String> response = ResponseUtils.failure(500, "更新购物车项时发生错误", null);
+            ApiResponse<String> response = ResponseUtils.failure(500, "更新購物車發生錯誤", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

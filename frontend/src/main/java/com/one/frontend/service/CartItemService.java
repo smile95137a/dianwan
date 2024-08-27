@@ -25,7 +25,7 @@ public class CartItemService {
     public void updateCartItemQuantity(Long cartItemId, Integer quantity) {
         CartItem cartItem = cartItemRepository.findById(cartItemId);
         if (cartItem == null) {
-            throw new IllegalArgumentException("购物车项不存在");
+            throw new IllegalArgumentException("購物車選項不存在");
         }
 
         StoreProduct storeProduct = storeProductRepository.findId(cartItem.getStoreProductId());

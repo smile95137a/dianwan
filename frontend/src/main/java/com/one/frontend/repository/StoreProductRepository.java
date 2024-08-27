@@ -12,8 +12,8 @@ import java.util.List;
 public interface StoreProductRepository {
 
     @Select("SELECT product_name, description, price, stock_quantity, image_url, category_id, status, special_price, shipping_method, size, shipping_price " +
-            "FROM store_product")
-    List<StoreProductRes> findAll();
+            "FROM store_product LIMIT #{size} OFFSET #{offset}")
+    List<StoreProductRes> findAll(@Param("offset") int offset, @Param("size") int size);
 
     @Select("SELECT product_name, description, price, stock_quantity, image_url, category_id, status, special_price, shipping_method, size, shipping_price " +
             "FROM store_product WHERE store_product_id = #{id}")

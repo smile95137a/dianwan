@@ -16,4 +16,9 @@ public class CartService {
     public List<CartItemRes> getCatItem(Long userId) {
         return cartRepository.getCatItem(userId);
     }
+
+    public Long getCartIdByUserId(Long userId) {
+        Long cartId = cartRepository.getCartIdByUserId(userId);
+        return cartId;
+    }
 }

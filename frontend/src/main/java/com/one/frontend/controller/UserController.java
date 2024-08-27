@@ -1,5 +1,6 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +29,17 @@ public class UserController {
     @Operation(summary = "通過 ID 獲取使用者", description = "根據其 ID 獲取使用者")
     @GetMapping("/{userId}")
     public ResponseEntity<com.one.frontend.model.ApiResponse<UserRes>> getUserById(
-            @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId) {
+            @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
+            Authentication authentication) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long authenticatedUserId = userDetails.getId();
+
+
+        if (!authenticatedUserId.equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         UserRes user = userService.getUserById(userId);
         if (user == null) {
             com.one.frontend.model.ApiResponse<UserRes> response = ResponseUtils.failure(404, null, null);
@@ -53,14 +65,22 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserRes>> updateUser(
             @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
-            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserReq user) {
+            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserReq user,
+            Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long authenticatedUserId = userDetails.getId();
+
+        if (!authenticatedUserId.equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         UserRes existingUser = userService.getUserById(userId);
         if (existingUser != null) {
-            UserRes userRes = userService.updateUser(user , userId);
-            ApiResponse<UserRes> response = ResponseUtils.success(201, null, userRes);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            UserRes userRes = userService.updateUser(user, userId);
+            ApiResponse<UserRes> response = ResponseUtils.success(200, null, userRes);
+            return ResponseEntity.ok(response);
         } else {
-            com.one.frontend.model.ApiResponse<UserRes> response = ResponseUtils.failure(404, null, null);
+            ApiResponse<UserRes> response = ResponseUtils.failure(404, null, null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }

@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper
 public interface ProductRepository {
 
-    @Select("SELECT * FROM product")
-    List<ProductRes> getAllProduct();
+    @Select("SELECT * FROM product LIMIT #{size} OFFSET #{offset}")
+    List<ProductRes> getAllProduct(@Param("offset") int offset, @Param("size") int size);
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
     ProductRes getProductById(@Param("productId") Integer productId);

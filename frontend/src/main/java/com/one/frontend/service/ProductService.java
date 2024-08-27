@@ -16,9 +16,10 @@ public class ProductService {
 
     @Autowired
     private UserRepository userRepository;
-    public List<ProductRes> getAllProduct() {
+    public List<ProductRes> getAllProduct(int page, int size) {
+        int offset = page * size;
         try {
-            return productRepository.getAllProduct();
+            return productRepository.getAllProduct(offset, size);
         }catch (Exception e){
             e.printStackTrace();
         }

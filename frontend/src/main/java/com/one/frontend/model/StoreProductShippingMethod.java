@@ -14,7 +14,7 @@ public class StoreProductShippingMethod{
     @Schema(description = "產品詳細 ID", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productDetailId;
+    private Long shipping_method_id ;
 
     @Schema(description = "商店產品 ID", example = "1")
     @Column(name = "store_product_id")

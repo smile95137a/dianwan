@@ -14,8 +14,9 @@ public class StoreProductService {
     @Autowired
     private StoreProductRepository storeProductRepository;
 
-    public List<StoreProductRes> getAllStoreProducts() {
-        return storeProductRepository.findAll();
+    public List<StoreProductRes> getAllStoreProducts(int page, int size) {
+        int offset = page * size;
+        return storeProductRepository.findAll(page , size);
     }
 
     public StoreProductRes getStoreProductById(Long id) {

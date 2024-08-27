@@ -37,7 +37,6 @@ public class AuthController {
 
     private final String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
-    // Login REST API
     @PostMapping("/login")
     public ResponseEntity<JWTAuthResponse> authenticate(@RequestBody LoginDto loginDto){
         LoginResponse loginResponse = authService.login(loginDto);
