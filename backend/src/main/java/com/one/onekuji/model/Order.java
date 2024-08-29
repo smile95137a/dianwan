@@ -1,8 +1,10 @@
 package com.one.onekuji.model;
 
+import com.one.onekuji.eenum.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -39,7 +41,7 @@ public class Order{
 
     @Schema(description = "狀態", example = "PENDING")
     @Column(name = "status", length = 50)
-    private String status;
+    private OrderStatus status;
 
     @Schema(description = "支付方式", example = "CREDIT_CARD")
     @Column(name = "payment_method", length = 50)

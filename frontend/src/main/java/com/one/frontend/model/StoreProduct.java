@@ -26,7 +26,7 @@ public class StoreProduct {
     private String productName;
 
     @Schema(description = "描述", example = "Detailed description of Product A.")
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
     @Schema(description = "價格", example = "99.99")
@@ -91,6 +91,6 @@ public class StoreProduct {
     @Column(name = "shipping_price")
     private BigDecimal shippingPrice;
 
-    @Column(name= "specification")
+    @Column(name= "specification", columnDefinition = "LONGTEXT")
     private String specification;
 }

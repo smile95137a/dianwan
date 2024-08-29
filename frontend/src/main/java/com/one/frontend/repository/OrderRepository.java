@@ -6,16 +6,17 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
-
 @Mapper
 public interface OrderRepository {
-    @Insert("INSERT INTO `order` (order_number, user_id, total_amount, created_at) " +
-            "VALUES (#{orderNumber}, #{userId}, #{totalAmount}, #{createdAt})")
+    @Insert("INSERT INTO `order` (order_number, user_id, total_amount, created_at, result_status) " +
+            "VALUES (#{orderNumber}, #{userId}, #{totalAmount}, #{createdAt}, #{resultStatus})")
     void insertOrder(OrderDto order);
+
 
     @Select("select id from `order` where order_number = #{orderNumber}")
     Long getOrderIdByOrderNumber(String orderNumber);
-    @Select("select * from `order` where user_id = #{userId}")
-    List<Order> getOrderById(Long userId);
+    @Select("select * from `order` where user_uid = #{userUid}")
+    Order getOrderById(String userUid);
+
+    void save(Order order);
 }

@@ -1,5 +1,7 @@
 package com.one.onekuji.service;
 
+import com.one.onekuji.model.PrizeNumber;
+import com.one.onekuji.repository.PrizeNumberMapper;
 import com.one.onekuji.repository.ProductDetailRepository;
 import com.one.onekuji.request.DetailReq;
 import com.one.onekuji.response.DetailRes;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -16,33 +19,66 @@ public class ProductDetailService {
     @Autowired
     private ProductDetailRepository productDetailMapper;
 
+    @Autowired
+    private PrizeNumberMapper prizeNumberMapper;
+
     public List<DetailRes> getAllProductDetails() {
         return productDetailMapper.findAll();
     }
 
     public List<DetailRes> addProductDetails(List<DetailReq> detailReqs) {
         List<DetailRes> detailResList = new ArrayList<>();
+        List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
+        int totalQuantity = 0;
 
         for (DetailReq detailReq : detailReqs) {
-            // Escape text for HTML in description and specification
+            totalQuantity += detailReq.getQuantity();
+        }
+
+        List<Integer> shuffledNumbers = new ArrayList<>();
+        for (int i = 1; i <= totalQuantity; i++) {
+            shuffledNumbers.add(i);
+        }
+        Collections.shuffle(shuffledNumbers);
+
+        int currentIndex = 0;
+
+        for (DetailReq detailReq : detailReqs) {
             detailReq.setDescription(escapeTextForHtml(detailReq.getDescription()));
             detailReq.setSpecification(escapeTextForHtml(detailReq.getSpecification()));
 
-            // Calculate size
             BigDecimal size = detailReq.getHeight()
                     .multiply(detailReq.getWidth())
                     .multiply(detailReq.getLength());
             detailReq.setSize(size.toString());
 
             productDetailMapper.insert(detailReq);
+            Long productDetailId = Long.valueOf(detailReq.getProductDetailId());
 
-            DetailRes detailRes = productDetailMapper.findById(Long.valueOf(detailReq.getProductDetailId()));
+            for (int i = 0; i < detailReq.getQuantity(); i++) {
+                PrizeNumber prizeNumber = new PrizeNumber();
+                prizeNumber.setProductId(detailReq.getProductId());
+                prizeNumber.setProductDetailId(Math.toIntExact(productDetailId));
+                prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex))); // 使用打乱的号码
+                prizeNumber.setIsDrawn(false);
+                prizeNumber.setLevel(detailReq.getGrade());
+                allPrizeNumbers.add(prizeNumber);
+                currentIndex++;
+            }
 
+            DetailRes detailRes = productDetailMapper.findById(productDetailId);
             detailResList.add(detailRes);
+        }
+
+        // 批量插入所有奖品编号
+        if (!allPrizeNumbers.isEmpty()) {
+            prizeNumberMapper.insertBatch(allPrizeNumbers);
         }
 
         return detailResList;
     }
+
+
 
     public DetailRes updateProductDetail(Long id, DetailReq productDetailReq) {
         productDetailReq.setProductDetailId(Math.toIntExact(id));

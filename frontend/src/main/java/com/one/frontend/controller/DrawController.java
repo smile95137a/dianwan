@@ -1,20 +1,15 @@
 package com.one.frontend.controller;
 
-import com.one.frontend.config.security.CustomUserDetails;
-import com.one.frontend.config.security.SecurityUtils;
-import com.one.frontend.dto.DrawRequest;
 import com.one.frontend.model.DrawResult;
 import com.one.frontend.model.PrizeNumber;
 import com.one.frontend.service.DrawResultService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,29 +24,34 @@ public class DrawController {
     private DrawResultService drawResultService;
 
     @PostMapping("/oneprize/{userUid}")
-    @Operation(summary = "扭蛋抽獎", description = "根据用户ID、请求和产品ID进行抽奖")
-    public ResponseEntity<DrawResult> drawPrize(
+    public ResponseEntity<List<DrawResult>> drawPrize(
             @PathVariable String userUid,
-            @RequestBody(description = "抽奖请求", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawRequest.class))) List<DrawRequest> drawRequest) throws Exception {
+            @RequestParam Integer count, @RequestParam Integer productId) throws Exception {
 
-        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//
+//        if (userDetails == null) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        String authenticatedUserId = userDetails.getUserUid();
+//
+//        if (!authenticatedUserId.equals(userUid)) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        } else {
 
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+
+        try {
+            List<DrawResult> result = drawResultService.handleDraw(userUid, count , productId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(null);
         }
-
-        Long authenticatedUserId = userDetails.getId();
-
-        if (!authenticatedUserId.equals(userUid)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }else{
-            List<DrawResult> result = drawResultService.handleDraw(userUid, drawRequest);
-            return ResponseEntity.ok((DrawResult) result);
-        }
-
-
-
     }
+
+
 
 
     @GetMapping("/status/{productId}")
@@ -63,12 +63,12 @@ public class DrawController {
 
     @PostMapping("/execute/{productId}")
     @Operation(summary = "一番賞、盲盒抽獎", description = "根据产品ID和用户ID执行抽奖")
-    public ResponseEntity<DrawResult> executeDraw(
+    public ResponseEntity<List<DrawResult>> executeDraw(
             @PathVariable Long productId,
             @RequestParam String userUid,
-            @RequestParam List<Integer> prizeNumber) {
+            @RequestParam List<String> prizeNumber) {
         try {
-            DrawResult drawResult = drawResultService.handleDraw2(userUid, productId, prizeNumber);
+            List<DrawResult> drawResult = drawResultService.handleDraw2(userUid, productId, prizeNumber);
             return ResponseEntity.ok(drawResult);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);

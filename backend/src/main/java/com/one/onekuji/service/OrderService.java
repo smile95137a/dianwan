@@ -5,6 +5,7 @@ import com.one.onekuji.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,7 +27,8 @@ public class OrderService {
     }
 
     public void updateOrder(Long id ,Order order) {
-        orderMapper.updateOrder(order);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderMapper.updateOrder(id , order);
     }
 
     public void deleteOrder(Long id) {

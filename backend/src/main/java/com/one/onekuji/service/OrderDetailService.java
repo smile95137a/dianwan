@@ -14,10 +14,6 @@ public class OrderDetailService {
     @Autowired
     private OrderDetailMapper orderDetailMapper;
 
-    public void createOrderDetail(OrderDetail orderDetail) {
-        orderDetailMapper.insertOrderDetail(orderDetail);
-    }
-
     public List<OrderDetail> getAllOrderDetails() {
         return orderDetailMapper.getAllOrderDetails();
     }
@@ -31,12 +27,4 @@ public class OrderDetailService {
         return null;
     }
 
-    public void updateOrderDetail(Long id, OrderDetail orderDetail) {
-        orderDetail.setId(Math.toIntExact(id));
-        orderDetailMapper.updateOrderDetail(orderDetail);
-    }
-
-    public void deleteOrderDetail(Long id) {
-        orderDetailMapper.deleteOrderDetail(id);
-    }
 }

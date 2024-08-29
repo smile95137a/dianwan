@@ -62,6 +62,8 @@ public class UserService {
 				throw new Exception("帳號已存在");
 			}
 			Role memberRole = roleRepository.findByName(this.MEMBER);
+
+			System.out.println(memberRole);
 			String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
 
 			User user = new User();
@@ -75,6 +77,7 @@ public class UserService {
 			user.setRoleId(memberRole.getId());
 			user.setBalance(BigDecimal.ZERO);
 			user.setBonus(BigDecimal.ZERO);
+			user.setDrawCount(0L);
 			userRepository.createUser(user);
 
 			UserRes userRes = new UserRes();

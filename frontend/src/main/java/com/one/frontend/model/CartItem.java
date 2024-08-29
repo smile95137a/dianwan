@@ -25,6 +25,9 @@ public class CartItem{
     @Column(name = "store_product_id")
     private Long storeProductId;
 
+    @Column(name = "store_product_name")
+    private String storeProductName;
+
     @Schema(description = "數量", example = "2")
     @Column(name = "quantity")
     private Integer quantity;
@@ -37,7 +40,6 @@ public class CartItem{
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @Schema(description = "產品詳細 ID", example = "1")
-    @Column(name = "product_detail_id")
-    private Long productDetailId;
+    @Column(name = "is_pay")
+    private boolean isPay;
 }

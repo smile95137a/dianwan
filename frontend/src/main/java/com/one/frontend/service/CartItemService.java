@@ -4,10 +4,12 @@ import com.one.frontend.model.CartItem;
 import com.one.frontend.model.StoreProduct;
 import com.one.frontend.repository.CartItemRepository;
 import com.one.frontend.repository.StoreProductRepository;
+import com.one.frontend.request.CartItemReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class CartItemService {
@@ -18,7 +20,7 @@ public class CartItemService {
     @Autowired
     private StoreProductRepository storeProductRepository;
 
-    public void addCartItem(CartItem cartItem) {
+    public void addCartItem(CartItemReq cartItem) {
         cartItemRepository.addCartItem(cartItem);
     }
 
@@ -43,5 +45,12 @@ public class CartItemService {
 
     public CartItem getCartItemById(Long cartItemId) {
         return cartItemRepository.findById(cartItemId);
+    }
+
+    public List<CartItem> findByUserUidAndIsPayFalse(String userUid) {
+        return cartItemRepository.findByUserUidAndIsPayFalse(userUid);
+    }
+
+    public void updateIsPayToTrue(CartItem item) {
     }
 }

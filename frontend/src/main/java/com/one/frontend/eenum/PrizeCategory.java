@@ -17,4 +17,13 @@ public enum PrizeCategory {
         return description;
     }
 
+    public static PrizeCategory fromDescription(String description) {
+        for (PrizeCategory category : PrizeCategory.values()) {
+            if (category.getDescription().equals(description)) {
+                return category;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant with description " + description);
+    }
+
 }

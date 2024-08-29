@@ -20,10 +20,8 @@ public interface OrderRepository {
     @Select("SELECT * FROM `order` ")
     List<Order> getAllOrders();
 
-    @Update("UPDATE `order` SET order_number = #{orderNumber}, user_id = #{userId}, total_amount = #{totalAmount}, bonus_points_earned = #{bonusPointsEarned}, " +
-            "bonus_points_used = #{bonusPointsUsed}, status = #{status}, payment_method = #{paymentMethod}, payment_status = #{paymentStatus}, " +
-            "created_at = #{createdAt}, updated_at = #{updatedAt}, paid_at = #{paidAt}, notes = #{notes} WHERE id = #{id}")
-    void updateOrder(Order order);
+    @Update("UPDATE `order` SET status = #{order.status}, updated_at = #{order.updatedAt}, notes = #{order.notes} WHERE id = #{id}")
+    void updateOrder(@Param("id") Long id ,@Param("order")Order order);
 
     @Delete("DELETE FROM `order`  WHERE id = #{id}")
     void deleteOrder(Long id);

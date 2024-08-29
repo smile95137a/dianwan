@@ -45,17 +45,17 @@ public class UserController {
 
     // 創建新用戶
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<Void>> createUser(@RequestBody UserReq userReq) {
-        userService.createUser(userReq);
-        ApiResponse<Void> response = ResponseUtils.success(201, "用戶創建成功", null);
+    public ResponseEntity<ApiResponse<UserRes>> createUser(@RequestBody UserReq userReq) {
+        UserRes res = userService.createUser(userReq);
+        ApiResponse<UserRes> response = ResponseUtils.success(201, "用戶創建成功", res);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 更新用戶
     @PutMapping("/update/{userId}")
-    public ResponseEntity<ApiResponse<Void>> updateUser(@PathVariable("userId") Long userId, @RequestBody UserReq userReq) {
-        userService.updateUser(userId, userReq);
-        ApiResponse<Void> response = ResponseUtils.success(200, "用戶更新成功", null);
+    public ResponseEntity<ApiResponse<UserRes>> updateUser(@PathVariable("userId") Long userId, @RequestBody UserReq userReq) {
+        UserRes res = userService.updateUser(userId, userReq);
+        ApiResponse<UserRes> response = ResponseUtils.success(200, "用戶更新成功", res);
         return ResponseEntity.ok(response);
     }
 

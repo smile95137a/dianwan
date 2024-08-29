@@ -3,11 +3,11 @@ package com.one.frontend.service;
 import com.one.frontend.ecpay.payment.integration.AllInOne;
 import com.one.frontend.ecpay.payment.integration.domain.AioCheckOutALL;
 import com.one.frontend.model.Order;
+import com.one.frontend.repository.OrderDetailRepository;
 import com.one.frontend.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -15,6 +15,9 @@ public class OrderService {
 
 	@Autowired
 	private OrderRepository orderRepository;
+
+	@Autowired
+	private OrderDetailRepository orderDetailRepository;
 
 	public String ecpayCheckout(Integer userId) {
 
@@ -38,7 +41,11 @@ public class OrderService {
 
 
 
-	public List<Order> getOrderById(Long userId) {
-		return orderRepository.getOrderById(userId);
+	public Order getOrderById(String userUid) {
+		return orderRepository.getOrderById(userUid);
+	}
+
+	public void save(Order order) {
+		orderRepository.save(order);
 	}
 }

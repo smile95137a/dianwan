@@ -1,8 +1,14 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.model.ApiResponse;
+import com.one.frontend.model.CartItem;
 import com.one.frontend.model.Order;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.request.StoreOrderDetailReq;
+import com.one.frontend.service.CartItemService;
+import com.one.frontend.service.CartService;
+import com.one.frontend.service.OrderDetailService;
 import com.one.frontend.service.OrderService;
 import com.one.frontend.util.ResponseUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,8 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @RestController
@@ -22,20 +31,79 @@ public class OrderController {
 	OrderService orderService;
 
 	@Autowired
+	private OrderDetailService orderDetailService;
+
+	@Autowired
 	private UserRepository userRepository;
 
-	// 根据ID获取订单
-	@GetMapping("/order/{userId}")
-	public ResponseEntity<ApiResponse<List<Order>>> getOrderById(@PathVariable Long userId) {
-		List<Order> order = orderService.getOrderById(userId);
+	@Autowired
+	private CartItemService cartItemService;
 
-		if (order == null || order.isEmpty()) {
-			ApiResponse<List<Order>> response = ResponseUtils.failure(404, "沒有此ID", null);
+	@Autowired
+	private CartService cartService;
+
+	// 根据ID获取订单
+	@GetMapping("/order/{userUid}")
+	public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable String userUid) {
+		Order order = orderService.getOrderById(userUid);
+
+		if (order == null) {
+			ApiResponse<Order> response = ResponseUtils.failure(404, "沒有此ID", null);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
 
-		ApiResponse<List<Order>> response = ResponseUtils.success(200, null, order);
+		ApiResponse<Order> response = ResponseUtils.success(200, null, order);
 		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/storeProduct/pay/{userUid}")
+	public ResponseEntity<ApiResponse<List<Order>>> payCartItem(@PathVariable String userUid) {
+		// 1. 获取用户的所有购物车项
+		List<CartItem> cartList = cartService.findByUserUidAndIsPayFalse(userUid);
+
+		if (cartList.isEmpty()) {
+
+		}
+
+		// 2. 计算总金额
+		BigDecimal totalAmount = cartList.stream()
+				.map(item -> item.getTotalPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		// 3. 使用万事达卡进行支付（假设 paymentService.processPayment 是支付服务的调用方法）
+		boolean paymentSuccess = true;
+
+		if (!paymentSuccess) {
+
+		}
+		String orderNumber = UUID.randomUUID().toString();
+		// 4. 创建订单并保存订单详情
+		Order order = new Order();
+		order.setUserUid(userUid);
+		order.setOrderNumber(orderNumber);
+		order.setTotalAmount(totalAmount);
+		order.setCreatedAt(LocalDateTime.now());
+		order.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
+		order.setPaidAt(LocalDateTime.now());
+		orderService.save(order);
+		Order orderReq = orderService.getOrderById(orderNumber);
+		for(CartItem cartItem : cartList){
+			StoreOrderDetailReq orderDetail = new StoreOrderDetailReq();
+			orderDetail.setOrderId(orderReq.getId());
+			orderDetail.setStoreProductId(Math.toIntExact(cartItem.getStoreProductId()));
+			orderDetail.setQuantity(cartItem.getQuantity());
+			orderDetail.setUnitPrice(cartItem.getUnitPrice());
+			orderDetailService.save(orderDetail);
+		}
+
+
+		// 5. 更新 CartItem 的 isPay 字段为 true
+		cartList.forEach(item -> {
+			item.setPay(true);
+			cartItemService.updateIsPayToTrue(item);
+		});
+
+		return null;
 	}
 
 

@@ -61,4 +61,7 @@ public class OrderDetail{
     @Schema(description = "獲得的獎勳點數", example = "10")
     @Column(name = "bonus_points_earned")
     private Integer bonusPointsEarned;
+
+    @Column(name = "total_price")
+    private Integer totalPrice;
 }

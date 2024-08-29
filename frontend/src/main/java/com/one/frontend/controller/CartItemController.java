@@ -1,16 +1,18 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.config.security.CustomUserDetails;
+import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.CartItem;
-import com.one.frontend.repository.StoreProductRepository;
+import com.one.frontend.request.CartItemReq;
+import com.one.frontend.response.StoreProductRes;
 import com.one.frontend.service.CartItemService;
 import com.one.frontend.service.CartService;
+import com.one.frontend.service.StoreProductService;
 import com.one.frontend.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,21 +23,36 @@ public class CartItemController {
     private CartItemService cartItemService;
 
     @Autowired
-    private StoreProductRepository storeProductRepository;
+    private StoreProductService storeProductService;
 
     @Autowired
     private CartService cartService;
 
     @PostMapping("/add")
-        public ResponseEntity<ApiResponse<String>> addCartItem(@RequestBody CartItem cartItem , Authentication authentication) {
+        public ResponseEntity<ApiResponse<String>> addCartItem(@RequestBody CartItemReq cartItem) {
             try {
                 //取得使用者ID
-                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                Long userId = userDetails.getId();
+                CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+                if (userDetails == null) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+                String userUid = userDetails.getUserUid();
 
                 //透過userId搜尋cart
-                Long cartId = cartService.getCartIdByUserId(userId);
-                cartItem.setCartId(cartId);
+                Long cartId = cartService.getCartIdByUserId(userUid);
+                if(cartId == null){
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                }else{
+                    cartItem.setCartId(cartId);
+                }
+                //透過cartItem的store_product_id搜尋商品資訊
+                StoreProductRes res = storeProductService.getStoreProductById(cartItem.getStoreProductId());
+                if(res == null){
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                }else{
+                    cartItem.setStoreProductName(res.getProductName());
+                }
+
                 cartItemService.addCartItem(cartItem);
                 ApiResponse<String> response = ResponseUtils.success(201, "商品成功加到購物車", null);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);

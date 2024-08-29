@@ -61,4 +61,7 @@ public class DrawResult{
     @Schema(description = "更新日期", example = "2024-08-22T15:30:00")
     @Column(name = "update_date")
     private LocalDateTime updateDate;
+
+    @Column(name = "total_draw_count")
+    private Long totalDrawCount;
 }

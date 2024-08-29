@@ -29,7 +29,7 @@ public class Product {
     private String productName;
 
     @Schema(description = "描述", example = "This is a product description.")
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
     @Schema(description = "價格", example = "199.99")

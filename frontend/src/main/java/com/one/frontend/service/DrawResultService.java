@@ -1,11 +1,12 @@
 package com.one.frontend.service;
 
-import com.one.frontend.dto.DrawRequest;
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.dto.OrderDto;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.eenum.PrizeCategory;
-import com.one.frontend.model.*;
+import com.one.frontend.model.DrawResult;
+import com.one.frontend.model.PrizeNumber;
+import com.one.frontend.model.ProductDetail;
 import com.one.frontend.repository.*;
 import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class DrawResultService {
@@ -42,14 +46,13 @@ public class DrawResultService {
     private PrizeNumberMapper prizeNumberMapper;
 
 
-    public List<DrawResult> handleDraw(String userUid, List<DrawRequest> drawRequests) throws Exception {
+    public List<DrawResult> handleDraw(String userUid, Integer count , Integer productId) throws Exception {
 
         UserRes userRes = userRepository.getUserById(userUid);
         Integer userId = Math.toIntExact(userRes.getId());
 
         // 先確認商品是否還有貨
-        DrawRequest drawRequest = drawRequests.get(0); // 假設只有一個 `DrawRequest`
-        List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(drawRequest.getProductId());
+        List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(Long.valueOf(productId));
 
         int totalQuantity = productDetails.stream().mapToInt(ProductDetailRes::getQuantity).sum();
         if (totalQuantity == 0) {
@@ -57,11 +60,11 @@ public class DrawResultService {
         }
 
         // 計算總金額
-        ProductRes product = productRepository.getProductById(Math.toIntExact(drawRequest.getProductId()));
+        ProductRes product = productRepository.getProductById(Math.toIntExact(productId));
         BigDecimal amount = product.getPrice();
 
         // 扣除會員內儲值金
-        PrizeCategory category = drawRequest.getPrizeCategory();
+        PrizeCategory category = product.getPrizeCategory();
         BigDecimal balance = new BigDecimal(userRepository.getBalance(userId));
 
         if (category == PrizeCategory.BONUS) {
@@ -107,18 +110,23 @@ public class DrawResultService {
         productRepository.updateProductQuantity(updatedProduct);
 
         // step.4 紀錄抽獎結果
-        DrawResult drawResult = new DrawResult();
-        drawResult.setUserId(Long.valueOf(userId));
-        drawResult.setProductId(drawRequest.getProductId());
-        drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
-        drawResult.setDrawTime(LocalDateTime.now());
-        drawResult.setAmount(amount);
-        drawResult.setDrawCount(1);
-        drawResult.setRemainingDrawCount(drawRequest.getRemainingDrawCount());
-        drawResult.setCreateDate(LocalDateTime.now());
-
-        List<DrawResult> drawResults = Collections.singletonList(drawResult);
-        drawRepository.insertBatch(drawResults);
+        List<DrawResult> drawResults = new ArrayList<>();
+        int j = count;
+        for(int i = 0 ; i < count ; i++){
+            DrawResult drawResult = new DrawResult();
+            drawResult.setUserId(Long.valueOf(userId));
+            drawResult.setProductId(Long.valueOf(productId));
+            drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
+            drawResult.setDrawTime(LocalDateTime.now());
+            drawResult.setAmount(amount);
+            drawResult.setDrawCount(1);
+            drawResult.setTotalDrawCount(Long.valueOf(count));
+            drawResult.setRemainingDrawCount(j);
+            drawResult.setCreateDate(LocalDateTime.now());
+            drawResults.add(drawResult);
+            j--;
+        }
+        drawRepository.insertBatchforGACHA(drawResults);
 
         // step.5 記錄到訂單
         OrderDto order = new OrderDto();
@@ -129,15 +137,19 @@ public class DrawResultService {
 
         orderRepository.insertOrder(order);
         Long orderId = orderRepository.getOrderIdByOrderNumber(order.getOrderNumber());
+        List<OrderDetailDto> orderDetailDtoList = new ArrayList<>();
+        for(int i = 0 ; i < count ; i++){
+            OrderDetailDto orderDetail = new OrderDetailDto();
+            orderDetail.setOrderId(Math.toIntExact(orderId));
+            orderDetail.setProductId(Math.toIntExact(productId));
+            orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
+            orderDetail.setQuantity(1);
+            orderDetail.setUnitPrice(amount);
+            orderDetailDtoList.add(orderDetail);
+        }
 
-        OrderDetailDto orderDetail = new OrderDetailDto();
-        orderDetail.setOrderId(Math.toIntExact(orderId));
-        orderDetail.setProductId(Math.toIntExact(drawRequest.getProductId()));
-        orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
-        orderDetail.setQuantity(1);
-        orderDetail.setUnitPrice(amount);
 
-        orderDetailRepository.insertOrderDetail(orderDetail);
+        orderDetailRepository.insertOrderDetail(orderDetailDtoList);
         UserRes user = userRepository.getUserById(userUid);
         Long drawCount = user.getDrawCount();
         if (drawCount < 3L) {
@@ -170,7 +182,7 @@ public class DrawResultService {
         return allPrizeNumbers;
     }
 
-    public DrawResult handleDraw2(String userUid, Long productId, List<Integer> prizeNumbers) throws Exception {
+    public List<DrawResult> handleDraw2(String userUid, Long productId, List<String> prizeNumbers) throws Exception {
         try {
             UserRes userRes = userRepository.getUserById(userUid);
             Integer userId = Math.toIntExact(userRes.getId());
@@ -190,8 +202,11 @@ public class DrawResultService {
             PrizeNumber selectedPrizeNumber = availablePrizeNumbers.stream()
                     .filter(pn -> prizeNumbers.contains(pn.getNumber()))
                     .findFirst()
-                    .orElseThrow(() -> new Exception("該獎品已被抽走"));
+                    .orElseThrow(() -> new Exception("指定的奖品编号不存在"));
 
+            if (selectedPrizeNumber.getIsDrawn()) {
+                throw new Exception("该奖品已被抽走");
+            }
             // 将奖品编号标记为已抽中
             prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(),
                     selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
@@ -220,21 +235,29 @@ public class DrawResultService {
             ProductDetailRes selectedPrizeDetail = productDetailRepository.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
             selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
             productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
+            List<DrawResult> list = new ArrayList<>();
+            int count = prizeNumbers.size();
+            for(int i = 0 ; i < prizeNumbers.size() ; i++){
+                // 记录抽奖结果
+                DrawResult drawResult = new DrawResult();
+                drawResult.setUserId(Long.valueOf(userId));
+                drawResult.setProductId(productId);
+                drawResult.setProductDetailId(selectedPrizeDetail.getProductDetailId().longValue());
+                drawResult.setDrawTime(LocalDateTime.now());
+                drawResult.setAmount(amount);
+                drawResult.setDrawCount(1);
+                drawResult.setRemainingDrawCount(count);
+                drawResult.setPrizeNumber(selectedPrizeNumber.getNumber());
+                drawResult.setStatus("ACTIVE");
+                drawResult.setTotalDrawCount((long) prizeNumbers.size());
+                drawResult.setCreateDate(LocalDateTime.now());
+                drawResult.setUpdateDate(LocalDateTime.now());
+                list.add(drawResult);
+                count--;
+            }
 
-            // 记录抽奖结果
-            DrawResult drawResult = new DrawResult();
-            drawResult.setUserId(Long.valueOf(userId));
-            drawResult.setProductId(productId);
-            drawResult.setProductDetailId(selectedPrizeDetail.getProductDetailId().longValue());
-            drawResult.setDrawTime(LocalDateTime.now());
-            drawResult.setAmount(amount);
-            drawResult.setDrawCount(1);
-            drawResult.setRemainingDrawCount(0);  // 根据需求调整
-            drawResult.setPrizeNumber(selectedPrizeNumber.getNumber());
-            drawResult.setStatus("ACTIVE");
-            drawResult.setCreateDate(LocalDateTime.now());
-            drawResult.setUpdateDate(LocalDateTime.now());
-            drawRepository.insertDrawResult(drawResult);
+
+            drawRepository.insertBatch(list);
 
             // 生成订单
             OrderDto order = new OrderDto();
@@ -247,17 +270,21 @@ public class DrawResultService {
 
             // 获取订单ID
             Long orderId = orderRepository.getOrderIdByOrderNumber(order.getOrderNumber());
-
+            List<OrderDetailDto> orderDetailList = new ArrayList<>();
             // 生成订单明细
-            OrderDetailDto orderDetail = new OrderDetailDto();
-            orderDetail.setOrderId(Math.toIntExact(orderId));
-            orderDetail.setProductId(productId.intValue());
-            orderDetail.setProductDetailId(selectedPrizeDetail.getProductDetailId());
-            orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
-            orderDetail.setQuantity(1);
-            orderDetail.setUnitPrice(amount);
-            orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
-            orderDetailRepository.insertOrderDetail(orderDetail);
+            for(int i = 0 ; i < prizeNumbers.size(); i++){
+                OrderDetailDto orderDetail = new OrderDetailDto();
+                orderDetail.setOrderId(Math.toIntExact(orderId));
+                orderDetail.setProductId(productId.intValue());
+                orderDetail.setProductDetailId(selectedPrizeDetail.getProductDetailId());
+                orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
+                orderDetail.setQuantity(1);
+                orderDetail.setUnitPrice(amount);
+                orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
+                orderDetailList.add(orderDetail);
+            }
+
+            orderDetailRepository.insertOrderDetail(orderDetailList);
 
 // 处理用户抽奖次数和红利
             UserRes user = userRepository.getUserById(userUid);
@@ -268,7 +295,7 @@ public class DrawResultService {
                 userRepository.updateBonus(Long.valueOf(userId));
             }
 
-            return drawResult;
+            return list;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("抽獎過程中出現錯誤: " + e.getMessage());
@@ -357,6 +384,7 @@ public class DrawResultService {
 
         // 获取订单ID
         Long orderId = orderRepository.getOrderIdByOrderNumber(order.getOrderNumber());
+        List<OrderDetailDto> orderDetailDtoList = new ArrayList<>();
 
         // 生成订单明细
         OrderDetailDto orderDetail = new OrderDetailDto();
@@ -368,7 +396,7 @@ public class DrawResultService {
         orderDetail.setUnitPrice(amount);
         orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
 
-        orderDetailRepository.insertOrderDetail(orderDetail);
+        orderDetailRepository.insertOrderDetailOne(orderDetail);
 
         return drawResult;
     }

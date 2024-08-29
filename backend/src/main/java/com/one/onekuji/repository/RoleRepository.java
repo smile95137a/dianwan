@@ -28,4 +28,7 @@ public interface RoleRepository {
     // 刪除角色
     @Delete("DELETE FROM role WHERE id = #{id}")
     void delete(Long id);
+
+    @Select("SELECT * FROM role WHERE name = #{name}")
+    Role findByName(String name);
 }

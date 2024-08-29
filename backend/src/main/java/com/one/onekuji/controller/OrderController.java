@@ -17,12 +17,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Order> createOrder(@RequestBody @Valid Order order) {
-        orderService.createOrder(order);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
     @GetMapping("/query")
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();

@@ -1,11 +1,11 @@
 package com.one.onekuji.service;
 
+import com.one.onekuji.model.Role;
 import com.one.onekuji.repository.RoleRepository;
-import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.request.UserReq;
 import com.one.onekuji.response.UserRes;
+import com.one.onekuji.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,53 +14,37 @@ import java.util.List;
 @Service
 public class UserService {
 
-
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-
-    // 獲取所有用戶
     public List<UserRes> getAllUsers() {
-        return userRepository.getAllUser();
+        return userRepository.findAll();
     }
 
-    // 根據ID獲取用戶
-    public UserRes getUserById(Long id) {
-        return userRepository.getUserById(Math.toIntExact(id));
+    public UserRes getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
-    // 創建新用戶
-    public void createUser(UserReq userReq) {
-        userRepository.createUser(userReq);
+    public UserRes createUser(UserReq userReq) {
+        userReq.setCreatedAt(LocalDateTime.now());
+        Role role = roleRepository.findByName("一般管理者");
+        userReq.setRoleId(role.getId());
+
+        userRepository.insert(userReq);
+        return userRepository.findById(userReq.getUserId());
     }
 
-    // 更新用戶
-    public void updateUser(Long id, UserReq userReq) {
-        UserRes res = userRepository.getUserById(Math.toIntExact(id));
-        res.setId(userReq.getUserId());
-        res.setPassword(userReq.getPassword());
-        res.setNickName(userReq.getNickName());
-        res.setEmail(userReq.getEmail());
-        res.setPhoneNumber(userReq.getPhoneNumber());
-res.setAddress(userReq.getAddress());
-res.setUpdatedAt(LocalDateTime.now());
-
-        userRepository.update(res);
+    public UserRes updateUser(Long userId, UserReq userReq) {
+        userReq.setUserId(userId);
+        userReq.setUpdatedAt(LocalDateTime.now());
+        userRepository.update(userReq);
+        return userRepository.findById(userId);
     }
 
-    // 刪除用戶
-    public void deleteUser(Long id) {
-        userRepository.deleteUser(Math.toIntExact(id));
-    }
-
-
-
-    public int getUserCountByRoleId(int roleId) {
-        return userRepository.countByRoleId(roleId);
+    public void deleteUser(Long userId) {
+        userRepository.delete(userId);
     }
 }

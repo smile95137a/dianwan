@@ -21,7 +21,6 @@ public class AuthController {
 
     private AuthService authService;
 
-    // Login REST API
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JWTAuthResponse>> authenticate(@RequestBody LoginDto loginDto){
         LoginResponse loginResponse = authService.login(loginDto);

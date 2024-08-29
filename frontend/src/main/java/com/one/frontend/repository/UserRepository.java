@@ -13,18 +13,18 @@ import java.util.Set;
 
 @Mapper
 public interface UserRepository{
-    @Select("select * from user where user_uid = ${userUid}")
+    @Select("select * from user where user_uid = #{userUid}")
     UserRes getUserById(@Param("userUid") String userUid);
 
-    @Select("select * from user where id = ${userId}")
+    @Select("select * from user where id = #{userId}")
     User getUserBId(@Param("userId") Integer userId);
 
     @Select("SELECT * FROM user")
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus, provider ) " +
-            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus}, #{provider})")
+    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus, provider , role_id , user_uid) " +
+            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus}, #{provider} , #{roleId} , #{userUid})")
     void createUser(User user);
 
     @Update("UPDATE `user` SET password = #{password}, nickname = #{nickName}, " +

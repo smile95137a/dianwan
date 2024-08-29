@@ -24,8 +24,8 @@ public class Order{
     private String orderNumber;
 
     @Schema(description = "用戶 ID", example = "1")
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "user_uid")
+    private String userUid;
 
     @Schema(description = "總金額", example = "199.98")
     @Column(name = "total_amount")
@@ -39,14 +39,6 @@ public class Order{
     @Column(name = "bonus_points_used")
     private Integer bonusPointsUsed;
 
-    @Schema(description = "支付方式", example = "CREDIT_CARD")
-    @Column(name = "payment_method", length = 50)
-    private String paymentMethod;
-
-    @Schema(description = "支付狀態", example = "PAID")
-    @Column(name = "payment_status", length = 50)
-    private String paymentStatus;
-
     @Schema(description = "創建日期", example = "2024-08-22T15:30:00")
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -59,11 +51,9 @@ public class Order{
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-    @Schema(description = "備註", example = "Please deliver by end of the week.")
-    @Column(name = "notes")
-    private String notes;
-
     @Column(name = "result_status", length = 50)
     @Enumerated(EnumType.STRING)
     private OrderStatus resultStatus;
+
+
 }
