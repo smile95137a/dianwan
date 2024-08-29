@@ -1,8 +1,10 @@
 package com.one.frontend.model;
 
+import com.one.frontend.util.RandomUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +29,8 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+@Builder.Default
+    private String userUid = RandomUtils.genRandom(32);
 
     @Schema(description = "用戶名稱", example = "john_doe")
     @Column(name = "username", length = 50)
@@ -91,4 +95,6 @@ public class User{
     @JoinColumn(name = "user_id")
     private Set<Role> roles;
 
+    @Column(name= "draw_count")
+    private Long drawCount;
 }

@@ -1,6 +1,6 @@
 package com.one.frontend.repository;
 
-import com.one.frontend.model.OrderDetail;
+import com.one.frontend.dto.OrderDetailDto;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface OrderDetailRepository {
 
 
-    @Insert("INSERT INTO order_detail (order_id, product_id, product_detail_id, product_detail_name, quantity, unit_price, total_price, result_status, result_item_id, bonus_points_earned) " +
-            "VALUES (#{orderId}, #{productId}, #{productDetailId}, #{productDetailName}, #{quantity}, #{unitPrice}, #{totalPrice}, #{resultStatus}, #{resultItemId}, #{bonusPointsEarned})")
-    void insertOrderDetail(OrderDetail orderDetail);
+    @Insert("INSERT INTO order_detail (order_id, product_id, product_detail_name, quantity, unit_price) " +
+            "VALUES (#{orderId}, #{productId}, #{productDetailName}, #{quantity}, #{unitPrice})")
+    void insertOrderDetail(OrderDetailDto orderDetail);
 }

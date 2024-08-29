@@ -1,5 +1,6 @@
 package com.one.frontend.dto;
 
+import com.one.frontend.eenum.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,5 @@ public class OrderDto {
     private Integer bonusPointsUsed;
 
     private LocalDateTime createdAt;
+    private OrderStatus resultStatus;
 }

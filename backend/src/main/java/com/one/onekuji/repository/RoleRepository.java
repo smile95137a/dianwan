@@ -1,21 +1,31 @@
 package com.one.onekuji.repository;
 
 import com.one.onekuji.model.Role;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper
 public interface RoleRepository {
 
-    @Select("select * from role")
-    List<Role> getAllRole();
+    // 查詢所有角色
+    @Select("SELECT * FROM role")
+    List<Role> findAll();
 
-    @Select("select * from role where id = #{roleId}")
-    Role getRoleById(Integer roleId);
+    // 根據ID查詢角色
+    @Select("SELECT * FROM role WHERE id = #{id}")
+    Role findById(Long id);
 
-    @Select("select * from role where id = #{i}")
-    Optional<Role> findById(int i);
+    // 插入新角色
+    @Insert("INSERT INTO role(name) VALUES(#{name})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    void insert(Role role);
+
+    // 更新角色
+    @Update("UPDATE role SET name = #{role.name} WHERE id = #{id}")
+    void update(@Param("id") Long id, @Param("role") Role role);
+
+    // 刪除角色
+    @Delete("DELETE FROM role WHERE id = #{id}")
+    void delete(Long id);
 }

@@ -3,7 +3,10 @@ package com.one.frontend.controller;
 import com.one.frontend.dto.JWTAuthResponse;
 import com.one.frontend.dto.LoginDto;
 import com.one.frontend.dto.LoginResponse;
+import com.one.frontend.model.ApiResponse;
+import com.one.frontend.model.User;
 import com.one.frontend.service.AuthService;
+import com.one.frontend.util.ResponseUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -38,15 +41,19 @@ public class AuthController {
     private final String tokenEndpoint = "https://oauth2.googleapis.com/token";
 
     @PostMapping("/login")
-    public ResponseEntity<JWTAuthResponse> authenticate(@RequestBody LoginDto loginDto){
+    public ResponseEntity<ApiResponse<JWTAuthResponse>> authenticate(@RequestBody LoginDto loginDto) throws Exception {
         LoginResponse loginResponse = authService.login(loginDto);
 
         JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
         jwtAuthResponse.setAccessToken(loginResponse.getToken());
-        jwtAuthResponse.setUserId(loginResponse.getId());
-        jwtAuthResponse.setUsername(loginResponse.getUsername());
 
-        return ResponseEntity.ok(jwtAuthResponse);
+        User user = new User();
+        user.setId(loginResponse.getId());
+        user.setUsername(loginResponse.getUsername());
+        jwtAuthResponse.setUser(user);
+        ApiResponse<JWTAuthResponse> response = ResponseUtils.success(200, null, jwtAuthResponse);
+
+        return ResponseEntity.ok(response);
     }
 
 

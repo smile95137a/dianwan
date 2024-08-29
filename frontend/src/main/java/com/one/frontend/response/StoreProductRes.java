@@ -17,7 +17,7 @@ public class StoreProductRes {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
-    private List<String> imageUrl;
+    private List<String> imageUrls;
     private String categoryId;
     private String status;
     private BigDecimal specialPrice;

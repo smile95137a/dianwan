@@ -1,6 +1,7 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.config.security.CustomUserDetails;
+import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
@@ -12,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,10 +29,15 @@ public class UserController {
     @Operation(summary = "通過 ID 獲取使用者", description = "根據其 ID 獲取使用者")
     @GetMapping("/{userId}")
     public ResponseEntity<com.one.frontend.model.ApiResponse<UserRes>> getUserById(
-            @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
-            Authentication authentication) {
+            @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId) {
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+
         Long authenticatedUserId = userDetails.getId();
 
 
@@ -65,10 +70,15 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserRes>> updateUser(
             @Parameter(description = "使用者的 ID", example = "1") @PathVariable Integer userId,
-            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserReq user,
-            Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            @Parameter(description = "要更新的使用者詳細信息") @RequestBody UserReq user) {
+        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         Long authenticatedUserId = userDetails.getId();
+
 
         if (!authenticatedUserId.equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

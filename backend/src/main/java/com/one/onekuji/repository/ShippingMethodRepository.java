@@ -1,15 +1,28 @@
 package com.one.onekuji.repository;
 
+import com.one.onekuji.request.ShippingMethodReq;
 import com.one.onekuji.response.ShippingMethodRes;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
 public interface ShippingMethodRepository {
-    @Select("SELECT * FROM shipping_method WHERE #{size} BETWEEN min_size AND max_size ORDER BY min_size")
-    List<ShippingMethodRes> findShippingMethodBySize(@Param("size") BigDecimal size);
+
+    @Select("SELECT * FROM shipping_method")
+    List<ShippingMethodRes> findAll();
+
+    @Select("SELECT * FROM shipping_method WHERE shipping_method_id = #{id}")
+    ShippingMethodRes findById(Long id);
+
+    @Insert("INSERT INTO shipping_method(name, min_size, max_size, shipping_price, create_date, update_date) " +
+            "VALUES(#{name}, #{minSize}, #{maxSize}, #{shippingPrice}, #{createDate}, #{updateDate})")
+    void insert(ShippingMethodReq shippingMethodReq);
+
+    @Update("UPDATE shipping_method SET name = #{name}, min_size = #{minSize}, max_size = #{maxSize}, " +
+            "shipping_price = #{shippingPrice}, update_date = #{updateDate} WHERE shipping_method_id = #{shippingMethodId}")
+    void update(ShippingMethodRes shippingMethodRes);
+
+    @Delete("DELETE FROM shipping_method WHERE shipping_method_id = #{id}")
+    void delete(Long id);
 }

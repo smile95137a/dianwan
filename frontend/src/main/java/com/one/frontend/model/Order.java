@@ -1,5 +1,6 @@
 package com.one.frontend.model;
 
+import com.one.frontend.eenum.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -38,10 +39,6 @@ public class Order{
     @Column(name = "bonus_points_used")
     private Integer bonusPointsUsed;
 
-    @Schema(description = "狀態", example = "PENDING")
-    @Column(name = "status", length = 50)
-    private String status;
-
     @Schema(description = "支付方式", example = "CREDIT_CARD")
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
@@ -65,4 +62,8 @@ public class Order{
     @Schema(description = "備註", example = "Please deliver by end of the week.")
     @Column(name = "notes")
     private String notes;
+
+    @Column(name = "result_status", length = 50)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus resultStatus;
 }

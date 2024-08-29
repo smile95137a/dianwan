@@ -1,4 +1,4 @@
-package com.one.frontend.response;
+package com.one.onekuji.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

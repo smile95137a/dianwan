@@ -1,37 +1,31 @@
-package com.one.onekuji.service;
+package com.one.frontend.config.security;
 
-import com.one.onekuji.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Map;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    private static final long serialVersionUID = 1L;
 
-    public CustomUserDetails(User user) {
-        this.user = user;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())) // 添加 ROLE_ 前缀
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
-
-    @Override
-    public String getUsername() {
-        return user.getUsername();
-    }
+    private Long id;
+    private String username;
+    private String password;
+    private String name;
+    private String email;
+    private String avatarUrl;
+    private Collection<? extends GrantedAuthority> authorities;
+    private Map<String, Object> attributes;
 
     @Override
     public boolean isAccountNonExpired() {
@@ -53,3 +47,4 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 }
+

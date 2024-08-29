@@ -13,15 +13,15 @@ public class PrizeNumber{
     @Schema(description = "獎品編號唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer prizeNumberId;
+    private Long prizeNumberId;
 
     @Schema(description = "產品 ID", example = "1")
     @Column(name = "product_id")
-    private Integer productId;
+    private Long productId;
 
     @Schema(description = "產品詳細 ID", example = "1")
     @Column(name = "product_detail_id")
-    private Integer productDetailId;
+    private Long productDetailId;
 
     @Schema(description = "獎品編號", example = "PRIZE001")
     @Column(name = "number", length = 50)

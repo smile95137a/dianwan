@@ -49,5 +49,5 @@ public interface ProductRepository {
             "stock_quantity = #{stockQuantity}, " +
             "sold_quantity = #{soldQuantity} " +
             "WHERE product_id = #{productId}")
-    void updateProductQuantity(Product product);
+    void updateProductQuantity(ProductRes product);
 }

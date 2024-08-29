@@ -1,22 +1,18 @@
 package com.one.onekuji.service;
 
-import com.one.onekuji.model.User;
 import com.one.onekuji.repository.RoleRepository;
 import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.request.UserReq;
+import com.one.onekuji.response.UserRes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
 
     @Autowired
@@ -27,72 +23,39 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<User> getAllUser(){
+
+    // 獲取所有用戶
+    public List<UserRes> getAllUsers() {
         return userRepository.getAllUser();
     }
-    public String createUser(UserReq userReq) throws Exception {
-        User check = userRepository.getUserByUserName(userReq.getUsername());
-        if(check != null){
-            throw new Exception("用戶已存在");
-        }
-        String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
-        try {
-            User user = new User();
-            user.setUsername(userReq.getUsername());
-            user.setPassword(encryptedPassword);
-            user.setNickname(userReq.getNickname());
-            user.setEmail(userReq.getEmail());
-            user.setAddress(userReq.getAddress());
-            user.setCreatedAt(LocalDateTime.now());
-            user.setRoleId(2L);
-            user.setBalance(BigDecimal.valueOf(0));
-            user.setBonus(BigDecimal.valueOf(0));
-            userRepository.createUser(user);
-            return "1";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "0";
-        }
+
+    // 根據ID獲取用戶
+    public UserRes getUserById(Long id) {
+        return userRepository.getUserById(Math.toIntExact(id));
     }
 
-    public User getUserById(Integer userId) {
-        return userRepository.getUserById(userId);
+    // 創建新用戶
+    public void createUser(UserReq userReq) {
+        userRepository.createUser(userReq);
     }
 
-    public String updateUser(UserReq userReq) {
-        try {
-            String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
-            User user = userRepository.getUserById(userReq.getId());
-            user.setPassword(encryptedPassword);
-            user.setNickname(userReq.getNickname());
-            user.setEmail(userReq.getEmail());
-            user.setAddress(userReq.getAddress());
-            user.setUpdatedAt(LocalDateTime.now());
-            userRepository.update(user);
-            return "1";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "0";
-        }
+    // 更新用戶
+    public void updateUser(Long id, UserReq userReq) {
+        UserRes res = userRepository.getUserById(Math.toIntExact(id));
+        res.setId(userReq.getUserId());
+        res.setPassword(userReq.getPassword());
+        res.setNickName(userReq.getNickName());
+        res.setEmail(userReq.getEmail());
+        res.setPhoneNumber(userReq.getPhoneNumber());
+res.setAddress(userReq.getAddress());
+res.setUpdatedAt(LocalDateTime.now());
+
+        userRepository.update(res);
     }
 
-    public String deleteUser(Integer userId) {
-        try{
-            userRepository.deleteUser(userId);
-            return "1";
-        }catch (Exception e){
-            return "0";
-        }
-    }
-
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not exists by Username or Email"));
-
-        // 创建并返回 CustomUserDetails
-        return new CustomUserDetails(user);
+    // 刪除用戶
+    public void deleteUser(Long id) {
+        userRepository.deleteUser(Math.toIntExact(id));
     }
 
 

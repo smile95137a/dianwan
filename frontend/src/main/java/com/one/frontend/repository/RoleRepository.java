@@ -18,4 +18,7 @@ public interface RoleRepository {
 
     @Select("select * from role where id = #{i}")
     Optional<Role> findById(int i);
+
+    @Select("SELECT * FROM role WHERE name = #{name}")
+    Role findByName(String name);
 }

@@ -16,11 +16,11 @@ public class DrawResult{
     @Schema(description = "抽獎結果唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long drawId;
 
     @Schema(description = "抽獎 ID", example = "1")
-    @Column(name = "draw_id")
-    private Long drawId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Schema(description = "產品 ID", example = "1")
     @Column(name = "product_id")

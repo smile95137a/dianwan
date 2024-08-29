@@ -1,8 +1,10 @@
 package com.one.frontend.service;
 
 import com.one.frontend.model.Cart;
+import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.CartRepository;
+import com.one.frontend.repository.RoleRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
@@ -25,6 +27,11 @@ public class UserService {
 
 	@Autowired
 	private CartRepository cartRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
+
+	private final String MEMBER = "未驗證會員";
 
 	public List<User> getAllUser() {
 		return userRepository.getAllUser();
@@ -53,7 +60,7 @@ public class UserService {
 			if (check != null) {
 				throw new Exception("帳號已存在");
 			}
-
+			Role memberRole = roleRepository.findByName(this.MEMBER);
 			String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
 
 			User user = new User();
@@ -63,7 +70,7 @@ public class UserService {
 			user.setAddress(userDto.getAddress());
 			user.setPhoneNumber(userDto.getPhoneNumber());
 			user.setCreatedAt(LocalDateTime.now());
-			user.setRoleId(2L); // 註冊即是正式會員
+			user.setRoleId(memberRole.getId());
 			user.setBalance(BigDecimal.ZERO);
 			user.setBonus(BigDecimal.ZERO);
 			userRepository.createUser(user);

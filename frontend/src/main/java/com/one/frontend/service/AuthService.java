@@ -27,15 +27,18 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
 
 
-    public LoginResponse login(LoginDto loginDto) {
+    public LoginResponse login(LoginDto loginDto) throws Exception {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails userDetail = SecurityUtils.getCurrentUserPrinciple();
         String token = jwtTokenProvider.generateToken(userDetail);
         User user = userRepository.getUserByUserName(loginDto.getUsername());
-
-        return new LoginResponse(token, user.getId(), user.getUsername());
+        if(user.getRoleId() == 3 || user.getRoleId() == 1 || user.getRoleId() == 2){
+            return new LoginResponse(token, user.getId(), user.getUsername());
+        }else{
+            throw new Exception("不屬於認證會員，請先認證");
+        }
     }
 
         public LoginResponse googleLogin(String email, String name, String googleId) {
@@ -53,6 +56,6 @@ public class AuthService {
             var userDetail = SecurityUtils.getCurrentUserPrinciple();
             String jwt = jwtTokenProvider.generateToken(userDetail);
 
-            return new LoginResponse(jwt, Long.valueOf(userRes.getId()), userRes.getUsername());
+            return new LoginResponse(jwt, userRes.getId(), userRes.getUsername());
         }
 }

@@ -1,5 +1,6 @@
 package com.one.frontend.model;
 
+import com.one.frontend.eenum.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -33,9 +34,12 @@ public class OrderDetail{
     @Column(name = "store_product_name", length = 100)
     private String storeProductName;
 
+    @Column(name = "product_detail_id")
+    private Integer productDetailId;
+
     @Schema(description = "產品詳細名稱", example = "Detailed Product A")
     @Column(name = "product_detail_name", length = 255)
-    private String productDetailName;
+     private String productDetailName;
 
     @Schema(description = "數量", example = "2")
     @Column(name = "quantity")
@@ -47,7 +51,8 @@ public class OrderDetail{
 
     @Schema(description = "結果狀態", example = "SHIPPED")
     @Column(name = "result_status", length = 50)
-    private String resultStatus;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus resultStatus;
 
     @Schema(description = "結果項目 ID", example = "1001")
     @Column(name = "result_item_id")

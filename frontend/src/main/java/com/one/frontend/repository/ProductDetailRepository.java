@@ -12,7 +12,7 @@ public interface ProductDetailRepository {
     @Select("select * from product_detail")
     List<ProductDetailRes> getAllProductDetail();
     @Select("select * from product_detail where product_detail_id = #{productDetailId}")
-    ProductDetail getProductDetailById(Integer productDetailId);
+    ProductDetailRes getProductDetailById(Integer productDetailId);
 
     @Insert("INSERT INTO product_detail (" +
             "product_id, product_name, description, size, grade, image, create_date) " +
@@ -40,7 +40,7 @@ public interface ProductDetailRepository {
     @Update("UPDATE product_detail SET " +
             "quantity = #{quantity} " +
             "WHERE product_detail_id = #{productDetailId}")
-    void updateProductDetailQuantity(ProductDetail productDetail);
+    void updateProductDetailQuantity(ProductDetailRes productDetail);
 
     @Select("select product_name from product_detail where product_id = #{productId}")
     String getProductDetailByProduct(Long productId);
@@ -51,13 +51,13 @@ public interface ProductDetailRepository {
 
     // 根据产品ID和奖品编号获取奖品详情
     @Select("SELECT * FROM product_detail WHERE product_id = #{productId} AND prize_number = #{prizeNumber} AND quantity > 0")
-    ProductDetail getProductDetailByNumber(@Param("productId") Long productId, @Param("prizeNumber") Integer prizeNumber);
+    ProductDetailRes getProductDetailByNumber(@Param("productId") Long productId, @Param("prizeNumber") Integer prizeNumber);
 
     // 更新奖品数量和已抽中的奖品编号
     @Update("UPDATE product_detail SET quantity = #{quantity}, drawn_numbers = #{drawnNumbers} WHERE product_detail_id = #{productDetailId}")
     void updateProductDetailQuantityAndDrawnNumbers(ProductDetail productDetail);
 
     @Select("SELECT * FROM product_details WHERE product_id = #{productId} AND prize_type = #{prizeType} LIMIT 1")
-    ProductDetail findFirstByProductIdAndPrizeType(@Param("productId") Long productId, @Param("prizeType") String prizeType);
+    ProductDetailRes findFirstByProductIdAndPrizeType(@Param("productId") Long productId, @Param("prizeType") String prizeType);
 
 }

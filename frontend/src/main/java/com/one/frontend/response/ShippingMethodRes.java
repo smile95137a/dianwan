@@ -1,11 +1,10 @@
-package com.one.onekuji.response;
+package com.one.frontend.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,13 +18,5 @@ public class ShippingMethodRes {
     private BigDecimal size;
 
     private BigDecimal shippingPrice;
-
-    private BigDecimal minSize;
-
-    private BigDecimal maxSize;
-
-    private LocalDateTime createDate;
-
-    private LocalDateTime updateDate;
 
 }

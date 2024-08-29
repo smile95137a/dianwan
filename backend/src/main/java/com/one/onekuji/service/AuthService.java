@@ -1,9 +1,13 @@
 package com.one.onekuji.service;
 
 
+import com.one.frontend.config.security.CustomUserDetails;
 import com.one.onekuji.dto.LoginDto;
+import com.one.onekuji.dto.LoginResponse;
+import com.one.onekuji.model.User;
 import com.one.onekuji.repository.UserRepository;
 import com.one.onekuji.util.JwtTokenProvider;
+import com.one.onekuji.util.SecurityUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,15 +34,14 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public String login(LoginDto loginDto) {
-
+    public LoginResponse login(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), loginDto.getPassword()));
-        System.out.println(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        CustomUserDetails userDetail = SecurityUtils.getCurrentUserPrinciple();
+        String token = jwtTokenProvider.generateToken(userDetail);
+        User user = userRepository.getUserByUserName(loginDto.getUsername());
 
-        String token = jwtTokenProvider.generateToken(authentication);
-
-        return token;
+        return new LoginResponse(token, user.getId(), user.getUsername());
     }
 }
