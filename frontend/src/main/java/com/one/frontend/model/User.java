@@ -16,6 +16,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Schema(description = "User 模型，表示系統中的用戶信息")
 @Table(name = "user")
 public class User{
@@ -29,7 +30,8 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-@Builder.Default
+    @Builder.Default
+    @Column(name = "user_uid")
     private String userUid = RandomUtils.genRandom(32);
 
     @Schema(description = "用戶名稱", example = "john_doe")

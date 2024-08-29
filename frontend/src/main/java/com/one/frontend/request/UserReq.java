@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class UserReq {
 
 	private Long userId;
+	private String userUid;
 	private String username;
 	private String password;
 	private String natId;

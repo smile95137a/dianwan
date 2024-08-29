@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -37,8 +38,8 @@ public class UserService {
 		return userRepository.getAllUser();
 	}
 
-	public UserRes getUserById(Integer userId) {
-		return userRepository.getUserById(userId);
+	public UserRes getUserById(String userUid) {
+		return userRepository.getUserById(userUid);
 	}
 
 	public String deleteUser(Integer userId) {
@@ -64,6 +65,7 @@ public class UserService {
 			String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
 
 			User user = new User();
+			user.setUserUid(UUID.randomUUID().toString());
 			user.setUsername(userDto.getUsername());
 			user.setPassword(encryptedPassword);
 			user.setEmail(userDto.getEmail());
@@ -94,18 +96,15 @@ public class UserService {
 		}
 	}
 
-	public UserRes updateUser(UserReq userReq, Integer id) {
+	public UserRes updateUser(UserReq userReq, String userUid) {
 		try {
-			// 获取当前用户信息
-			UserRes user = userRepository.getUserById(id);
+			UserRes user = userRepository.getUserById(userUid);
 
-			// 检查密码是否为空
 			if (userReq.getPassword() != null && !userReq.getPassword().isEmpty()) {
 				String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
 				user.setPassword(encryptedPassword);
 			}
 
-			// 更新其他用户信息
 			user.setId(userReq.getUserId());
 			user.setUsername(userReq.getUsername());
 			user.setNickName(userReq.getNickName());
@@ -114,11 +113,9 @@ public class UserService {
 			user.setAddress(userReq.getAddress());
 			user.setUpdatedAt(LocalDateTime.now());
 
-			// 更新数据库中的用户信息
 			userRepository.update(user);
 
-			// 返回更新后的用户信息
-			return userRepository.getUserById(id);
+			return userRepository.getUserById(userUid);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

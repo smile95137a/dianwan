@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class UserRes {
 
     private Long id;
-
+    private String userUid;
     private String nickName;
 
     @Schema(description = "用戶名", example = "john_doe")

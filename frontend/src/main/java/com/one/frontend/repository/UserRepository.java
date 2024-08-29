@@ -13,8 +13,8 @@ import java.util.Set;
 
 @Mapper
 public interface UserRepository{
-    @Select("select * from user where id = ${userId}")
-    UserRes getUserById(@Param("userId") Integer userId);
+    @Select("select * from user where user_uid = ${userUid}")
+    UserRes getUserById(@Param("userUid") String userUid);
 
     @Select("select * from user where id = ${userId}")
     User getUserBId(@Param("userId") Integer userId);

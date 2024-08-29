@@ -28,10 +28,10 @@ public class DrawController {
     @Autowired
     private DrawResultService drawResultService;
 
-    @PostMapping("/oneprize/{userId}")
+    @PostMapping("/oneprize/{userUid}")
     @Operation(summary = "扭蛋抽獎", description = "根据用户ID、请求和产品ID进行抽奖")
     public ResponseEntity<DrawResult> drawPrize(
-            @PathVariable Integer userId,
+            @PathVariable String userUid,
             @RequestBody(description = "抽奖请求", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawRequest.class))) List<DrawRequest> drawRequest) throws Exception {
 
         CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
@@ -42,10 +42,10 @@ public class DrawController {
 
         Long authenticatedUserId = userDetails.getId();
 
-        if (!authenticatedUserId.equals(userId)) {
+        if (!authenticatedUserId.equals(userUid)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }else{
-            List<DrawResult> result = drawResultService.handleDraw(userId, drawRequest);
+            List<DrawResult> result = drawResultService.handleDraw(userUid, drawRequest);
             return ResponseEntity.ok((DrawResult) result);
         }
 
@@ -63,16 +63,12 @@ public class DrawController {
 
     @PostMapping("/execute/{productId}")
     @Operation(summary = "一番賞、盲盒抽獎", description = "根据产品ID和用户ID执行抽奖")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "抽奖执行成功", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawResult.class))),
-            @ApiResponse(responseCode = "400", description = "请求错误")
-    })
     public ResponseEntity<DrawResult> executeDraw(
             @PathVariable Long productId,
-            @RequestParam Long userId,
+            @RequestParam String userUid,
             @RequestParam List<Integer> prizeNumber) {
         try {
-            DrawResult drawResult = drawResultService.handleDraw2(userId, productId, prizeNumber);
+            DrawResult drawResult = drawResultService.handleDraw2(userUid, productId, prizeNumber);
             return ResponseEntity.ok(drawResult);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);
@@ -87,9 +83,9 @@ public class DrawController {
     })
     public ResponseEntity<DrawResult> executeRandom(
             @PathVariable Long productId,
-            @RequestParam Long userId) {
+            @RequestParam String userUid) {
         try {
-            DrawResult drawResult = drawResultService.handleDrawRandom(userId, productId);
+            DrawResult drawResult = drawResultService.handleDrawRandom(userUid, productId);
             return ResponseEntity.ok(drawResult);
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);

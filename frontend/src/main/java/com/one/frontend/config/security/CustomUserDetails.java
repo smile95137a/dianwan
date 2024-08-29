@@ -1,18 +1,16 @@
 package com.one.frontend.config.security;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
 import com.one.frontend.config.security.oauth2.OAuth2Provider;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import java.util.Collection;
+import java.util.Map;
 
 @Data
 @Builder
@@ -27,6 +25,7 @@ public class CustomUserDetails implements OAuth2User, UserDetails {
     private String password;
     private String name;
     private String email;
+    private String userUid;
     private String avatarUrl;
     private OAuth2Provider provider;
     private Collection<? extends GrantedAuthority> authorities;

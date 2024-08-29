@@ -42,7 +42,11 @@ public class DrawResultService {
     private PrizeNumberMapper prizeNumberMapper;
 
 
-    public List<DrawResult> handleDraw(Integer userId, List<DrawRequest> drawRequests) throws Exception {
+    public List<DrawResult> handleDraw(String userUid, List<DrawRequest> drawRequests) throws Exception {
+
+        UserRes userRes = userRepository.getUserById(userUid);
+        Integer userId = Math.toIntExact(userRes.getId());
+
         // 先確認商品是否還有貨
         DrawRequest drawRequest = drawRequests.get(0); // 假設只有一個 `DrawRequest`
         List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(drawRequest.getProductId());
@@ -134,7 +138,7 @@ public class DrawResultService {
         orderDetail.setUnitPrice(amount);
 
         orderDetailRepository.insertOrderDetail(orderDetail);
-        UserRes user = userRepository.getUserById(userId);
+        UserRes user = userRepository.getUserById(userUid);
         Long drawCount = user.getDrawCount();
         if (drawCount < 3L) {
             userRepository.addDrawCount(Long.valueOf(userId));
@@ -166,8 +170,11 @@ public class DrawResultService {
         return allPrizeNumbers;
     }
 
-    public DrawResult handleDraw2(Long userId, Long productId, List<Integer> prizeNumbers) throws Exception {
+    public DrawResult handleDraw2(String userUid, Long productId, List<Integer> prizeNumbers) throws Exception {
         try {
+            UserRes userRes = userRepository.getUserById(userUid);
+            Integer userId = Math.toIntExact(userRes.getId());
+
             // 確認商品是否存在
             List<PrizeNumber> availablePrizeNumbers = prizeNumberMapper.getAvailablePrizeNumbersByProductDetailId(productId);
             if (availablePrizeNumbers.isEmpty()) {
@@ -216,7 +223,7 @@ public class DrawResultService {
 
             // 记录抽奖结果
             DrawResult drawResult = new DrawResult();
-            drawResult.setUserId(userId);
+            drawResult.setUserId(Long.valueOf(userId));
             drawResult.setProductId(productId);
             drawResult.setProductDetailId(selectedPrizeDetail.getProductDetailId().longValue());
             drawResult.setDrawTime(LocalDateTime.now());
@@ -253,12 +260,12 @@ public class DrawResultService {
             orderDetailRepository.insertOrderDetail(orderDetail);
 
 // 处理用户抽奖次数和红利
-            UserRes user = userRepository.getUserById(userId.intValue());
+            UserRes user = userRepository.getUserById(userUid);
             Long drawCount = user.getDrawCount();
             if (drawCount < 3L) {
-                userRepository.addDrawCount(userId);
+                userRepository.addDrawCount(Long.valueOf(userId));
             } else {
-                userRepository.updateBonus(userId);
+                userRepository.updateBonus(Long.valueOf(userId));
             }
 
             return drawResult;
@@ -268,7 +275,11 @@ public class DrawResultService {
         }
     }
 
-    public DrawResult handleDrawRandom(Long userId, Long productId) throws Exception {
+    public DrawResult handleDrawRandom(String userUid, Long productId) throws Exception {
+
+        UserRes userRes = userRepository.getUserById(userUid);
+        Integer userId = Math.toIntExact(userRes.getId());
+
         // 获取未抽走的奖品编号
         List<ProductDetailRes> product = productDetailRepository.getProductDetailByProductId(productId);
         if (product.isEmpty()) {
@@ -327,7 +338,7 @@ public class DrawResultService {
         productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
         // Record draw result
         DrawResult drawResult = new DrawResult();
-        drawResult.setUserId(userId);
+        drawResult.setUserId(Long.valueOf(userId));
         drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
         drawResult.setDrawTime(LocalDateTime.now());
         drawResult.setDrawCount(1);
