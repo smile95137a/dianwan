@@ -6,14 +6,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponse {
     private String token;
     private Long id;
     private String username;
+    private String userUid;
 
-    public LoginResponse(String token, Long id, String username) {
-        this.token = token;
-        this.id = id;
-        this.username = username;
-    }
 }

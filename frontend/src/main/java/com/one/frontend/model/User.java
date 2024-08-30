@@ -1,6 +1,5 @@
 package com.one.frontend.model;
 
-import com.one.frontend.util.RandomUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,9 +29,9 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Builder.Default
+
     @Column(name = "user_uid")
-    private String userUid = RandomUtils.genRandom(32);
+    private String userUid;
 
     @Schema(description = "用戶名稱", example = "john_doe")
     @Column(name = "username", length = 50)

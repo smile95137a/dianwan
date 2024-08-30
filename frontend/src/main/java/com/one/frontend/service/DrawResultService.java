@@ -207,9 +207,7 @@ public class DrawResultService {
             if (selectedPrizeNumber.getIsDrawn()) {
                 throw new Exception("该奖品已被抽走");
             }
-            // 将奖品编号标记为已抽中
-            prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(),
-                    selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
+
 
             // 扣除会员内储值金或红利
             PrizeCategory category = product.getPrizeCategory();
@@ -230,7 +228,9 @@ public class DrawResultService {
                     throw new Exception("餘額不足，請加值");
                 }
             }
-
+// 将奖品编号标记为已抽中
+            prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(),
+                    selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
             // 更新奖品数量
             ProductDetailRes selectedPrizeDetail = productDetailRepository.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
             selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);

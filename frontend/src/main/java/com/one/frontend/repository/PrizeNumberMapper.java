@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface PrizeNumberMapper {
 
-    @Select("select a.product_id ,  a.product_detail_id , a.prize_number_id , a.number , a.is_drawn , b.grade from prize_number a join product_detail b on a.product_detail_id = b.product_detail_id\n" +
+    @Select("select a.product_id ,  a.product_detail_id , a.prize_number_id , a.number , a.is_drawn , a.level from prize_number a join product_detail b on a.product_detail_id = b.product_detail_id\n" +
             "where a.product_detail_id = #{productDetailId}")
     List<PrizeNumber> getAllPrizeNumbersByProductDetailId(Long productDetailId);
 

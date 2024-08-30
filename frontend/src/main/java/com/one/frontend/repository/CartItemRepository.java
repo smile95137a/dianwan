@@ -9,8 +9,8 @@ import java.util.List;
 @Mapper
 public interface CartItemRepository {
 
-    @Insert("INSERT INTO cart_item (cart_id, store_product_id,store_product_name, quantity, unit_price, total_price , is_pay) " +
-            "VALUES (#{cartItem.cartId}, #{cartItem.storeProductId},#{cartItem.storeProductName}, #{cartItem.quantity}, #{cartItem.unitPrice}, #{cartItem.totalPrice} , fasle")
+    @Insert("INSERT INTO cart_item (cart_id, store_product_id,store_product_name, quantity, unit_price, total_price , is_pay , image_url) " +
+            "VALUES (#{cartItem.cartId}, #{cartItem.storeProductId},#{cartItem.storeProductName}, #{cartItem.quantity}, #{cartItem.unitPrice}, #{cartItem.totalPrice} , fasle , #{cartItem.imageUrl}")
     void addCartItem(@Param("cartItem") CartItemReq cartItem);
 
     @Select("SELECT * FROM cart_item WHERE cart_item_id = #{cartItemId}")

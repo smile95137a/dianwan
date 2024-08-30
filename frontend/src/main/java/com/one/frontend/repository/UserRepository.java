@@ -54,7 +54,7 @@ public interface UserRepository{
 
     @Select("select * from user where role_id = #{roleId}")
     int countByRoleId(int roleId);
-    @Update("UPDATE user SET balance = balance - #{amount} WHERE id = #{userId}")
+    @Update("UPDATE user SET balance = #{amount} WHERE id = #{userId}")
     void deductUserBalance(@Param("userId") Integer userId, @Param("amount") BigDecimal amount);
 
 

@@ -68,5 +68,8 @@ public interface ProductRepository {
 
     @Select("select * from product where product_type = 'PRIZE' and prize_category = #{type}")
     List<ProductRes> getOneKuJiType(PrizeCategory type);
+
+    @Update("update `product` set stock_quantity = #{totalQuantity} where product_id = #{id}")
+    void updateTotalQua(int totalQuantity , Integer id);
     //ENUM('FIGURE', 'BONUS', 'C3')
 }

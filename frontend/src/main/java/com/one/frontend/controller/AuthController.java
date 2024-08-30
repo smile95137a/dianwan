@@ -50,6 +50,7 @@ public class AuthController {
         User user = new User();
         user.setId(loginResponse.getId());
         user.setUsername(loginResponse.getUsername());
+        user.setUserUid(loginResponse.getUserUid());
         jwtAuthResponse.setUser(user);
         ApiResponse<JWTAuthResponse> response = ResponseUtils.success(200, null, jwtAuthResponse);
 

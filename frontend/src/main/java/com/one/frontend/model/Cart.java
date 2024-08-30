@@ -28,4 +28,7 @@ public class Cart{
     @Schema(description = "更新時間", example = "2024-08-22T15:30:00")
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "user_uid")
+    private String userUid;
 }

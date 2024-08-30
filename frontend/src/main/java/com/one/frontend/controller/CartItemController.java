@@ -61,9 +61,11 @@ public class CartItemController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         }
-
+    /*
+    每更新一次數量 就重新回傳一次價格存進DB並且回傳
+     */
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<String>> updateCartItem(
+    public ResponseEntity<ApiResponse<CartItem>> updateCartItem(
             @PathVariable Long id,
             @RequestParam Integer quantity) {
 
@@ -74,12 +76,12 @@ public class CartItemController {
                         .body(ResponseUtils.failure(404, "購物車選項不存在", null));
             }
 
-            cartItemService.updateCartItemQuantity(id, quantity);
+            CartItem result = cartItemService.updateCartItemQuantity(id, quantity);
 
-            ApiResponse<String> response = ResponseUtils.success(200, "購物車已更新", null);
+            ApiResponse<CartItem> response = ResponseUtils.success(200, "購物車已更新", result);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            ApiResponse<String> response = ResponseUtils.failure(500, "更新購物車發生錯誤", null);
+            ApiResponse<CartItem> response = ResponseUtils.failure(500, "更新購物車發生錯誤", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

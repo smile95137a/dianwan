@@ -24,7 +24,7 @@ public class CartItemService {
         cartItemRepository.addCartItem(cartItem);
     }
 
-    public void updateCartItemQuantity(Long cartItemId, Integer quantity) {
+    public CartItem updateCartItemQuantity(Long cartItemId, Integer quantity) {
         CartItem cartItem = cartItemRepository.findById(cartItemId);
         if (cartItem == null) {
             throw new IllegalArgumentException("購物車選項不存在");
@@ -41,6 +41,8 @@ public class CartItemService {
         cartItem.setQuantity(quantity);
         cartItem.setTotalPrice(totalPrice);
         cartItemRepository.updateCartItem(cartItem);
+        CartItem result = cartItemRepository.findById(cartItemId);
+        return result;
     }
 
     public CartItem getCartItemById(Long cartItemId) {

@@ -42,4 +42,7 @@ public class CartItem{
 
     @Column(name = "is_pay")
     private boolean isPay;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }

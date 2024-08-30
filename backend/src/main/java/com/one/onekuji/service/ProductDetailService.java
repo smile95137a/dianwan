@@ -3,6 +3,7 @@ package com.one.onekuji.service;
 import com.one.onekuji.model.PrizeNumber;
 import com.one.onekuji.repository.PrizeNumberMapper;
 import com.one.onekuji.repository.ProductDetailRepository;
+import com.one.onekuji.repository.ProductRepository;
 import com.one.onekuji.request.DetailReq;
 import com.one.onekuji.response.DetailRes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,8 @@ public class ProductDetailService {
 
     @Autowired
     private ProductDetailRepository productDetailMapper;
-
+    @Autowired
+    private ProductRepository productRepository;
     @Autowired
     private PrizeNumberMapper prizeNumberMapper;
 
@@ -34,7 +36,7 @@ public class ProductDetailService {
         for (DetailReq detailReq : detailReqs) {
             totalQuantity += detailReq.getQuantity();
         }
-
+        productRepository.updateTotalQua(totalQuantity , detailReqs.get(0).getProductId());
         List<Integer> shuffledNumbers = new ArrayList<>();
         for (int i = 1; i <= totalQuantity; i++) {
             shuffledNumbers.add(i);
@@ -59,7 +61,7 @@ public class ProductDetailService {
                 PrizeNumber prizeNumber = new PrizeNumber();
                 prizeNumber.setProductId(detailReq.getProductId());
                 prizeNumber.setProductDetailId(Math.toIntExact(productDetailId));
-                prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex))); // 使用打乱的号码
+                prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex)));
                 prizeNumber.setIsDrawn(false);
                 prizeNumber.setLevel(detailReq.getGrade());
                 allPrizeNumbers.add(prizeNumber);

@@ -19,4 +19,6 @@ public class CartItemRes {
     private String imageUrl;
 
     private BigDecimal specialPrice;
+
+    private String image;
 }

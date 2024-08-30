@@ -35,7 +35,7 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(userDetail);
         User user = userRepository.getUserByUserName(loginDto.getUsername());
         if(user.getRoleId() == 3 || user.getRoleId() == 1 || user.getRoleId() == 2){
-            return new LoginResponse(token, user.getId(), user.getUsername());
+            return new LoginResponse(token, user.getId(), user.getUsername() , user.getUserUid());
         }else{
             throw new Exception("不屬於認證會員，請先認證");
         }
@@ -56,6 +56,6 @@ public class AuthService {
             var userDetail = SecurityUtils.getCurrentUserPrinciple();
             String jwt = jwtTokenProvider.generateToken(userDetail);
 
-            return new LoginResponse(jwt, userRes.getId(), userRes.getUsername());
+            return new LoginResponse(jwt, userRes.getId(), userRes.getUsername() , userRes.getUserUid());
         }
 }
