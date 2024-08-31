@@ -2,11 +2,17 @@ package com.one.frontend.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Schema(description = "購物車項目模型")
 @Table(name = "cart_Item")
@@ -39,10 +45,4 @@ public class CartItem{
     @Schema(description = "總價格", example = "199.98")
     @Column(name = "total_price")
     private BigDecimal totalPrice;
-
-    @Column(name = "is_pay")
-    private boolean isPay;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 }

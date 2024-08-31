@@ -1,23 +1,37 @@
 package com.one.frontend.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.one.frontend.ecpay.payment.integration.AllInOne;
 import com.one.frontend.ecpay.payment.integration.domain.AioCheckOutALL;
+import com.one.frontend.eenum.OrderStatus;
+import com.one.frontend.model.CartItem;
 import com.one.frontend.model.Order;
+import com.one.frontend.model.OrderDetail;
 import com.one.frontend.repository.OrderDetailRepository;
 import com.one.frontend.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.one.frontend.response.OrderDetailRes;
+import com.one.frontend.response.OrderRes;
+import com.one.frontend.util.RandomUtils;
 
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-	@Autowired
-	private OrderRepository orderRepository;
+	private final OrderRepository orderRepository;
 
-	@Autowired
-	private OrderDetailRepository orderDetailRepository;
+	private final OrderDetailRepository orderDetailRepository;
+
+	private final CartItemService cartItemService;
 
 	public String ecpayCheckout(Integer userId) {
 
@@ -39,13 +53,45 @@ public class OrderService {
 		return form;
 	}
 
-
-
 	public Order getOrderById(String userUid) {
 		return orderRepository.getOrderById(userUid);
 	}
 
+	public OrderRes getOrderByOrderNumber(String orderNumber) {
+
+		OrderRes order = orderRepository.findOrderByOrderNumber(orderNumber);
+		if (order != null) {
+			List<OrderDetailRes> orderDetails = orderDetailRepository.findOrderDetailsByOrderId(order.getOrderId());
+			order.setOrderDetails(orderDetails);
+		}
+		return order;
+	}
+
 	public void save(Order order) {
 		orderRepository.save(order);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public String createOrder(List<CartItem> cartItemList, Long userId) {
+		var totalAmount = cartItemList.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		var orderNumber = RandomUtils.genRandomNumbers(32);
+		var order = Order.builder().orderNumber(orderNumber).userId(userId).totalAmount(totalAmount)
+				.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT).paidAt(LocalDateTime.now())
+				.build();
+		orderRepository.save(order);
+
+		Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
+
+		for (CartItem cartItem : cartItemList) {
+			var orderDetail = OrderDetail.builder().orderId(orderId).storeProductId(cartItem.getStoreProductId())
+					.quantity(cartItem.getQuantity()).unitPrice(cartItem.getUnitPrice())
+					.resultStatus(OrderStatus.PREPARING_SHIPMENT).build();
+			orderDetailRepository.saveOrderDetail(orderDetail);
+		}
+
+		var cartItemIds = cartItemList.stream().map(CartItem::getCartItemId).collect(Collectors.toList());
+		cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+		return orderNumber;
 	}
 }

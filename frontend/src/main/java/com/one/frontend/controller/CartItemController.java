@@ -29,64 +29,64 @@ public class CartItemController {
     private CartService cartService;
 
     @PostMapping("/add")
-        public ResponseEntity<ApiResponse<String>> addCartItem(@RequestBody CartItemReq cartItem) {
-            try {
-                //取得使用者ID
-                CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-                if (userDetails == null) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                }
-                String userUid = userDetails.getUserUid();
-
-                //透過userId搜尋cart
-                Long cartId = cartService.getCartIdByUserId(userUid);
-                if(cartId == null){
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                }else{
-                    cartItem.setCartId(cartId);
-                }
-                //透過cartItem的store_product_id搜尋商品資訊
-                StoreProductRes res = storeProductService.getStoreProductById(cartItem.getStoreProductId());
-                if(res == null){
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                }else{
-                    cartItem.setStoreProductName(res.getProductName());
-                }
-
-                cartItemService.addCartItem(cartItem);
-                ApiResponse<String> response = ResponseUtils.success(201, "商品成功加到購物車", null);
-                return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            } catch (Exception e) {
-                ApiResponse<String> response = ResponseUtils.failure(500, "商品新增失敗", null);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-            }
-        }
-    /*
-    每更新一次數量 就重新回傳一次價格存進DB並且回傳
-     */
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<CartItem>> updateCartItem(
-            @PathVariable Long id,
-            @RequestParam Integer quantity) {
-
+    public ResponseEntity<ApiResponse<?>> addCartItem(@RequestBody CartItemReq cartItem) {
         try {
-            CartItem cartItem = cartItemService.getCartItemById(id);
-            if (cartItem == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ResponseUtils.failure(404, "購物車選項不存在", null));
+            // 取得使用者ID
+            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            var userUid = userDetails.getId();
+
+            Long cartId = cartService.getCartIdByUserId(userUid);
+
+            if (cartId == null) {
+                var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
+                return ResponseEntity.ok(response);
+            } else {
+                cartItem.setCartId(cartId);
             }
 
-            CartItem result = cartItemService.updateCartItemQuantity(id, quantity);
-
-            ApiResponse<CartItem> response = ResponseUtils.success(200, "購物車已更新", result);
-            return ResponseEntity.ok(response);
+            var result = cartItemService.addCartItem(cartItem);
+            var response = ResponseUtils.success(201, "商品成功加到購物車", result);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            ApiResponse<CartItem> response = ResponseUtils.failure(500, "更新購物車發生錯誤", null);
+            var response = ResponseUtils.failure(500, "商品新增失敗", false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
+    
+    
+    @DeleteMapping("/remove/{cartItemId}")
+    public ResponseEntity<ApiResponse<?>> removeCartItem(@PathVariable Long cartItemId) {
+        try {
+            // 取得使用者ID
+            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+            if (userDetails == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            var userUid = userDetails.getId();
 
+            Long cartId = cartService.getCartIdByUserId(userUid);
 
+            if (cartId == null) {
+                var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
+                return ResponseEntity.ok(response);
+            } 
+
+            boolean result = cartItemService.removeCartItem(cartId, cartItemId);
+            if (!result) {
+                var response = ResponseUtils.failure(400, "商品移除失敗", false);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            var response = ResponseUtils.success(200, "商品成功移除", true);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            var response = ResponseUtils.failure(500, "商品移除失敗", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 }

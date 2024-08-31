@@ -1,13 +1,27 @@
 package com.one.frontend.model;
 
-import com.one.frontend.eenum.OrderStatus;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import lombok.Data;
-
 import java.math.BigDecimal;
 
+import com.one.frontend.eenum.OrderStatus;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "訂單詳情模型")
 @Table(name = "order_detail")
 @Entity
@@ -16,19 +30,19 @@ public class OrderDetail{
     @Schema(description = "訂單詳細唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Schema(description = "訂單 ID", example = "1")
     @Column(name = "order_id")
-    private Integer orderId;
+    private Long orderId;
 
     @Schema(description = "產品 ID", example = "1")
     @Column(name = "product_id")
-    private Integer productId;
+    private Long productId;
 
     @Schema(description = "商店產品 ID", example = "1")
     @Column(name = "store_product_id")
-    private Integer storeProductId;
+    private Long storeProductId;
 
     @Schema(description = "商店產品名稱", example = "Product A")
     @Column(name = "store_product_name", length = 100)

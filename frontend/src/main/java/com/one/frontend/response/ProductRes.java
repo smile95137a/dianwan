@@ -30,4 +30,7 @@ public class ProductRes {
     private BigDecimal height;
     private String specification;
     private BigDecimal size;
+    
+    private Integer detailQuantity;
+    private Integer detailStockQuantity;
 }

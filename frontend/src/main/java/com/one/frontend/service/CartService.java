@@ -1,34 +1,26 @@
 package com.one.frontend.service;
 
-import com.one.frontend.model.CartItem;
-import com.one.frontend.repository.CartRepository;
-import com.one.frontend.repository.UserRepository;
-import com.one.frontend.response.CartItemRes;
-import com.one.frontend.response.UserRes;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.one.frontend.repository.CartRepository;
+import com.one.frontend.response.CartItemRes;
 @Service
 public class CartService {
 
     @Autowired
     private CartRepository cartRepository;
 
-    @Autowired
-    private UserRepository userRepository;
 
-    public List<CartItemRes> getCatItem(String userUid) {
-        return cartRepository.getCatItem(userUid);
+    public List<CartItemRes> getCart(Long userId) {
+        return cartRepository.getCart(userId);
     }
 
-    public Long getCartIdByUserId(String userUid) {
-        Long cartId = cartRepository.getCartIdByUserId(userUid);
+    public Long getCartIdByUserId(Long userId) {
+        Long cartId = cartRepository.getCartIdByUserId(userId);
         return cartId;
     }
 
-    public List<CartItem> findByUserUidAndIsPayFalse(String userUid) {
-        UserRes res = userRepository.getUserById(userUid);
-        return cartRepository.findByUserUidAndIsPayFalse(res.getId());
-    }
 }

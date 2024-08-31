@@ -3,12 +3,18 @@ package com.one.frontend.model;
 import com.one.frontend.eenum.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Schema(description = "訂單模型")
 @Table(name = "`order`")
@@ -24,8 +30,8 @@ public class Order{
     private String orderNumber;
 
     @Schema(description = "用戶 ID", example = "1")
-    @Column(name = "user_uid")
-    private String userUid;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Schema(description = "總金額", example = "199.98")
     @Column(name = "total_amount")

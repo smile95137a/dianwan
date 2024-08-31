@@ -9,8 +9,17 @@ import java.util.List;
 @Mapper
 public interface ProductRepository {
 
-    @Select("SELECT * FROM product LIMIT #{size} OFFSET #{offset}")
-    List<ProductRes> getAllProduct(@Param("offset") int offset, @Param("size") int size);
+	@Select("SELECT p.*, " +
+	        "SUM(pd.quantity) as detailQuantity, " +
+	        "SUM(pd.stock_quantity) as detailStockQuantity " +
+	        "FROM product p " +
+	        "LEFT JOIN product_detail pd ON p.product_id = pd.product_id " +
+	        "GROUP BY p.product_id " 
+//	        "LIMIT #{size} OFFSET #{offset}"
+	        )
+	List<ProductRes> getAllProduct(@Param("offset") int offset, @Param("size") int size);
+
+
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
     ProductRes getProductById(@Param("productId") Integer productId);
