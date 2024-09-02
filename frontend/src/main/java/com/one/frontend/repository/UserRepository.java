@@ -13,24 +13,36 @@ import java.util.Set;
 
 @Mapper
 public interface UserRepository{
+	
+    @Select("select * from user where id = #{userId}")
+    UserRes getUserById(@Param("userId") Long userId);
+    
     @Select("select * from user where user_uid = #{userUid}")
-    UserRes getUserById(@Param("userUid") String userUid);
+    UserRes getUserByUserUid(@Param("userUid") String userUid);
 
     @Select("select * from user where id = #{userId}")
     User getUserBId(@Param("userId") Integer userId);
+    
+    @Select("select * from user where id = #{userId}")
+    User getById(@Param("userId") Long userId);
 
     @Select("SELECT * FROM user")
     List<User> getAllUser();
 
 
-    @Insert("INSERT INTO `user` (username, password, email, phone_number, address, created_at , balance , bonus, provider , role_id , user_uid) " +
-            "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt} , #{balance} , #{bonus}, #{provider} , #{roleId} , #{userUid})")
+    @Insert("INSERT INTO `user` (username, password, email, nickname, phone_number, address, city, area, address_name, line_id, created_at, balance, bonus, sliver_coin, provider, role_id, user_uid, status, draw_count, invoice_info, invoice_info_email) " +
+            "VALUES (#{username}, #{password}, #{email}, #{nickname}, #{phoneNumber}, #{address}, #{city}, #{area}, #{addressName}, #{lineId}, #{createdAt}, #{balance}, #{bonus}, #{sliverCoin}, #{provider}, #{roleId}, #{userUid}, #{status}, #{drawCount}, #{invoiceInfo}, #{invoiceInfoEmail})")
     void createUser(User user);
 
-    @Update("UPDATE `user` SET password = #{password}, nickname = #{nickName}, " +
-            "email = #{email}, phone_number = #{phoneNumber}, address = #{address}, updated_at = #{updatedAt} " +
+
+
+    @Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, " +
+            "email = #{email}, phone_number = #{phoneNumber}, address = #{address}, city = #{city}, area = #{area}, address_name = #{addressName}, line_id = #{lineId}, updated_at = #{updatedAt}, status = #{status}, balance = #{balance}, bonus = #{bonus}, sliver_coin = #{sliverCoin}, draw_count = #{drawCount}, " +
+            "invoice_info = #{invoiceInfo}, invoice_info_email = #{invoiceInfoEmail} " +
             "WHERE id = #{id}")
-    void update(UserRes user);
+    void update(User user);
+
+
 
     @Delete("DELETE FROM user WHERE id = #{userId}")
     void deleteUser(@Param("userId") Integer userId);

@@ -48,7 +48,7 @@ public class DrawResultService {
 
     public List<DrawResult> handleDraw(String userUid, Integer count , Integer productId) throws Exception {
 
-        UserRes userRes = userRepository.getUserById(userUid);
+        UserRes userRes = userRepository.getUserByUserUid(userUid);
         Integer userId = Math.toIntExact(userRes.getId());
 
         // 先確認商品是否還有貨
@@ -150,7 +150,7 @@ public class DrawResultService {
 
 
         orderDetailRepository.insertOrderDetail(orderDetailDtoList);
-        UserRes user = userRepository.getUserById(userUid);
+        UserRes user = userRepository.getUserByUserUid(userUid);
         Long drawCount = user.getDrawCount();
         if (drawCount < 3L) {
             userRepository.addDrawCount(Long.valueOf(userId));
@@ -184,7 +184,7 @@ public class DrawResultService {
 
     public List<DrawResult> handleDraw2(String userUid, Long productId, List<String> prizeNumbers) throws Exception {
         try {
-            UserRes userRes = userRepository.getUserById(userUid);
+            UserRes userRes = userRepository.getUserByUserUid(userUid);
             Integer userId = Math.toIntExact(userRes.getId());
 
             // 確認商品是否存在
@@ -287,7 +287,7 @@ public class DrawResultService {
             orderDetailRepository.insertOrderDetail(orderDetailList);
 
 // 处理用户抽奖次数和红利
-            UserRes user = userRepository.getUserById(userUid);
+            UserRes user = userRepository.getUserByUserUid(userUid);
             Long drawCount = user.getDrawCount();
             if (drawCount < 3L) {
                 userRepository.addDrawCount(Long.valueOf(userId));
@@ -304,7 +304,7 @@ public class DrawResultService {
 
     public DrawResult handleDrawRandom(String userUid, Long productId) throws Exception {
 
-        UserRes userRes = userRepository.getUserById(userUid);
+        UserRes userRes = userRepository.getUserByUserUid(userUid);
         Integer userId = Math.toIntExact(userRes.getId());
 
         // 获取未抽走的奖品编号

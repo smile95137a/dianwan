@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserReq {
 
-	private Long userId;
-	private String userUid;
 	private String username;
 	private String password;
 	private String natId;
-	private String nickName;
+	private String nickname;
 	private String email;
 	private String phoneNumber;
-	private String addressName;
 	private String city; 
 	private String area;
 	private String address;
+	private String addressName;
 	private String lineId;
+	private String invoiceInfo;
+	private String invoiceInfoEmail;
 }

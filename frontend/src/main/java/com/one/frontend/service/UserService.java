@@ -1,5 +1,14 @@
 package com.one.frontend.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.one.frontend.model.Cart;
 import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
@@ -8,14 +17,9 @@ import com.one.frontend.repository.RoleRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.one.frontend.util.RandomUtils;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -38,8 +42,8 @@ public class UserService {
 		return userRepository.getAllUser();
 	}
 
-	public UserRes getUserById(String userUid) {
-		return userRepository.getUserById(userUid);
+	public UserRes getUserById(Long userId) {
+		return userRepository.getUserById(userId);
 	}
 
 	public String deleteUser(Integer userId) {
@@ -66,18 +70,14 @@ public class UserService {
 			System.out.println(memberRole);
 			String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
 
-			User user = new User();
-			user.setUserUid(UUID.randomUUID().toString());
-			user.setUsername(userDto.getUsername());
-			user.setPassword(encryptedPassword);
-			user.setEmail(userDto.getEmail());
-			user.setAddress(userDto.getAddress());
-			user.setPhoneNumber(userDto.getPhoneNumber());
-			user.setCreatedAt(LocalDateTime.now());
-			user.setRoleId(memberRole.getId());
-			user.setBalance(BigDecimal.ZERO);
-			user.setBonus(BigDecimal.ZERO);
-			user.setDrawCount(0L);
+			User user = User.builder().userUid(RandomUtils.genRandom(32)).username(userDto.getUsername())
+					.password(encryptedPassword).nickname(userDto.getNickname()).email(userDto.getEmail())
+					.phoneNumber(userDto.getPhoneNumber()).city(userDto.getCity()).area(userDto.getArea())
+					.address(userDto.getAddress()).addressName(userDto.getAddressName()).lineId(userDto.getLineId())
+					.createdAt(LocalDateTime.now()).roleId(memberRole.getId()).balance(BigDecimal.ZERO)
+					.bonus(BigDecimal.ZERO).sliverCoin(BigDecimal.ZERO).status("ACTIVE").drawCount(0L).provider("local")
+					.invoiceInfoEmail(userDto.getEmail())
+					.build();
 			userRepository.createUser(user);
 
 			UserRes userRes = new UserRes();
@@ -99,29 +99,40 @@ public class UserService {
 		}
 	}
 
-	public UserRes updateUser(UserReq userReq, String userUid) {
+	@Transactional
+	public boolean updateUser(UserReq req, Long userId) throws Exception {
 		try {
-			UserRes user = userRepository.getUserById(userUid);
+			User user = userRepository.getById(userId);
 
-			if (userReq.getPassword() != null && !userReq.getPassword().isEmpty()) {
-				String encryptedPassword = passwordEncoder.encode(userReq.getPassword());
-				user.setPassword(encryptedPassword);
-			}
-
-			user.setId(userReq.getUserId());
-			user.setUsername(userReq.getUsername());
-			user.setNickName(userReq.getNickName());
-			user.setEmail(userReq.getEmail());
-			user.setPhoneNumber(userReq.getPhoneNumber());
-			user.setAddress(userReq.getAddress());
+			user.setNickname(req.getNickname());
+			user.setAddressName(req.getAddressName());
+			user.setCity(req.getCity());
+			user.setArea(req.getArea());
+			user.setAddress(req.getAddress());
+			user.setLineId(req.getLineId());
+			user.setPhoneNumber(req.getPhoneNumber());
 			user.setUpdatedAt(LocalDateTime.now());
 
 			userRepository.update(user);
-
-			return userRepository.getUserById(userUid);
+			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+			throw new Exception("Failed to update user with ID: " + userId, e);
 		}
 	}
+	
+	@Transactional
+	public boolean updateUserInvoice(UserReq req, Long userId) throws Exception {
+		try {
+			User user = userRepository.getById(userId);
+			user.setInvoiceInfo(req.getInvoiceInfo());
+			user.setInvoiceInfoEmail(req.getInvoiceInfoEmail());
+			user.setUpdatedAt(LocalDateTime.now());
+
+			userRepository.update(user);
+			return true;
+		} catch (Exception e) {
+			throw new Exception("Failed to update user with ID: " + userId, e);
+		}
+	}
+
 }

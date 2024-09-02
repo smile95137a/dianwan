@@ -54,10 +54,25 @@ public class User{
     @Schema(description = "用戶電話號碼", example = "+123456789")
     @Column(name = "phoneNumber", length = 20)
     private String phoneNumber;
+    
+    @Schema(description = "用戶地址", example = "123 Main St, City, Country")
+    @Column(name = "city", length = 255)
+    private String city;
+    
+    @Schema(description = "用戶地址", example = "123 Main St, City, Country")
+    @Column(name = "area", length = 255)
+    private String area;
 
     @Schema(description = "用戶地址", example = "123 Main St, City, Country")
     @Column(name = "address", length = 255)
     private String address;
+    
+    @Schema(description = "收收貨姓名", example = "123 Main St, City, Country")
+    @Column(name = "address_name", length = 255)
+    private String addressName;
+    
+    @Column(name = "line_id", length = 255)
+    private String lineId;
 
     @Schema(description = "用戶創建時間", example = "2024-08-22T15:30:00")
     @Column(name = "createdAt")
@@ -98,4 +113,10 @@ public class User{
 
     @Column(name= "draw_count")
     private Long drawCount;
+    
+    @Column(name= "invoice_info")
+	private String invoiceInfo;
+    @Column(name= "invoice_info_email")
+	private String invoiceInfoEmail;
+    
 }
