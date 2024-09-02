@@ -2,7 +2,12 @@ package com.one.frontend.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -17,6 +22,7 @@ import com.one.frontend.model.Order;
 import com.one.frontend.model.OrderDetail;
 import com.one.frontend.repository.OrderDetailRepository;
 import com.one.frontend.repository.OrderRepository;
+import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.response.OrderDetailRes;
 import com.one.frontend.response.OrderRes;
 import com.one.frontend.util.RandomUtils;
@@ -57,6 +63,31 @@ public class OrderService {
 		return orderRepository.getOrderById(userUid);
 	}
 
+	public List<OrderRes> queryOrders(Long userId, OrderQueryReq req) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId", userId);
+
+		LocalDateTime startDate = convertToLocalDateTime(req.getStartDate());
+		LocalDateTime endDate = convertToLocalDateTime(req.getEndDate());
+
+		// 调整 startDate 和 endDate 的时间部分
+		if (startDate != null) {
+			startDate = startDate.with(LocalTime.MIN); 
+		}
+		if (endDate != null) {
+			endDate = endDate.with(LocalTime.MAX); 
+		}
+
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+
+		return orderRepository.findOrdersByDateRange(params).stream().peek(
+				order -> order.setOrderDetails(orderDetailRepository.findOrderDetailsByOrderId(order.getOrderId())))
+				.toList();
+	}
+	private LocalDateTime convertToLocalDateTime(Date dateToConvert) {
+	    return dateToConvert == null ? null : LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneId.systemDefault());
+	}
 	public OrderRes getOrderByOrderNumber(String orderNumber) {
 
 		OrderRes order = orderRepository.findOrderByOrderNumber(orderNumber);

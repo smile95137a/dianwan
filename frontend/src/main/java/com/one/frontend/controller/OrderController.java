@@ -2,7 +2,6 @@ package com.one.frontend.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +17,7 @@ import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.Order;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
 import com.one.frontend.service.CartItemService;
 import com.one.frontend.service.CartService;
@@ -26,26 +26,21 @@ import com.one.frontend.service.OrderService;
 import com.one.frontend.util.ResponseUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/order")
+@RequiredArgsConstructor
 public class OrderController {
 
-	@Autowired
-	OrderService orderService;
-
-	@Autowired
-	private OrderDetailService orderDetailService;
-
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private CartItemService cartItemService;
-
-	@Autowired
-	private CartService cartService;
+	private final OrderService orderService;
+	private final OrderDetailService orderDetailService;
+	private final UserRepository userRepository;
+	private final  CartItemService cartItemService;
+	private final CartService cartService;
 
 	// 根据ID获取订单
 	@GetMapping("/{userUid}")
@@ -60,6 +55,21 @@ public class OrderController {
 		ApiResponse<Order> response = ResponseUtils.success(200, null, order);
 		return ResponseEntity.ok(response);
 	}
+	
+	
+	@PostMapping("/queryOrder")
+	public ResponseEntity<?> queryOrder(@RequestBody OrderQueryReq req) {
+	    CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+	    if (userDetails == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
+
+        var userId = userDetails.getId();
+        var list = orderService.queryOrders(userId,req);
+        var res = ResponseUtils.success(200, null, list);
+		return ResponseEntity.ok(res);
+	}
+	
 
 	@PostMapping("/storeProduct/pay")
 	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) {

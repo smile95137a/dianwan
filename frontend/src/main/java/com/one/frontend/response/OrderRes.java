@@ -2,6 +2,7 @@ package com.one.frontend.response;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class OrderRes {
     private Integer bonusPointsUsed;
     private String resultStatus;
     private List<OrderDetailRes> orderDetails;
+    private LocalDateTime createdAt;
 
 
 }
