@@ -1,4 +1,4 @@
-package com.one.frontend.dto;
+package com.one.onekuji.dto;
 
 import com.one.onekuji.model.User;
 import lombok.AllArgsConstructor;

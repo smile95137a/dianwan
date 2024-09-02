@@ -1,16 +1,17 @@
 package com.one.onekuji.service;
 
-import com.one.frontend.config.security.CustomUserDetails;
-import com.one.onekuji.model.User;
-import com.one.onekuji.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.one.onekuji.model.User;
+import com.one.onekuji.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

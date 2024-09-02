@@ -1,4 +1,4 @@
-package com.one.frontend.config.security;
+package com.one.onekuji.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
