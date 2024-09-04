@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.one.frontend.model.StoreKeyword;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,8 @@ public class StoreProductRes {
     private List<String> imageUrls; // 商品图片URL列表
 
     private String categoryId; // 商品所属分类的ID
+    
+    private String categoryName;
 
     private String status; // 商品状态（例如：上架、下架）
 
@@ -64,4 +68,8 @@ public class StoreProductRes {
     private Integer popularity; // 热度（受欢迎程度）
 
     private int favoritesCount; // 收藏数量
+    
+    private Boolean favorited;
+    
+    private List<StoreKeyword> keywordList;
 }

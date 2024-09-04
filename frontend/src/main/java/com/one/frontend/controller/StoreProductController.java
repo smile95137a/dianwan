@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.one.frontend.config.security.CustomUserDetails;
+import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.response.StoreProductRes;
 import com.one.frontend.service.StoreProductService;
@@ -48,6 +50,16 @@ public class StoreProductController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
 
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+
+		if (userDetails == null) {
+			productRes.setFavorited(false);
+		} else {
+			var userId = userDetails.getId();
+			boolean isFavorited = storeProductService.isProductFavoritedByUser(userId, productCode);
+			productRes.setFavorited(isFavorited);
+		}
+
 		ApiResponse<StoreProductRes> response = ResponseUtils.success(200, null, productRes);
 		return ResponseEntity.ok(response);
 	}
@@ -62,5 +74,14 @@ public class StoreProductController {
 			var response = ResponseUtils.failure(400, "產品熱度更新失敗", null);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
+	}
+
+	@PostMapping("/{productCode}/favorite")
+	public ResponseEntity<?> toggleFavorite(@PathVariable String productCode) {
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		boolean success = storeProductService.toggleFavorite(userId, productCode);
+		var response = ResponseUtils.success(200, "收藏狀態更新成功", success);
+		return ResponseEntity.ok(response);
 	}
 }

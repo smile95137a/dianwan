@@ -20,6 +20,12 @@ public class RandomUtils {
 
     private static final String ALL_CHARS_WITHOUT_OTHER = NUMBERS + LOWER_CHARS + UPPER_CHARS;
 
+    public static <T> List<T> randomSublist(List<T> list, int count) {
+        Collections.shuffle(list);
+        return list.subList(0, count);
+    }
+
+    
     public static String genRandom(int len) {
         return genRandom(len, false);
     }
