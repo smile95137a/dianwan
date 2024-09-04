@@ -46,4 +46,7 @@ public interface StoreProductRepository {
             "GROUP BY a.store_product_id")
     StoreProductRes findByProductCodeWithFavorites(@Param("productCode") String productCode);
     
+    @Update("UPDATE store_product SET popularity = popularity + 1 WHERE product_code = #{productCode}")
+    void incrementPopularityByProductCode(@Param("productCode") String productCode);
+    
 }
