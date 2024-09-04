@@ -1,25 +1,32 @@
 package com.one.frontend.response;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CartItemRes {
-    private Long cartItemId;          // CartItem的唯一标识符
-    private Long cartId;              // Cart的唯一标识符
-    private Integer storeProductId;
-    private String storeProductName;  // StoreProduct的名称
-    private Integer quantity;         // 商品数量
-    private BigDecimal unitPrice;     // 商品单价
-    private BigDecimal totalPrice;    // 总价
-    private boolean isPay;            // 是否要支付
-    private String imageUrl;          // 商品图片URL
-    private String productName;       // 商品名称
-    private BigDecimal specialPrice;  // 特价
-    private BigDecimal size;          // 商品尺寸
+
+    private Long cartItemId; // 购物车项的唯一标识符
+
+    private String productName; // 商品名称
+
+    private String productCode; // 商品代码
+
+    private String description; // 商品描述
+
+    private BigDecimal unitPrice; // 单价
+
+    private BigDecimal totalPrice; // 总价
+
+    private Integer quantity; // 数量
+
+    private Boolean isSelected; // 是否选中
+    
+    private List<String> imageUrls; // 商品图片URL列表
 }

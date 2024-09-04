@@ -21,7 +21,7 @@ public interface UserRepository{
     UserRes getUserByUserUid(@Param("userUid") String userUid);
 
     @Select("select * from user where id = #{userId}")
-    User getUserBId(@Param("userId") Integer userId);
+    User getUserBId(@Param("userId") Long userId);
     
     @Select("select * from user where id = #{userId}")
     User getById(@Param("userId") Long userId);
@@ -45,7 +45,7 @@ public interface UserRepository{
 
 
     @Delete("DELETE FROM user WHERE id = #{userId}")
-    void deleteUser(@Param("userId") Integer userId);
+    void deleteUser(@Param("userId") Long userId);
     @Select("SELECT username, password , role_id FROM user WHERE username = #{username}")
     @Results({
             @Result(property = "username", column = "username"),
@@ -67,19 +67,19 @@ public interface UserRepository{
     @Select("select * from user where role_id = #{roleId}")
     int countByRoleId(int roleId);
     @Update("UPDATE user SET balance = #{amount} WHERE id = #{userId}")
-    void deductUserBalance(@Param("userId") Integer userId, @Param("amount") BigDecimal amount);
+    void deductUserBalance(@Param("userId") Long userId, @Param("amount") BigDecimal amount);
 
 
     void insertBatch(List<DrawResult> drawResults);
 
     @Select("select balance from user where id = #{userId}")
-    Integer getBalance(Integer userId);
+    Integer getBalance(Long userId);
     @Select("select * from user where username = #{username}")
     User getUserByUserName(String username);
     @Select("select bonus from `user` where id = #{userId}")
-    Integer getBonusPoints(Integer userId);
+    Integer getBonusPoints(Long userId);
 
-    void deductUserBonusPoints(Integer userId, BigDecimal newBonusPoints);
+    void deductUserBonusPoints(Long userId, BigDecimal newBonusPoints);
     @Update("update `user` set balance = balance + tradeAmt where id = #{userId}")
     void updateAccoutnt(String tradeAmt , String userId);
     @Select("select * from `user` where google_id = #{googleId}")

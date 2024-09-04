@@ -1,96 +1,107 @@
 package com.one.frontend.model;
 
-import com.one.frontend.util.StringListConverter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.one.frontend.util.StringListConverter;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
-@Schema(description = "商店產品模型")
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "store_product")
 @Entity
 public class StoreProduct {
 
-    @Schema(description = "商店產品唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_product_id")
-    private Long storeProductId;
+    private Long storeProductId; // 商品唯一标识符
 
-    @Schema(description = "產品名稱", example = "Product A")
+    @Column(name = "product_code")
+    private String productCode; // 商品代码，唯一标识商品
+
     @Column(name = "product_name", length = 255)
-    private String productName;
+    private String productName; // 商品名称
 
-    @Schema(description = "描述", example = "Detailed description of Product A.")
     @Column(name = "description", columnDefinition = "LONGTEXT")
-    private String description;
+    private String description; // 商品描述，详细介绍商品信息
+    
+    @Column(name = "details", columnDefinition = "LONGTEXT")
+    @Lob
+    private String details; // 商品详情，包含更详细的商品信息
 
-    @Schema(description = "價格", example = "99.99")
+    @Column(name = "specification", columnDefinition = "LONGTEXT")
+    @Lob
+    private String specification; // 商品规格，可能包含详细的技术参数或其他规格信息
+
     @Column(name = "price")
-    private BigDecimal price;
+    private BigDecimal price; // 商品价格
 
-    @Schema(description = "庫存數量", example = "100")
+    @Column(name = "special_price")
+    private BigDecimal specialPrice; // 商品特价
+
+    @Column(name = "is_special_price")
+    private Boolean isSpecialPrice; // 是否为特价商品
+
     @Column(name = "stock_quantity")
-    private Integer stockQuantity;
+    private Integer stockQuantity; // 商品库存数量
 
-    @Schema(description = "已售數量", example = "25")
     @Column(name = "sold_quantity")
-    private Integer soldQuantity;
+    private Integer soldQuantity; // 已售出商品数量
 
-    @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
     @Column(name = "image_urls", columnDefinition = "JSON")
     @Convert(converter = StringListConverter.class)
-    private List<String> imageUrls;
+    private List<String> imageUrls; // 商品图片URL列表，存储为JSON格式
 
-    @Schema(description = "類別", example = "Electronics")
     @Column(name = "category_id", length = 100)
-    private String categoryId;
+    private String categoryId; // 商品所属分类的ID
 
-    @Schema(description = "狀態", example = "ACTIVE")
     @Column(name = "status", length = 50)
-    private String status;
+    private String status; // 商品状态（例如：上架、下架）
 
-    @Schema(description = "創建時間", example = "2024-08-22T15:30:00")
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Schema(description = "更新時間", example = "2024-08-22T15:30:00")
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Schema(description = "創建用戶 ID", example = "1")
-    @Column(name = "created_user")
-    private Long createdUser;
-
-    @Schema(description = "更新用戶 ID", example = "1")
-    @Column(name = "update_user")
-    private Long updateUser;
-
-    @Schema(description = "特價", example = "89.99")
-    @Column(name = "special_price")
-    private BigDecimal specialPrice;
     @Column(name = "shipping_method")
-    private String shippingMethod;
-    @Column(name = "size")
-    private BigDecimal size;
-
-    @Column(name = "length")
-    private BigDecimal length;
-
-    @Column(name = "width")
-    private BigDecimal width;
-
-    @Column(name = "height")
-    private BigDecimal height;
-
+    private String shippingMethod; // 商品运送方式
 
     @Column(name = "shipping_price")
-    private BigDecimal shippingPrice;
+    private BigDecimal shippingPrice; // 商品运费
 
-    @Column(name= "specification", columnDefinition = "LONGTEXT")
-    private String specification;
+    @Column(name = "size")
+    private BigDecimal size; // 商品尺寸（可能是体积或其他）
+
+    @Column(name = "length")
+    private BigDecimal length; // 商品长度
+
+    @Column(name = "width")
+    private BigDecimal width; // 商品宽度
+
+    @Column(name = "height")
+    private BigDecimal height; // 商品高度
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt; // 创建时间
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt; // 最后更新时间
+
+    @Column(name = "created_user_id")
+    private Long createdUserId; // 创建商品的用户ID
+
+    @Column(name = "update_user_id")
+    private Long updateUserId; // 最后更新商品的用户ID
+    
+    @Column(name = "popularity")
+    private Integer popularity; // 热度（受欢迎程度）
 }

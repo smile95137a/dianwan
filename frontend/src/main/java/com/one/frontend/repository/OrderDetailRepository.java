@@ -42,12 +42,10 @@ public interface OrderDetailRepository {
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void save(@Param("orderDetail") StoreOrderDetailReq orderDetail);
     
-    @Insert("INSERT INTO order_detail (order_id, store_product_id, quantity, unit_price, result_status, total_price) " +
-            "VALUES (#{orderDetail.orderId}, #{orderDetail.storeProductId}, #{orderDetail.quantity}, " +
-            "#{orderDetail.unitPrice}, #{orderDetail.resultStatus}, #{orderDetail.totalPrice})")
+    @Insert("INSERT INTO order_detail (order_id, store_product_id, quantity, unit_price, total_price, result_item_id, bonus_points_earned) " +
+            "VALUES (#{orderDetail.orderId}, #{orderDetail.storeProductId}, #{orderDetail.quantity}, #{orderDetail.unitPrice}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned})")
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void saveOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
-    
     
     
     @Select("SELECT od.*, sp.* " +

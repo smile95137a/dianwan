@@ -21,67 +21,72 @@ public class CartItemService {
 
 	private final StoreProductService storeProductService;
 
-    @Transactional(rollbackFor = Exception.class)
-    public boolean addCartItem(CartItemReq req) {
-        try {
-            StoreProductRes productRes = storeProductService.getStoreProductById(req.getStoreProductId());
-            if (productRes == null) {
-                throw new RuntimeException("Product not found while adding cart item");
-            }
+	@Transactional(rollbackFor = Exception.class)
+	public boolean addCartItem(Long cartId, CartItemReq req) {
+	    try {
+	        StoreProductRes productRes = storeProductService.getStoreProductByProductCode(req.getProductCode());
+	        if (productRes == null) {
+	            throw new RuntimeException("Product not found while adding cart item");
+	        }
 
-            CartItem existingCartItem = cartItemRepository.findByCartIdAndStoreProductId(req.getCartId(), req.getStoreProductId());
+	        // 确定使用 specialPrice 还是 regular price
+	        BigDecimal unitPrice = productRes.getIsSpecialPrice() != null && productRes.getIsSpecialPrice()
+	                ? productRes.getSpecialPrice()
+	                : productRes.getPrice();
 
-            if (existingCartItem != null) {
-                int newQuantity = existingCartItem.getQuantity() + req.getQuantity();
-                BigDecimal newTotalPrice = productRes.getPrice().multiply(BigDecimal.valueOf(newQuantity));
+	        CartItem existingCartItem = cartItemRepository.findByCartIdAndStoreProductId(cartId, productRes.getStoreProductId());
 
-                existingCartItem.setQuantity(newQuantity);
-                existingCartItem.setTotalPrice(newTotalPrice);
+	        if (existingCartItem != null) {
+	            int newQuantity = existingCartItem.getQuantity() + req.getQuantity();
+	            BigDecimal newTotalPrice = unitPrice.multiply(BigDecimal.valueOf(newQuantity));
 
-                cartItemRepository.updateCartItem(existingCartItem);
-            } else {
-                var cartItem = CartItem.builder()
-                        .cartId(req.getCartId())
-                        .storeProductId(productRes.getStoreProductId())
-                        .storeProductName(productRes.getProductName())
-                        .quantity(req.getQuantity())
-                        .unitPrice(productRes.getPrice())
-                        .totalPrice(productRes.getPrice().multiply(BigDecimal.valueOf(req.getQuantity())))
-                        .build();
+	            existingCartItem.setQuantity(newQuantity);
+	            existingCartItem.setTotalPrice(newTotalPrice);
 
-                cartItemRepository.addCartItem(cartItem);
-            }
+	            cartItemRepository.updateCartItem(existingCartItem);
+	        } else {
+	            var cartItem = CartItem.builder()
+	                    .cartId(cartId)
+	                    .storeProductId(productRes.getStoreProductId())
+	                    .quantity(req.getQuantity())
+	                    .unitPrice(unitPrice)
+	                    .totalPrice(unitPrice.multiply(BigDecimal.valueOf(req.getQuantity())))
+	                    .isSelected(true)
+	                    .build();
 
-            return true;
+	            cartItemRepository.addCartItem(cartItem);
+	        }
 
-        } catch (Exception e) {
-            throw new RuntimeException("Error occurred while adding cart item", e);
-        }
-    }
+	        return true;
 
-    @Transactional(rollbackFor = Exception.class)
-    public boolean removeCartItem(Long cartId, Long cartItemId) {
-        try {
-            cartItemRepository.deleteCartItem(cartId, cartItemId);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to remove cart item", e);
-        }
-    }
-    
-    @Transactional(rollbackFor = Exception.class)
-    public boolean removeCartItems(List<Long> cartItemIds, Long cartId) {
-        try {
-            cartItemRepository.deleteCartItems(cartId, cartItemIds);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to remove cart item", e);
-        }
-    }
-    
-    
-    public List<CartItem> findByCartIdAndCartItemList(Long cartId, List<Long> cartItemIds) {
-        return cartItemRepository.findByCartIdAndCartItemList(cartId, cartItemIds);
-    }
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error occurred while adding cart item", e);
+	    }
+	}
+
+
+	@Transactional(rollbackFor = Exception.class)
+	public boolean removeCartItem(Long cartId, Long cartItemId) {
+		try {
+			cartItemRepository.deleteCartItem(cartId, cartItemId);
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to remove cart item", e);
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public boolean removeCartItems(List<Long> cartItemIds, Long cartId) {
+		try {
+			cartItemRepository.deleteCartItems(cartId, cartItemIds);
+			return true;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to remove cart item", e);
+		}
+	}
+
+	public List<CartItem> findByCartIdAndCartItemList(Long cartId, List<Long> cartItemIds) {
+		return cartItemRepository.findByCartIdAndCartItemList(cartId, cartItemIds);
+	}
 
 }

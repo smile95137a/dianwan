@@ -1,13 +1,18 @@
 package com.one.frontend.model;
 
+import java.math.BigDecimal;
+
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -31,9 +36,6 @@ public class CartItem{
     @Column(name = "store_product_id")
     private Long storeProductId;
 
-    @Column(name = "store_product_name")
-    private String storeProductName;
-
     @Schema(description = "數量", example = "2")
     @Column(name = "quantity")
     private Integer quantity;
@@ -45,4 +47,8 @@ public class CartItem{
     @Schema(description = "總價格", example = "199.98")
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+    
+    @Schema(description = "是否選中", example = "true")
+    @Column(name = "is_selected")
+    private Boolean isSelected;
 }

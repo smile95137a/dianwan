@@ -1,26 +1,27 @@
 package com.one.frontend.service;
 
-import com.one.frontend.response.StoreProductRes;
-import com.one.frontend.repository.StoreProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.one.frontend.repository.StoreProductRepository;
+import com.one.frontend.response.StoreProductRes;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class StoreProductService {
 
-    @Autowired
-    private StoreProductRepository storeProductRepository;
+    private final StoreProductRepository storeProductRepository;
 
     public List<StoreProductRes> getAllStoreProducts(int page, int size) {
         int offset = page * size;
         return storeProductRepository.findAll(offset, size);
     }
 
-    public StoreProductRes getStoreProductById(Long id) {
-        Optional<StoreProductRes> product = Optional.ofNullable(storeProductRepository.findById(id));
-        return product.orElse(null);
+    public StoreProductRes getStoreProductByProductCode(String productCode) {
+    	var res = storeProductRepository.findByProductCodeWithFavorites(productCode);
+    	return res;
     }
 }

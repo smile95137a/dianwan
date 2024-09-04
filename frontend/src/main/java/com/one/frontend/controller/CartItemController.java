@@ -33,24 +33,20 @@ public class CartItemController {
         try {
             // 取得使用者ID
             CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-            if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            var userUid = userDetails.getId();
+            var userId = userDetails.getId();
 
-            Long cartId = cartService.getCartIdByUserId(userUid);
+            Long cartId = cartService.getCartIdByUserId(userId);
 
             if (cartId == null) {
                 var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
                 return ResponseEntity.ok(response);
-            } else {
-                cartItem.setCartId(cartId);
             }
 
-            var result = cartItemService.addCartItem(cartItem);
+            var result = cartItemService.addCartItem(cartId, cartItem);
             var response = ResponseUtils.success(201, "商品成功加到購物車", result);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
+        	e.printStackTrace();
             var response = ResponseUtils.failure(500, "商品新增失敗", false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -63,9 +59,6 @@ public class CartItemController {
         try {
             // 取得使用者ID
             CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-            if (userDetails == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
             var userUid = userDetails.getId();
 
             Long cartId = cartService.getCartIdByUserId(userUid);

@@ -29,7 +29,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/order")
@@ -39,73 +38,67 @@ public class OrderController {
 	private final OrderService orderService;
 	private final OrderDetailService orderDetailService;
 	private final UserRepository userRepository;
-	private final  CartItemService cartItemService;
+	private final CartItemService cartItemService;
 	private final CartService cartService;
 
-	// 根据ID获取订单
-	@GetMapping("/{userUid}")
-	public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable String userUid) {
-		Order order = orderService.getOrderById(userUid);
-
-		if (order == null) {
-			ApiResponse<Order> response = ResponseUtils.failure(404, "沒有此ID", null);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-		}
-
-		ApiResponse<Order> response = ResponseUtils.success(200, null, order);
-		return ResponseEntity.ok(response);
-	}
-	
-	
-	@PostMapping("/queryOrder")
-	public ResponseEntity<?> queryOrder(@RequestBody OrderQueryReq req) {
-	    CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-	    if (userDetails == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	    }
-
-        var userId = userDetails.getId();
-        var list = orderService.queryOrders(userId,req);
-        var res = ResponseUtils.success(200, null, list);
-		return ResponseEntity.ok(res);
-	}
-	
+//	// 根据ID获取订单
+//	@GetMapping("/{userUid}")
+//	public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable String userUid) {
+//		Order order = orderService.getOrderById(userUid);
+//
+//		if (order == null) {
+//			ApiResponse<Order> response = ResponseUtils.failure(404, "沒有此ID", null);
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+//		}
+//
+//		ApiResponse<Order> response = ResponseUtils.success(200, null, order);
+//		return ResponseEntity.ok(response);
+//	}
+//	
+//	
+//	@PostMapping("/queryOrder")
+//	public ResponseEntity<?> queryOrder(@RequestBody OrderQueryReq req) {
+//	    CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//	    if (userDetails == null) {
+//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//	    }
+//
+//        var userId = userDetails.getId();
+//        var list = orderService.queryOrders(userId,req);
+//        var res = ResponseUtils.success(200, null, list);
+//		return ResponseEntity.ok(res);
+//	}
 
 	@PostMapping("/storeProduct/pay")
 	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) {
-	    CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-	    if (userDetails == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	    }
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		Long cartId = cartService.getCartIdByUserId(userId);
 
-        var userId = userDetails.getId();
-        Long cartId = cartService.getCartIdByUserId(userId);
+		if (cartId == null) {
+			var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
+			return ResponseEntity.ok(response);
+		}
 
-        if (cartId == null) {
-            var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
-            return ResponseEntity.ok(response);
-        } 
-        
-        var cartItemList = cartItemService.findByCartIdAndCartItemList(cartId,payCartRes.getCartItemIds());
-	    var orderNumber = orderService.createOrder(cartItemList, userId);
+		var cartItemList = cartItemService.findByCartIdAndCartItemList(cartId, payCartRes.getCartItemIds());
+		var orderNumber = orderService.createOrder(payCartRes, cartItemList, userId);
 
-	    return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
+		return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
 	}
-	
+
 	@GetMapping("/storeProduct/{orderNumber}")
 	public ResponseEntity<?> getStoreProductOrderById(@PathVariable String orderNumber) {
-		var res = orderService.getOrderByOrderNumber(orderNumber);
-		return ResponseEntity.ok( ResponseUtils.success(200, null, res));
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		var res = orderService.getOrderByOrderNumber(userId, orderNumber);
+		return ResponseEntity.ok(ResponseUtils.success(200, null, res));
 	}
-
-
 
 	@PostMapping("/ecpayCheckout")
 	public String ecpayCheckout(@RequestBody Integer userId) {
 
-        return orderService.ecpayCheckout(userId);
+		return orderService.ecpayCheckout(userId);
 	}
-
 
 	@PostMapping(value = "/returnUrl", consumes = "application/x-www-form-urlencoded")
 	public String handleEcpayNotification(@RequestParam Map<String, String> paymentData, HttpServletResponse response) {
@@ -118,7 +111,7 @@ public class OrderController {
 			String merchantTradeNo = paymentData.get("MerchantTradeNo");
 			String tradeAmt = paymentData.get("TradeAmt");
 			String memberId = paymentData.get("CustomField1");
-			updateCustomerAccount(merchantTradeNo, tradeAmt , memberId);
+			updateCustomerAccount(merchantTradeNo, tradeAmt, memberId);
 
 			// 返回 1|OK 告知绿界已成功接收
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -129,9 +122,9 @@ public class OrderController {
 		}
 	}
 
-	private void updateCustomerAccount(String merchantTradeNo, String tradeAmt , String memberId) {
+	private void updateCustomerAccount(String merchantTradeNo, String tradeAmt, String memberId) {
 
-		userRepository.updateAccoutnt(tradeAmt , memberId);
+		userRepository.updateAccoutnt(tradeAmt, memberId);
 		// 实现更新账户余额逻辑
 		System.out.println("Update account balance for trade number: " + merchantTradeNo + " with amount: " + tradeAmt);
 	}

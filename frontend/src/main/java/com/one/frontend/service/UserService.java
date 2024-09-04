@@ -46,7 +46,7 @@ public class UserService {
 		return userRepository.getUserById(userId);
 	}
 
-	public String deleteUser(Integer userId) {
+	public String deleteUser(Long userId) {
 		try {
 			userRepository.deleteUser(userId);
 			return "1";
