@@ -1,17 +1,18 @@
 package com.one.frontend.service;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.one.frontend.model.DailySignInRecord;
 import com.one.frontend.model.SignIn;
 import com.one.frontend.repository.DailySignInRepository;
 import com.one.frontend.repository.SignInMapper;
+import com.one.frontend.repository.UserRepository;
 import com.one.frontend.response.SignInRes;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,8 @@ public class SignInService {
 
     private final SignInMapper signInMapper;
     private final DailySignInRepository dailySignInRepository;
+
+    private final UserRepository userRepository;
 
     public List<SignIn> getAllSignIns() {
         return signInMapper.findAll();
@@ -43,6 +46,7 @@ public class SignInService {
                             .build();
 
                     dailySignInRepository.insertSignInRecord(newRecord);
+                    userRepository.updateSliverCoin(userId, signIn.getSliverPrice());
                 } else {
                     throw new Exception("已經簽到");
                 }
