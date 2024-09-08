@@ -1,21 +1,15 @@
 package com.one.frontend.repository;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
-
 import com.one.frontend.model.CartItem;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface CartItemRepository {
 
-    @Insert("INSERT INTO cart_item (cart_id, store_product_id, quantity, unit_price, total_price, is_selected) "
-            + "VALUES (#{cartItem.cartId}, #{cartItem.storeProductId}, #{cartItem.quantity}, #{cartItem.unitPrice}, #{cartItem.totalPrice}, #{cartItem.isSelected})")
+    @Insert("INSERT INTO cart_item (cart_id, store_product_id, quantity, unit_price, total_price, is_selected , size) "
+            + "VALUES (#{cartItem.cartId}, #{cartItem.storeProductId}, #{cartItem.quantity}, #{cartItem.unitPrice}, #{cartItem.totalPrice}, #{cartItem.isSelected} , #{cartItem.size})")
     void addCartItem(@Param("cartItem") CartItem cartItem);
 
     @Select("SELECT * FROM cart_item WHERE cart_item_id = #{cartItemId}")

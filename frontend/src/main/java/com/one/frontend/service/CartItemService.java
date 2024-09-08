@@ -1,17 +1,15 @@
 package com.one.frontend.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.one.frontend.model.CartItem;
 import com.one.frontend.repository.CartItemRepository;
 import com.one.frontend.request.CartItemReq;
 import com.one.frontend.response.StoreProductRes;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +32,15 @@ public class CartItemService {
 	                ? productRes.getSpecialPrice()
 	                : productRes.getPrice();
 
+			//驗證size是否正確
+			BigDecimal productSize = productRes.getSize();
+			BigDecimal size = productRes.getLength().multiply(productRes.getHeight()).multiply(productRes.getWidth());
+			System.out.println(productSize.toBigInteger().intValueExact());
+			System.out.println(size.toBigInteger().intValueExact());
+			if(!(productSize.toBigInteger().intValueExact() == (productRes.getSize().toBigInteger().intValueExact()))){
+				throw new RuntimeException("size不正確");
+			}
+
 	        CartItem existingCartItem = cartItemRepository.findByCartIdAndStoreProductId(cartId, productRes.getStoreProductId());
 
 	        if (existingCartItem != null) {
@@ -52,6 +59,7 @@ public class CartItemService {
 	                    .unitPrice(unitPrice)
 	                    .totalPrice(unitPrice.multiply(BigDecimal.valueOf(req.getQuantity())))
 	                    .isSelected(true)
+						.size(productSize)
 	                    .build();
 
 	            cartItemRepository.addCartItem(cartItem);

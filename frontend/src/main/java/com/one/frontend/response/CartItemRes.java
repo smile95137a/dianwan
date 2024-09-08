@@ -1,11 +1,11 @@
 package com.one.frontend.response;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +29,6 @@ public class CartItemRes {
     private Boolean isSelected; // 是否选中
     
     private List<String> imageUrls; // 商品图片URL列表
+
+    private Long size; //回傳size 可以計算體積算出運費
 }

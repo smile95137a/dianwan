@@ -1,6 +1,5 @@
 package com.one.frontend.controller;
 
-import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.DrawResult;
@@ -8,9 +7,6 @@ import com.one.frontend.model.PrizeNumber;
 import com.one.frontend.service.DrawResultService;
 import com.one.frontend.util.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,31 +24,21 @@ public class DrawController {
 	private DrawResultService drawResultService;
 
 	@PostMapping("/oneprize/{userUid}")
-	@Operation(summary = "执行单次抽奖", description = "根据用户ID和产品ID执行一次抽奖")
+	@Operation(summary = "扭蛋抽獎")
 	public ResponseEntity<ApiResponse<List<DrawResult>>> drawPrize(@PathVariable String userUid,
 			@RequestParam Integer count, @RequestParam Integer productId) throws Exception {
 
-//        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-//
-//        if (userDetails == null) {
-//            ApiResponse<List<DrawResult>> response = ResponseUtils.failure(401, "未授权", null);
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-//        }
-//
-//        String authenticatedUserId = userDetails.getUserUid();
-//
-//        if (!authenticatedUserId.equals(userUid)) {
-//            ApiResponse<List<DrawResult>> response = ResponseUtils.failure(403, "禁止访问", null);
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-//        }
 		var userDetails = SecurityUtils.getCurrentUserPrinciple();
-		var userId = userDetails.getId();
+		Long userId = null;
+		if(userDetails != null){
+			 userId = userDetails.getId();
+		}
 		try {
 			List<DrawResult> result = drawResultService.handleDraw(userId, count, productId);
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, result);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			ApiResponse<List<DrawResult>> response = ResponseUtils.failure(400, "抽奖失败", null);
+			ApiResponse<List<DrawResult>> response = ResponseUtils.failure(400, "抽獎失敗", null);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
 	}
@@ -87,9 +73,6 @@ public class DrawController {
 
 	@PostMapping("/random/{productId}")
 	@Operation(summary = "紅利抽獎(隨機制)", description = "为特定产品和用户执行随机抽奖")
-	@ApiResponses(value = {
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "随机抽奖执行成功", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DrawResult.class))),
-			@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "请求错误") })
 	public ResponseEntity<ApiResponse<DrawResult>> executeRandom(@PathVariable Long productId,
 			@RequestParam String userUid) {
 		var userDetails = SecurityUtils.getCurrentUserPrinciple();
