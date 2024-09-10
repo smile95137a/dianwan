@@ -53,7 +53,7 @@ public interface OrderDetailRepository {
         @Result(property = "unitPrice", column = "unit_price"),
         @Result(property = "totalPrice", column = "total_price"),
         @Result(property = "storeProduct.storeProductId", column = "store_product_id"),
-        @Result(property = "storeProduct.productName", column = "store_product_name"),
+        @Result(property = "storeProduct.productName", column = "product_name"),
         @Result(property = "storeProduct.description", column = "description"),
         @Result(property = "storeProduct.price", column = "price"),
         @Result(property = "storeProduct.stockQuantity", column = "stock_quantity"),
