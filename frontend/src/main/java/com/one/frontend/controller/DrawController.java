@@ -25,7 +25,7 @@ public class DrawController {
 	@Autowired
 	private DrawResultService drawResultService;
 
-	@PostMapping("/oneprize/{userUid}")
+	@PostMapping("/oneprize")
 	@Operation(summary = "扭蛋抽獎")
 	public ResponseEntity<ApiResponse<List<DrawResult>>> drawPrize(@RequestBody GachaDrawDto gachaDrawDto) throws Exception {
 
