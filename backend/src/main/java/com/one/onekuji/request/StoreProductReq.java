@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StoreProductReq {
+    private Long storeProductId;
     private String productName;
     private String description;
     private BigDecimal price;
