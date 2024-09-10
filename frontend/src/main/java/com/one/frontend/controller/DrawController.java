@@ -1,6 +1,7 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.config.security.SecurityUtils;
+import com.one.frontend.dto.DrawDto;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.DrawResult;
 import com.one.frontend.model.PrizeNumber;
@@ -55,14 +56,13 @@ public class DrawController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("/execute/{productId}")
+	@PostMapping("/execute")
 	@Operation(summary = "一番賞、盲盒抽獎", description = "根据产品ID和用户ID执行抽奖")
-	public ResponseEntity<ApiResponse<List<DrawResult>>> executeDraw(@PathVariable Long productId,
-			@RequestParam String userUid, @RequestParam List<String> prizeNumber) {
+	public ResponseEntity<ApiResponse<List<DrawResult>>> executeDraw(@RequestBody DrawDto drawDto) {
 		var userDetails = SecurityUtils.getCurrentUserPrinciple();
 		var userId = userDetails.getId();
 		try {
-			List<DrawResult> drawResult = drawResultService.handleDraw2(userId, productId, prizeNumber);
+			List<DrawResult> drawResult = drawResultService.handleDraw2(userId, drawDto.getProductId(), drawDto.getPrizeNumbers());
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, drawResult);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
