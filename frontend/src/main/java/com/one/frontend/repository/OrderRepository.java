@@ -41,4 +41,43 @@ public interface OrderRepository {
 	@Select("SELECT * FROM `order` WHERE user_id = #{userId} AND order_number = #{orderNumber}")
 	OrderRes getOrderByUserIdAndOrderNumber(Long userId, String orderNumber);
 
+	@Results(id = "orderResultMap", value = { 
+			@Result(property = "id", column = "id"),
+			@Result(property = "orderNumber", column = "order_number"),
+			@Result(property = "totalAmount", column = "total_amount"),
+			@Result(property = "bonusPointsEarned", column = "bonus_points_earned"),
+			@Result(property = "bonusPointsUsed", column = "bonus_points_used"),
+			@Result(property = "resultStatus", column = "result_status"),
+			@Result(property = "createdAt", column = "created_at"), })
+	@Select("SELECT o.* FROM `order` o WHERE o.order_number = #{orderNumber}")
+	OrderRes findOrderByOrderNumber(String orderNumber);
+
+	static String buildFindOrdersByDateRange(Map<String, Object> params) {
+		Long userId = (Long) params.get("userId");
+		LocalDateTime startDate = (LocalDateTime) params.get("startDate");
+		LocalDateTime endDate = (LocalDateTime) params.get("endDate");
+
+		var sql = new SQL() {
+			{
+				SELECT("*");
+				FROM("`order`");
+				if (userId != null) {
+					WHERE("user_id = #{userId}");
+				}
+				if (startDate != null) {
+					WHERE("created_at >= #{startDate}");
+				}
+				if (endDate != null) {
+					WHERE("created_at <= #{endDate}");
+				}
+			}
+		}.toString();
+
+		return sql;
+	}
+
+	@SelectProvider(type = OrderRepository.class, method = "buildFindOrdersByDateRange")
+	@ResultMap("orderResultMap")
+	List<OrderRes> findOrdersByDateRange(Map<String, Object> params);
+
 }

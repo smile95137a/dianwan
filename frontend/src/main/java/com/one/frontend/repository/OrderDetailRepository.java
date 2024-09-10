@@ -48,7 +48,7 @@ public interface OrderDetailRepository {
     void saveOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
     
     
-    @Select("SELECT od.*, sp.* " +
+    @Select("SELECT od.*, sp.store_product_id, sp.product_name as store_product_name, sp.description, sp.price, sp.stock_quantity, sp.image_urls " +
             "FROM order_detail od " +
             "LEFT JOIN store_product sp ON od.store_product_id = sp.store_product_id " +
             "WHERE od.order_id = #{orderId}")
@@ -60,13 +60,14 @@ public interface OrderDetailRepository {
         @Result(property = "unitPrice", column = "unit_price"),
         @Result(property = "totalPrice", column = "total_price"),
         @Result(property = "storeProduct.storeProductId", column = "store_product_id"),
-        @Result(property = "storeProduct.productName", column = "product_name"),
+        @Result(property = "storeProduct.productName", column = "store_product_name"),
         @Result(property = "storeProduct.description", column = "description"),
         @Result(property = "storeProduct.price", column = "price"),
         @Result(property = "storeProduct.stockQuantity", column = "stock_quantity"),
         @Result(property = "storeProduct.imageUrls", column = "image_urls"),
     })
     List<OrderDetailRes> findOrderDetailsByOrderId(Long orderId);
+
 
 
 }
