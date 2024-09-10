@@ -1,19 +1,12 @@
 package com.one.frontend.repository;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
-
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.model.OrderDetail;
 import com.one.frontend.request.StoreOrderDetailReq;
 import com.one.frontend.response.OrderDetailRes;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface OrderDetailRepository {
@@ -48,7 +41,7 @@ public interface OrderDetailRepository {
     void saveOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
     
     
-    @Select("SELECT od.*, sp.store_product_id, sp.product_name as store_product_name, sp.description, sp.price, sp.stock_quantity, sp.image_urls " +
+    @Select("SELECT od.*, sp.store_product_id, sp.product_name, sp.description, sp.price, sp.stock_quantity, sp.image_urls " +
             "FROM order_detail od " +
             "LEFT JOIN store_product sp ON od.store_product_id = sp.store_product_id " +
             "WHERE od.order_id = #{orderId}")
@@ -71,3 +64,4 @@ public interface OrderDetailRepository {
 
 
 }
+
