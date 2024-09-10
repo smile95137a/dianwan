@@ -2,6 +2,7 @@ package com.one.frontend.controller;
 
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.dto.DrawDto;
+import com.one.frontend.dto.GachaDrawDto;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.DrawResult;
 import com.one.frontend.model.PrizeNumber;
@@ -26,8 +27,7 @@ public class DrawController {
 
 	@PostMapping("/oneprize/{userUid}")
 	@Operation(summary = "扭蛋抽獎")
-	public ResponseEntity<ApiResponse<List<DrawResult>>> drawPrize(@PathVariable String userUid,
-			@RequestParam Integer count, @RequestParam Integer productId) throws Exception {
+	public ResponseEntity<ApiResponse<List<DrawResult>>> drawPrize(@RequestBody GachaDrawDto gachaDrawDto) throws Exception {
 
 		var userDetails = SecurityUtils.getCurrentUserPrinciple();
 		Long userId = null;
@@ -35,7 +35,7 @@ public class DrawController {
 			 userId = userDetails.getId();
 		}
 		try {
-			List<DrawResult> result = drawResultService.handleDraw(userId, count, productId);
+			List<DrawResult> result = drawResultService.handleDraw(userId , gachaDrawDto.getCount() , gachaDrawDto.getProductId());
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, result);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
