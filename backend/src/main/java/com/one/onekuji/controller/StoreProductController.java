@@ -55,7 +55,7 @@ public class StoreProductController {
             }
         }
 
-        storeProductReq.setImageUrls(fileUrls);
+        storeProductReq.setImageUrl(fileUrls);
 
         StoreProductRes storeProductRes = storeProductService.addStoreProduct(storeProductReq);
 
@@ -86,7 +86,7 @@ public class StoreProductController {
             }
         }
 
-        storeProductReq.setImageUrls(fileUrls);
+        storeProductReq.setImageUrl(fileUrls);
         StoreProductRes storeProductRes = storeProductService.updateStoreProduct(id, storeProductReq);
         ApiResponse<StoreProductRes> response = ResponseUtils.success(200, "商品已成功更新", storeProductRes);
         return ResponseEntity.ok(response);

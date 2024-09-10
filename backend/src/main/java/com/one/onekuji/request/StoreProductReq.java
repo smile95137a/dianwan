@@ -16,7 +16,7 @@ public class StoreProductReq {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
-    private List<String> imageUrls;
+    private List<String> imageUrl;
     private String categoryId;
     private StoreProductStatus status;
     private BigDecimal specialPrice;

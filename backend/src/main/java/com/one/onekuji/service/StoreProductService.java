@@ -70,7 +70,7 @@ public class StoreProductService {
         storeProduct.setWidth(storeProductReq.getWidth());
         storeProduct.setPrice(storeProductReq.getPrice());
         storeProduct.setStockQuantity(storeProductReq.getStockQuantity());
-        storeProduct.setImageUrls(storeProductReq.getImageUrls());
+        storeProduct.setImageUrls(storeProductReq.getImageUrl());
         storeProduct.setCategoryId(storeProductReq.getCategoryId());
         storeProduct.setStatus(String.valueOf(storeProductReq.getStatus()));
         storeProduct.setSpecialPrice(storeProductReq.getSpecialPrice());
@@ -129,7 +129,7 @@ public class StoreProductService {
         storeProduct.setDescription(description);
         storeProduct.setPrice(storeProductReq.getPrice());
         storeProduct.setStockQuantity(storeProductReq.getStockQuantity());
-        storeProduct.setImageUrls(storeProductReq.getImageUrls());
+        storeProduct.setImageUrls(storeProductReq.getImageUrl());
         storeProduct.setCategoryId(storeProductReq.getCategoryId());
         storeProduct.setStatus(String.valueOf(storeProductReq.getStatus()));
         storeProduct.setSpecialPrice(storeProductReq.getSpecialPrice());
