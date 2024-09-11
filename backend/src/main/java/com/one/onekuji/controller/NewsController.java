@@ -1,16 +1,21 @@
 package com.one.onekuji.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.model.News;
 import com.one.onekuji.service.CustomUserDetails;
 import com.one.onekuji.service.NewsService;
+import com.one.onekuji.util.ImageUtil;
 import com.one.onekuji.util.ResponseUtils;
 import com.one.onekuji.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -51,13 +56,27 @@ public class NewsController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createNews(@RequestBody News news) {
+    public ResponseEntity<ApiResponse<Void>> createNews(@RequestPart("newsReq") String news,
+                                                        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
             // 获取当前用户ID
             CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
             Long id = userDetails.getId();
 
-            int result = newsService.insertNews(news);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+            News newsReq = objectMapper.readValue(news, News.class);
+            List<String> fileUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        fileUrls.add(fileUrl);
+                    }
+                }
+            }
+            newsReq.setImageUrls(fileUrls);
+            int result = newsService.insertNews(newsReq);
             if (result > 0) {
                 ApiResponse<Void> response = ResponseUtils.success(201, "新闻创建成功", null);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -72,11 +91,25 @@ public class NewsController {
     }
 
     @PutMapping("/{newsUid}")
-    public ResponseEntity<ApiResponse<Void>> updateNews(@PathVariable String newsUid , @RequestBody News news) {
+    public ResponseEntity<ApiResponse<Void>> updateNews(@PathVariable String newsUid , @RequestPart("newsReq") String news,
+                                                        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
             // 获取当前用户ID
             CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-            int result = newsService.updateNews(newsUid , news);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+            News newsReq = objectMapper.readValue(news, News.class);
+            List<String> fileUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        fileUrls.add(fileUrl);
+                    }
+                }
+            }
+            newsReq.setImageUrls(fileUrls);
+            int result = newsService.updateNews(newsUid , newsReq);
             if (result > 0) {
                 ApiResponse<Void> response = ResponseUtils.success(200, "新闻更新成功", null);
                 return ResponseEntity.ok(response);

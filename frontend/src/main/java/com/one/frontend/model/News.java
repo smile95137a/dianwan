@@ -1,6 +1,8 @@
 package com.one.frontend.model;
 
 import com.one.frontend.eenum.NewsStatus;
+import com.one.frontend.util.StringListConverter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -34,8 +37,10 @@ public class News {
     @Column(name = "content", columnDefinition = "TEXT") // 新闻详细内容，使用 TEXT 类型以支持较大文本
     private String content;
 
-    @Column(name = "image_url", length = 255) // 新闻图片的 URL，最大长度 255
-    private String imageUrl;
+    @Schema(description = "圖片 URL", example = "http://example.com/image.jpg")
+    @Column(name = "image_urls", columnDefinition = "JSON")
+    @Convert(converter = StringListConverter.class)
+    private List<String> imageUrls;
 
     @Column(name = "status", nullable = false) // 新闻状态，不能为空，例如 1=已发布，0=草稿
     private NewsStatus status;
