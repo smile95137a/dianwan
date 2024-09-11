@@ -1,24 +1,15 @@
 package com.one.frontend.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 import com.one.frontend.eenum.OrderStatus;
-import com.one.frontend.eenum.PaymentMethod;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -130,5 +121,8 @@ public class Order {
     
     @Column(name = "tracking_number")
     private String trackingNumber; // 物流追踪号，订单的物流追踪编号
+
+    @Column( name = "cart_item_id")
+    private String cartItemIds;
 
 }

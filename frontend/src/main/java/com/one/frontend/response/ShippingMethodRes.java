@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 public class ShippingMethodRes {
 
-    private Long shippingMethodId;
+    private String shippingCode;
 
     private String name;
 

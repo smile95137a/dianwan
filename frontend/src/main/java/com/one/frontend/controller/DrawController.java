@@ -35,7 +35,7 @@ public class DrawController {
 			 userId = userDetails.getId();
 		}
 		try {
-			List<DrawResult> result = drawResultService.handleDraw(userId , gachaDrawDto.getCount() , gachaDrawDto.getProductId());
+			List<DrawResult> result = drawResultService.handleDraw(userId , gachaDrawDto.getProductId());
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, result);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {

@@ -18,6 +18,10 @@ public class ShippingMethod{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shippingMethodId;
 
+    @Column(name = "shipping_code")
+    private String shippingCode;
+
+
     @Schema(description = "名稱", example = "Standard Shipping")
     @Column(name = "name", length = 255)
     private String name;

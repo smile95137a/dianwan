@@ -9,7 +9,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class GachaDrawDto {
 
-    private Integer count;
-
-    private Integer productId;
+    private Long productId;
 }

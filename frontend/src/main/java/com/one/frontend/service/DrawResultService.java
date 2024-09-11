@@ -34,121 +34,14 @@ public class DrawResultService {
 	private final PrizeNumberMapper prizeNumberMapper;
 	private final OrderService orderService;
 
-	public List<DrawResult> handleDraw(Long userId, Integer count, Integer productId) throws Exception {
-
-		// 先確認商品是否還有貨
-		List<ProductDetailRes> productDetails = productDetailRepository
-				.getProductDetailByProductId(Long.valueOf(productId));
-
-		int totalQuantity = productDetails.stream().mapToInt(ProductDetailRes::getQuantity).sum();
-		if (totalQuantity == 0) {
-			throw new Exception("所有獎品已被抽完");
-		}
-
-		// 計算總金額
-		ProductRes product = productRepository.getProductById(Math.toIntExact(productId));
-		BigDecimal amount = product.getPrice();
-
-		// 扣除會員內儲值金
-		PrizeCategory category = product.getPrizeCategory();
-		BigDecimal balance = new BigDecimal(userRepository.getBalance(userId));
-
-		if (category == PrizeCategory.BONUS) {
-			BigDecimal bonusPoints = new BigDecimal(userRepository.getBonusPoints(userId));
-			if (bonusPoints.compareTo(amount) >= 0) {
-				BigDecimal newBonusPoints = bonusPoints.subtract(amount);
-				userRepository.deductUserBonusPoints(userId, newBonusPoints);
-			} else {
-				throw new Exception("紅利不足，請加值");
-			}
-		} else {
-			if (balance.compareTo(amount) >= 0) {
-				userRepository.deductUserBalance(userId, amount);
-			} else {
-				throw new Exception("餘額不足，請加值");
-			}
-		}
-
-		// step.2 產品數量透過隨機數字抽獎
+	public List<DrawResult> handleDraw(Long userId, Long productId) throws Exception {
 		Random random = new Random();
-		int cumulativeQuantity = 0;
-		int randomNumber = random.nextInt(totalQuantity);
-		ProductDetailRes selectedPrizeDetail = null;
-
-		for (ProductDetailRes productDetail : productDetails) {
-			cumulativeQuantity += productDetail.getQuantity();
-			if (randomNumber < cumulativeQuantity) {
-				selectedPrizeDetail = productDetail;
-				break;
-			}
-		}
-
-		if (selectedPrizeDetail == null) {
-			throw new Exception("未抽獎，抽獎次數為0");
-		}
-
-		// step.3 更新抽獎數量
-		selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
-		productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
-
-		ProductRes updatedProduct = productRepository
-				.getProductById(Math.toIntExact(selectedPrizeDetail.getProductId()));
-		updatedProduct.setStockQuantity(updatedProduct.getStockQuantity() - 1);
-		productRepository.updateProductQuantity(updatedProduct);
-
-		// step.4 紀錄抽獎結果
-		List<DrawResult> drawResults = new ArrayList<>();
-		int j = count;
-		for (int i = 0; i < count; i++) {
-			DrawResult drawResult = new DrawResult();
-			drawResult.setUserId(Long.valueOf(userId));
-			drawResult.setProductId(Long.valueOf(productId));
-			drawResult.setProductDetailId(Long.valueOf(selectedPrizeDetail.getProductDetailId()));
-			drawResult.setDrawTime(LocalDateTime.now());
-			drawResult.setAmount(amount);
-			drawResult.setDrawCount(1);
-			drawResult.setTotalDrawCount(Long.valueOf(count));
-			drawResult.setRemainingDrawCount(j);
-			drawResult.setCreateDate(LocalDateTime.now());
-			drawResults.add(drawResult);
-			j--;
-		}
-		drawRepository.insertBatchforGACHA(drawResults);
-
-		// step.5 記錄到訂單
-		var orderNumber = orderService.genOrderNumber();
-
-		var orderEntity = Order.builder()
-		.userId(userId)
-		.orderNumber(orderNumber)
-		.createdAt(LocalDateTime.now())
-		.totalAmount(amount)
-		.build();
-		orderRepository.insertOrder(orderEntity);
-		
-		var orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
-		
-		List<OrderDetailDto> orderDetailDtoList = new ArrayList<>();
-		for (int i = 0; i < count; i++) {
-			OrderDetailDto orderDetail = new OrderDetailDto();
-			orderDetail.setOrderId(Math.toIntExact(orderId));
-			orderDetail.setProductId(Math.toIntExact(productId));
-			orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
-			orderDetail.setQuantity(1);
-			orderDetail.setUnitPrice(amount);
-			orderDetailDtoList.add(orderDetail);
-		}
-
-		orderDetailRepository.insertOrderDetail(orderDetailDtoList);
-		UserRes user = userRepository.getUserById(userId);
-		Long drawCount = user.getDrawCount();
-		if (drawCount < 3L) {
-			userRepository.addDrawCount(userId);
-		} else {
-			userRepository.updateBonus(userId);
-		}
-
-		return drawResults;
+		List<Long> number = prizeNumberMapper.getNumbers(productId);
+		int randomIndex = random.nextInt(number.size());
+		String prizeNumber = number.get(randomIndex).toString();
+		List<String> prizeNumbers = new ArrayList<>();
+		prizeNumbers.add(prizeNumber);
+        return handleDraw2(userId , productId , prizeNumbers);
 	}
 
 	public List<PrizeNumber> getAllPrizes(Long productId) {
