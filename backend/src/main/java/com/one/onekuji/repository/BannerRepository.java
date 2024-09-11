@@ -8,10 +8,10 @@ import java.util.List;
 @Mapper
 public interface BannerRepository {
 
-    @Select("SELECT * FROM banner WHERE banner_id = #{bannerId}")
-    Banner findById(@Param("bannerId") Long bannerId);
+    @Select("SELECT * FROM banner WHERE banner_uid = #{bannerUid}")
+    Banner findById(@Param("bannerId") String bannerUid);
 
-    @Select("SELECT * FROM banner")
+    @Select("SELECT * , b.product_id , b.image_urls FROM banner a left join product b on a.product_id = b.product_id")
     List<Banner> findAll();
 
     @Insert("INSERT INTO banner (banner_uid, banner_image_url, product_id, status, created_at, updated_at) " +

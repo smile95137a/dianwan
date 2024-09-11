@@ -72,7 +72,7 @@ public class ProductService {
     }
 
     public boolean deleteProduct(Long id) {
-        Product product = productRepository.getProductById(Math.toIntExact(id));
+        Product product = productRepository.getProductById(id);
         if (product == null) {
             return false;
         }

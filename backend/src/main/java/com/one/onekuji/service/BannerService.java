@@ -1,7 +1,9 @@
 package com.one.onekuji.service;
 
 import com.one.onekuji.model.Banner;
+import com.one.onekuji.model.Product;
 import com.one.onekuji.repository.BannerRepository;
+import com.one.onekuji.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,11 @@ public class BannerService {
     @Autowired
     private BannerRepository bannerRepository;
 
-    public Banner findById(Long bannerId) {
-        return bannerRepository.findById(bannerId);
+    @Autowired
+    private ProductRepository productRepository;
+
+    public Banner findById(String bannerUid) {
+        return bannerRepository.findById(bannerUid);
     }
 
     public List<Banner> findAll() {
@@ -30,10 +35,8 @@ public class BannerService {
         bannerRepository.insert(banner);
     }
 
-    public void updateBanner(Long bannerId , Banner banner) {
-        Banner reqBanner = bannerRepository.findById(bannerId);
-        reqBanner.setBannerId(bannerId);
-        reqBanner.setBannerImageUrl(banner.getBannerImageUrl());
+    public void updateBanner(String bannerUid , Banner banner) {
+        Banner reqBanner = bannerRepository.findById(bannerUid);
         reqBanner.setProductId(banner.getBannerId());
         reqBanner.setStatus(banner.getStatus());
         banner.setUpdatedAt(LocalDateTime.now());

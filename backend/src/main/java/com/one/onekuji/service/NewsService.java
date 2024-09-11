@@ -37,7 +37,7 @@ public class NewsService {
         News the_news = newsRepository.getNewsById(newsUid);
         News req = new News();
         req.setContent(the_news.getContent());
-        req.setImageUrl(the_news.getImageUrl());
+        req.setImageUrls(the_news.getImageUrls());
         req.setTitle(the_news.getTitle());
         req.setPreview(the_news.getPreview());
         req.setUpdatedDate(the_news.getUpdatedDate());

@@ -1,26 +1,31 @@
 package com.one.onekuji.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.model.Banner;
 import com.one.onekuji.service.BannerService;
+import com.one.onekuji.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/banner")
+@RequestMapping("/api/banner")
 public class BannerController {
 
     @Autowired
     private BannerService bannerService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Banner>> getBannerById(@PathVariable("id") Long bannerId) {
+    @GetMapping("/{bannerUid}")
+    public ResponseEntity<ApiResponse<Banner>> getBannerById(@PathVariable String bannerUid) {
         try {
-            Banner banner = bannerService.findById(bannerId);
+            Banner banner = bannerService.findById(bannerUid);
             ApiResponse<Banner> response = new ApiResponse<>(200, "Banner found", true, banner);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -42,9 +47,24 @@ public class BannerController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Banner>> createBanner(@RequestBody Banner banner) {
+    public ResponseEntity<ApiResponse<Banner>> createBanner(@RequestPart("bannerReq") String bannerReq,
+                                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
 
+            Banner banner = objectMapper.readValue(bannerReq, Banner.class);
+            List<String> fileUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        fileUrls.add(fileUrl);
+                    }
+                }
+            }
+
+            banner.setImageUrls(fileUrls);
             bannerService.createBanner(banner);
             ApiResponse<Banner> response = new ApiResponse<>(200, "Banner created", true, banner);
             return ResponseEntity.ok(response);
@@ -54,11 +74,26 @@ public class BannerController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Banner>> updateBanner(@PathVariable("id") Long bannerId, @RequestBody Banner banner) {
+    @PutMapping("/{bannerUid}")
+    public ResponseEntity<ApiResponse<Banner>> updateBanner(@PathVariable String bannerUid, @RequestPart("bannerReq") String bannerReq,
+                                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
 
-            bannerService.updateBanner(bannerId , banner);
+            Banner banner = objectMapper.readValue(bannerReq, Banner.class);
+            List<String> fileUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        fileUrls.add(fileUrl);
+                    }
+                }
+            }
+
+            banner.setImageUrls(fileUrls);
+            bannerService.updateBanner(bannerUid , banner);
             ApiResponse<Banner> response = new ApiResponse<>(200, "Banner updated", true, banner);
             return ResponseEntity.ok(response);
         } catch (Exception e) {

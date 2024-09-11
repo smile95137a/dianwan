@@ -28,7 +28,7 @@ public interface ProductRepository {
     List<Product> selectAllProducts();
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
-    Product getProductById(@Param("productId") Integer productId);
+    Product getProductById(@Param("productId") Long productId);
 
     @Update("UPDATE product SET " +
             "product_name = #{productName}, " +
