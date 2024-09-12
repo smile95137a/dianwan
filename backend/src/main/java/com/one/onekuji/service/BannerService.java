@@ -45,10 +45,10 @@ public class BannerService {
     public void updateBanner(String bannerUid , Banner banner) {
         Banner reqBanner = bannerRepository.findById(bannerUid);
         Product productById = productRepository.getProductById(banner.getProductId());
-        banner.setImageUrls(productById.getImageUrls());
+        reqBanner.setImageUrls(productById.getImageUrls());
         reqBanner.setProductId(banner.getBannerId());
         reqBanner.setStatus(banner.getStatus());
-        banner.setUpdatedAt(LocalDateTime.now());
+        reqBanner.setUpdatedAt(LocalDateTime.now());
 
         bannerRepository.update(reqBanner);
     }

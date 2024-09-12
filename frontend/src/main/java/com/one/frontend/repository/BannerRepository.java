@@ -11,7 +11,7 @@ public interface BannerRepository {
     @Select("SELECT * FROM banner WHERE banner_id = #{bannerId}")
     Banner findById(@Param("bannerId") Long bannerId);
 
-    @Select("SELECT * FROM banner")
+    @Select("SELECT * , b.product_id , b.image_urls FROM banner a left join product b on a.product_id = b.product_id")
     List<Banner> findAll();
 
 }

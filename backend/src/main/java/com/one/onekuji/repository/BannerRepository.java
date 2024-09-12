@@ -19,7 +19,7 @@ public interface BannerRepository {
     @Options(useGeneratedKeys = true, keyProperty = "bannerId")
     void insert(Banner banner);
 
-    @Update("UPDATE banner SET banner_image_url=#{bannerImageUrl}, product_id=#{productId}, " +
+    @Update("UPDATE banner SET banner_image_urls=#{bannerImageUrl}, product_id=#{productId}, " +
             "status=#{status}, updated_at=#{updatedAt} WHERE banner_id=#{bannerId}")
     void update(Banner banner);
 
