@@ -30,6 +30,7 @@ public class NewsController {
             ApiResponse<List<News>> response = ResponseUtils.success(200, null, newsList);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<List<News>> response = ResponseUtils.failure(500, "获取新闻列表失败", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
