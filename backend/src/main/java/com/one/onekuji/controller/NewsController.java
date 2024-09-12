@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.model.News;
-import com.one.onekuji.service.CustomUserDetails;
 import com.one.onekuji.service.NewsService;
 import com.one.onekuji.util.ImageUtil;
 import com.one.onekuji.util.ResponseUtils;
@@ -40,7 +39,7 @@ public class NewsController {
     @GetMapping("/{newsUid}")
     public ResponseEntity<ApiResponse<News>> getNewsById(@PathVariable String newsUid) {
         try {
-            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
             News news = newsService.getNewsById(newsUid);
             if (news != null) {
                 ApiResponse<News> response = ResponseUtils.success(200, null, news);
@@ -50,6 +49,7 @@ public class NewsController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<News> response = ResponseUtils.failure(500, "获取新闻失败", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -59,9 +59,9 @@ public class NewsController {
     public ResponseEntity<ApiResponse<Void>> createNews(@RequestPart("newsReq") String news,
                                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
-            // 获取当前用户ID
-            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-            Long id = userDetails.getId();
+//            // 获取当前用户ID
+//            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//            Long id = userDetails.getId();
 
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
@@ -85,6 +85,7 @@ public class NewsController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<Void> response = ResponseUtils.failure(500, "创建新闻时发生错误", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -95,7 +96,7 @@ public class NewsController {
                                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
             // 获取当前用户ID
-            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+//            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
             News newsReq = objectMapper.readValue(news, News.class);
@@ -110,14 +111,10 @@ public class NewsController {
             }
             newsReq.setImageUrls(fileUrls);
             int result = newsService.updateNews(newsUid , newsReq);
-            if (result > 0) {
                 ApiResponse<Void> response = ResponseUtils.success(200, "新闻更新成功", null);
                 return ResponseEntity.ok(response);
-            } else {
-                ApiResponse<Void> response = ResponseUtils.failure(400, "新闻更新失败", null);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<Void> response = ResponseUtils.failure(500, "更新新闻时发生错误", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }

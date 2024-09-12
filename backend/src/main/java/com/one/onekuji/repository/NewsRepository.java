@@ -17,14 +17,14 @@ public interface NewsRepository {
     News getNewsById(String newsUid);
 
     // 新增新闻
-    @Insert("INSERT INTO news (title, preview, createdDate, imageUrl, status) " +
-            "VALUES (#{title}, #{preview}, #{createdDate}, #{imageUrl}, #{status})")
+    @Insert("INSERT INTO news (news_uid , title, preview,content, created_date, image_urls, status,author ,updated_date) " +
+            "VALUES (#{newsUid} , #{title}, #{preview},#{content}, #{createdDate}, #{imageUrls}, #{status} , #{author} , #{updatedDate})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertNews(News news);
 
     // 更新新闻
-    @Update("UPDATE news SET title = #{title}, preview = #{preview}, createdDate = #{createdDate}, " +
-            "imageUrl = #{imageUrl}, status = #{status} , title = #{title} WHERE news_uid = #{newsUid}")
+    @Update("UPDATE news SET title = #{title}, preview = #{preview}, created_date = #{createdDate}, " +
+            "image_urls = #{imageUrls},content = #{content}, status = #{status} , title = #{title} WHERE news_uid = #{newsUid}")
     int updateNews(News news);
 
     // 删除新闻

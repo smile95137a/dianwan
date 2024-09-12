@@ -42,10 +42,11 @@ public class News {
     @Convert(converter = StringListConverter.class)
     private List<String> imageUrls;
 
-    @Column(name = "status", nullable = false) // 新闻状态，不能为空，例如 1=已发布，0=草稿
+    @Enumerated(EnumType.STRING) // 将枚举映射为其名称，例如存储 'AVAILABLE'
+    @Column(name = "status", nullable = false)
     private NewsStatus status;
 
-    @Column(name = "created_date", nullable = false) // 创建时间，不能为空
+    @Column(name = "created_date") // 创建时间，不能为空
     private LocalDateTime createdDate;
 
     @Column(name = "updated_date") // 最后更新时间，可为空

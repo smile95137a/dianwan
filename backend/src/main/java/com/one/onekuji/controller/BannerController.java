@@ -5,14 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.model.Banner;
 import com.one.onekuji.service.BannerService;
-import com.one.onekuji.util.ImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -47,28 +45,17 @@ public class BannerController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Banner>> createBanner(@RequestPart("bannerReq") String bannerReq,
-                                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+    public ResponseEntity<ApiResponse<Banner>> createBanner(@RequestPart("bannerReq") String bannerReq) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
 
             Banner banner = objectMapper.readValue(bannerReq, Banner.class);
-            List<String> fileUrls = new ArrayList<>();
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    if (!image.isEmpty()) {
-                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
-                        fileUrls.add(fileUrl);
-                    }
-                }
-            }
-
-            banner.setImageUrls(fileUrls);
             bannerService.createBanner(banner);
             ApiResponse<Banner> response = new ApiResponse<>(200, "Banner created", true, banner);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<Banner> response = new ApiResponse<>(400, "Banner creation failed", false, null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
@@ -82,17 +69,6 @@ public class BannerController {
             objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
 
             Banner banner = objectMapper.readValue(bannerReq, Banner.class);
-            List<String> fileUrls = new ArrayList<>();
-            if (images != null && !images.isEmpty()) {
-                for (MultipartFile image : images) {
-                    if (!image.isEmpty()) {
-                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
-                        fileUrls.add(fileUrl);
-                    }
-                }
-            }
-
-            banner.setImageUrls(fileUrls);
             bannerService.updateBanner(bannerUid , banner);
             ApiResponse<Banner> response = new ApiResponse<>(200, "Banner updated", true, banner);
             return ResponseEntity.ok(response);

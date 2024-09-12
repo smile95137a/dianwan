@@ -29,13 +29,13 @@ public class DrawController {
 	@Operation(summary = "扭蛋抽獎")
 	public ResponseEntity<ApiResponse<List<DrawResult>>> drawPrize(@RequestBody GachaDrawDto gachaDrawDto) throws Exception {
 
-		var userDetails = SecurityUtils.getCurrentUserPrinciple();
-		Long userId = null;
-		if(userDetails != null){
-			 userId = userDetails.getId();
-		}
+//		var userDetails = SecurityUtils.getCurrentUserPrinciple();
+//		Long userId = null;
+//		if(userDetails != null){
+//			 userId = userDetails.getId();
+//		}
 		try {
-			List<DrawResult> result = drawResultService.handleDraw(userId , gachaDrawDto.getProductId());
+			List<DrawResult> result = drawResultService.handleDraw(21L , gachaDrawDto.getProductId());
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, result);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {

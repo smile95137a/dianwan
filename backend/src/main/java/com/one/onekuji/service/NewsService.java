@@ -27,26 +27,40 @@ public class NewsService {
 
     // 新增新闻
     public int insertNews(News news) {
+
+        String content = formatTextToHtml(news.getContent());
+        news.setContent(content);
         news.setNewsUid(UUID.randomUUID().toString());
         news.setCreatedDate(LocalDateTime.now());
+        news.setUpdatedDate(LocalDateTime.now());
         return newsRepository.insertNews(news);
     }
 
     // 更新新闻
     public int updateNews(String newsUid , News news) {
         News the_news = newsRepository.getNewsById(newsUid);
-        News req = new News();
-        req.setContent(the_news.getContent());
-        req.setImageUrls(the_news.getImageUrls());
-        req.setTitle(the_news.getTitle());
-        req.setPreview(the_news.getPreview());
-        req.setUpdatedDate(the_news.getUpdatedDate());
-        req.setStatus(the_news.getStatus());
+        String content = formatTextToHtml(the_news.getContent());
+        the_news.setContent(content);
+        the_news.setImageUrls(news.getImageUrls());
+        the_news.setTitle(news.getTitle());
+        the_news.setPreview(news.getPreview());
+        the_news.setUpdatedDate(news.getUpdatedDate());
+        the_news.setStatus(news.getStatus());
         return newsRepository.updateNews(news);
     }
 
     // 删除新闻
     public int deleteNews(String newsUid) {
         return newsRepository.deleteNews(newsUid);
+    }
+
+    private String formatTextToHtml(String text) {
+        if (text == null) return "";
+
+        // Example formatting rules
+        text = text.replaceAll("\\[p\\]", "<p>").replaceAll("\\[/p\\]", "</p>");
+        text = text.replaceAll("\\[br\\]", "<br>");
+
+        return text;
     }
 }

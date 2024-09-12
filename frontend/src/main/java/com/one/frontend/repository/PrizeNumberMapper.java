@@ -20,6 +20,7 @@ public interface PrizeNumberMapper {
     @Update("UPDATE prize_number SET is_drawn = TRUE WHERE prize_number_id = #{prizeNumberId} and product_id = #{productId} and product_detail_id = #{productDetailId}")
     void markPrizeNumberAsDrawn(Long prizeNumberId , Long productId , Long productDetailId);
 
-    @Select("select `number` from prize_number where product_id = 6 and is_drawn = false;")
+    @Select("select `number` from prize_number where product_id = #{productId} and is_drawn = false;")
     List<Long> getNumbers(Long productId);
+
 }

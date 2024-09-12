@@ -29,14 +29,23 @@ public class BannerService {
     }
 
     public void createBanner(Banner banner) {
-        banner.setBannerUid(UUID.randomUUID().toString());
-        banner.setCreatedAt(LocalDateTime.now());
-        banner.setUpdatedAt(LocalDateTime.now());
-        bannerRepository.insert(banner);
+        try{
+            Product productById = productRepository.getProductById(banner.getProductId());
+            banner.setImageUrls(productById.getImageUrls());
+            banner.setBannerUid(UUID.randomUUID().toString());
+            banner.setCreatedAt(LocalDateTime.now());
+            banner.setUpdatedAt(LocalDateTime.now());
+            bannerRepository.insert(banner);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
     }
 
     public void updateBanner(String bannerUid , Banner banner) {
         Banner reqBanner = bannerRepository.findById(bannerUid);
+        Product productById = productRepository.getProductById(banner.getProductId());
+        banner.setImageUrls(productById.getImageUrls());
         reqBanner.setProductId(banner.getBannerId());
         reqBanner.setStatus(banner.getStatus());
         banner.setUpdatedAt(LocalDateTime.now());

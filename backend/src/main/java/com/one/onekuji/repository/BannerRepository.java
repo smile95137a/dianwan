@@ -14,8 +14,8 @@ public interface BannerRepository {
     @Select("SELECT * , b.product_id , b.image_urls FROM banner a left join product b on a.product_id = b.product_id")
     List<Banner> findAll();
 
-    @Insert("INSERT INTO banner (banner_uid, banner_image_url, product_id, status, created_at, updated_at) " +
-            "VALUES (#{bannerUid}, #{bannerImageUrl}, #{productId}, #{status}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO banner (banner_uid, banner_image_urls, product_id, status, created_at, updated_at)\n" +
+            "VALUES (#{bannerUid}, #{imageUrls}, #{productId}, #{status}, #{createdAt}, #{updatedAt})")
     @Options(useGeneratedKeys = true, keyProperty = "bannerId")
     void insert(Banner banner);
 

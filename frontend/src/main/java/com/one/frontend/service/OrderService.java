@@ -1,20 +1,6 @@
 package com.one.frontend.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.one.frontend.dto.DrawResultDto;
 import com.one.frontend.ecpay.payment.integration.AllInOne;
 import com.one.frontend.ecpay.payment.integration.domain.AioCheckOutALL;
 import com.one.frontend.eenum.OrderStatus;
@@ -28,8 +14,17 @@ import com.one.frontend.request.PayCartRes;
 import com.one.frontend.response.OrderDetailRes;
 import com.one.frontend.response.OrderRes;
 import com.one.frontend.util.RandomUtils;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -197,4 +192,25 @@ public class OrderService {
 		}
 	}
 
+	public List<DrawResultDto> queryDrawOrder(Long userId, OrderQueryReq req) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("userId", userId);
+
+		LocalDateTime startDate = convertToLocalDateTime(req.getStartDate());
+		LocalDateTime endDate = convertToLocalDateTime(req.getEndDate());
+
+		// 调整 startDate 和 endDate 的时间部分
+		if (startDate != null) {
+			startDate = startDate.with(LocalTime.MIN);
+		}
+		if (endDate != null) {
+			endDate = endDate.with(LocalTime.MAX);
+		}
+
+		params.put("startDate", startDate);
+		params.put("endDate", endDate);
+		System.out.println(startDate);
+		System.out.println(endDate);
+		return orderRepository.queryDrawOrder(params.get("userId") , params.get("startDate") , params.get("endDate"));
+	}
 }

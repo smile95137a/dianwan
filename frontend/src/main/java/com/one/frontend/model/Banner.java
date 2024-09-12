@@ -34,6 +34,7 @@ public class Banner {
     @Column(name = "product_id")
     private Long productId;
 
+    @Enumerated(EnumType.STRING) // 将枚举映射为其名称，例如存储 'AVAILABLE'
     @Column(name = "status", nullable = false)
     private BannerStatus status;
 

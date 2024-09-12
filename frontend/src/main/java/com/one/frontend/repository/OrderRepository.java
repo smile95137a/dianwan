@@ -1,21 +1,14 @@
 package com.one.frontend.repository;
 
+import com.one.frontend.dto.DrawResultDto;
+import com.one.frontend.model.Order;
+import com.one.frontend.response.OrderRes;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.jdbc.SQL;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.jdbc.SQL;
-
-import com.one.frontend.dto.OrderDto;
-import com.one.frontend.model.Order;
-import com.one.frontend.response.OrderRes;
 
 @Mapper
 public interface OrderRepository {
@@ -80,4 +73,6 @@ public interface OrderRepository {
 	@ResultMap("orderResultMap")
 	List<OrderRes> findOrdersByDateRange(Map<String, Object> params);
 
+	@Select("SELECT a.* , b.product_name , b.image_urls FROM draw_result a left join product_detail b on a.product_detail_id = b.product_detail_id where draw_time >= #{startDate} and draw_time <= #{endDate} order by draw_time desc")
+	List<DrawResultDto> queryDrawOrder(Object userId, Object startDate, Object endDate);
 }
