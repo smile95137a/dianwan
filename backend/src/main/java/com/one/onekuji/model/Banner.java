@@ -1,6 +1,7 @@
 package com.one.onekuji.model;
 
 import com.one.onekuji.eenum.BannerStatus;
+import com.one.onekuji.eenum.ProductType;
 import com.one.onekuji.util.StringListConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -44,5 +45,10 @@ public class Banner {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "產品類型", example = "GACHA")
+    @Column(name = "product_type", length = 50)
+    @Enumerated(EnumType.STRING)  // 新增此行
+    private ProductType productType;
 
 }
