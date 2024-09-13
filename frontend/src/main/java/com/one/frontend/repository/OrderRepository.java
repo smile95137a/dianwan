@@ -73,6 +73,18 @@ public interface OrderRepository {
 	@ResultMap("orderResultMap")
 	List<OrderRes> findOrdersByDateRange(Map<String, Object> params);
 
-	@Select("SELECT a.* , b.product_name , b.image_urls FROM draw_result a left join product_detail b on a.product_detail_id = b.product_detail_id where draw_time >= #{startDate} and draw_time <= #{endDate} order by draw_time desc")
-	List<DrawResultDto> queryDrawOrder(Object userId, Object startDate, Object endDate);
+	@Select("<script>"
+			+ "SELECT a.* , b.product_name , b.image_urls "
+			+ "FROM draw_result a "
+			+ "LEFT JOIN product_detail b ON a.product_detail_id = b.product_detail_id "
+			+ "WHERE 1=1 "
+			+ "<if test='userId != null'> AND a.user_id = #{userId} </if>"
+			+ "<if test='startDate != null'> AND a.draw_time &gt;= #{startDate} </if>"
+			+ "<if test='endDate != null'> AND a.draw_time &lt;= #{endDate} </if>"
+			+ "ORDER BY a.draw_time DESC"
+			+ "</script>")
+	List<DrawResultDto> queryDrawOrder(@Param("userId") Object userId,
+									   @Param("startDate") Object startDate,
+									   @Param("endDate") Object endDate);
+
 }

@@ -199,18 +199,24 @@ public class OrderService {
 		LocalDateTime startDate = convertToLocalDateTime(req.getStartDate());
 		LocalDateTime endDate = convertToLocalDateTime(req.getEndDate());
 
-		// 调整 startDate 和 endDate 的时间部分
+		// 如果 startDate 存在，则将时间设为当天的最早时间
 		if (startDate != null) {
 			startDate = startDate.with(LocalTime.MIN);
 		}
+
+		// 如果 endDate 存在，则将时间设为当天的最后时间
 		if (endDate != null) {
 			endDate = endDate.with(LocalTime.MAX);
 		}
 
+		// 将参数放入 params Map 中
 		params.put("startDate", startDate);
 		params.put("endDate", endDate);
-		System.out.println(startDate);
-		System.out.println(endDate);
-		return orderRepository.queryDrawOrder(params.get("userId") , params.get("startDate") , params.get("endDate"));
+
+		// 调用 Mapper 查询
+		return orderRepository.queryDrawOrder(params.get("userId"),
+				params.get("startDate"),
+				params.get("endDate"));
 	}
+
 }
