@@ -3,9 +3,7 @@ package com.one.frontend.controller;
 import com.one.frontend.config.security.CustomUserDetails;
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
-import com.one.frontend.model.CartItem;
 import com.one.frontend.request.CartItemReq;
-import com.one.frontend.response.StoreProductRes;
 import com.one.frontend.service.CartItemService;
 import com.one.frontend.service.CartService;
 import com.one.frontend.service.StoreProductService;
@@ -51,8 +49,6 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    
     
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<ApiResponse<?>> removeCartItem(@PathVariable Long cartItemId) {

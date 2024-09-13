@@ -46,7 +46,9 @@ public class CartItemService {
 	        if (existingCartItem != null) {
 	            int newQuantity = existingCartItem.getQuantity() + req.getQuantity();
 	            BigDecimal newTotalPrice = unitPrice.multiply(BigDecimal.valueOf(newQuantity));
-
+				if(newQuantity > productRes.getStockQuantity()){
+					throw new Exception("已達商品數量上限");
+				}
 	            existingCartItem.setQuantity(newQuantity);
 	            existingCartItem.setTotalPrice(newTotalPrice);
 
@@ -96,5 +98,5 @@ public class CartItemService {
 	public List<CartItem> findByCartIdAndCartItemList(Long cartId, List<Long> cartItemIds) {
 		return cartItemRepository.findByCartIdAndCartItemList(cartId, cartItemIds);
 	}
-
+	
 }
