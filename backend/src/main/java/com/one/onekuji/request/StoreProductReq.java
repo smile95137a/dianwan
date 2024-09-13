@@ -28,4 +28,5 @@ public class StoreProductReq {
     private BigDecimal width;
     private BigDecimal height;
     private String specification;
+    private String productCode;
 }

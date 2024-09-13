@@ -98,5 +98,18 @@ public class CartItemService {
 	public List<CartItem> findByCartIdAndCartItemList(Long cartId, List<Long> cartItemIds) {
 		return cartItemRepository.findByCartIdAndCartItemList(cartId, cartItemIds);
 	}
-	
+
+
+	public Boolean checkQu(CartItemReq quantity) throws Exception {
+		StoreProductRes productRes = storeProductService.getStoreProductByProductCode(quantity.getProductCode());
+		if (productRes == null) {
+			throw new RuntimeException("Product not found while adding cart item");
+		}
+		if(quantity.getQuantity() > productRes.getStockQuantity()){
+			throw new Exception("已達商品數量上限");
+		}
+
+		return true;
+
+	}
 }

@@ -65,7 +65,8 @@ public class StoreProduct {
     @Schema(description = "創建用戶 ID", example = "1")
     @Column(name = "created_user")
     private Long createdUser;
-
+    @Column(name = "product_code")
+    private String productCode; // 商品代码，唯一标识商品
     @Schema(description = "更新用戶 ID", example = "1")
     @Column(name = "update_user")
     private Long updateUser;

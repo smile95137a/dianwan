@@ -49,6 +49,25 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/checkQua")
+    public ResponseEntity<ApiResponse<?>> checkQu(@RequestBody CartItemReq quantity) {
+        try {
+            // 取得使用者ID
+            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+            var userId = userDetails.getId();
+
+            Boolean result = cartItemService.checkQu(quantity);
+            var response = ResponseUtils.success(201, "數量正確", result);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            var response = ResponseUtils.failure(500, "已達商品數量上限", false);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+
     
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<ApiResponse<?>> removeCartItem(@PathVariable Long cartItemId) {

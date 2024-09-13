@@ -15,12 +15,12 @@ public interface StoreProductMapper {
     StoreProduct findById(Long id);
 
     @Insert("INSERT INTO store_product (" +
-            "product_name, description, price, stock_quantity, image_urls, category_id, status, special_price, shipping_method, size, shipping_price, length, width, height, specification, created_at, updated_at, created_user, update_user) " +
+            "product_name, description, price, stock_quantity, image_urls, category_id, status, special_price, shipping_method, size, shipping_price, length, width, height, specification, created_at, updated_at, created_user, update_user,product_code) " +
             "VALUES (" +
             "#{productName}, #{description}, #{price}, #{stockQuantity}, " +
             "#{imageUrls}, #{categoryId}, #{status}, #{specialPrice}, #{shippingMethod}, #{size}, " +
             "#{shippingPrice}, #{length}, #{width}, #{height}, #{specification}, " +
-            "#{createdAt}, #{updatedAt}, #{createdUser}, #{updateUser})")
+            "#{createdAt}, #{updatedAt}, #{createdUser}, #{updateUser},#{productCode})")
     @Options(useGeneratedKeys = true, keyProperty = "storeProductId")
     void insert(StoreProduct storeProduct);
 

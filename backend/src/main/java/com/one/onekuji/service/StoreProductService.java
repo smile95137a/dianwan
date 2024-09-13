@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,6 +126,7 @@ public class StoreProductService {
         String specification = formatTextToHtml(storeProductReq.getSpecification());
         BigDecimal size = height.multiply(width).multiply(length);
         StoreProduct storeProduct = new StoreProduct();
+        storeProduct.setProductCode(UUID.randomUUID().toString());
         storeProduct.setProductName(storeProductReq.getProductName());
         storeProduct.setDescription(description);
         storeProduct.setPrice(storeProductReq.getPrice());
