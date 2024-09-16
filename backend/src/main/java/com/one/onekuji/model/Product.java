@@ -98,15 +98,4 @@ public class Product{
     @Column(name= "specification")
     private String specification;
 
-    @Column(name = "length")
-    private BigDecimal length;
-
-    @Column(name = "width")
-    private BigDecimal width;
-
-    @Column(name = "height")
-    private BigDecimal height;
-
-    @Column(name = "size")
-    private BigDecimal size;
 }

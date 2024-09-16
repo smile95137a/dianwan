@@ -94,11 +94,7 @@ public class ProductService {
         product.setPrizeCategory(req.getPrizeCategory());
         product.setStatus(req.getStatus());
         product.setBonusPrice(req.getBonusPrice());
-        product.setHeight(req.getHeight());
-        product.setLength(req.getLength());
-        product.setWidth(req.getWidth());
         product.setSpecification(escapeTextForHtml(req.getSpecification()));
-        product.setSize(req.getHeight().multiply(req.getWidth()).multiply(req.getLength()));
     }
 
 
@@ -115,11 +111,7 @@ public class ProductService {
                 product.getPrizeCategory(),
                 product.getStatus(),
                 product.getBonusPrice(),
-                product.getLength(),
-                product.getWidth(),
-                product.getHeight(),
-                product.getSpecification(),
-                product.getSize()
+                product.getSpecification()
         );
     }
 

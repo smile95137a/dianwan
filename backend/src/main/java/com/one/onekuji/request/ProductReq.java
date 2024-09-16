@@ -26,9 +26,5 @@ public class ProductReq {
     private PrizeCategory prizeCategory;
     private ProductStatus status;
     private BigDecimal bonusPrice;
-    private BigDecimal length;
-    private BigDecimal width;
-    private BigDecimal height;
     private String specification;
-    private BigDecimal size;
 }
