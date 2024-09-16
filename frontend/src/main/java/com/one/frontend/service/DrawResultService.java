@@ -3,22 +3,23 @@ package com.one.frontend.service;
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.eenum.PrizeCategory;
-import com.one.frontend.model.DrawResult;
-import com.one.frontend.model.Order;
-import com.one.frontend.model.PrizeNumber;
-import com.one.frontend.model.ProductDetail;
+import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
 import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
 import com.one.frontend.response.UserRes;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,81 @@ public class DrawResultService {
 	private final ProductDetailRepository productDetailRepository;
 	private final PrizeNumberMapper prizeNumberMapper;
 	private final OrderService orderService;
+
+
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+
+
+	// 本地锁，用于锁定抽奖资源
+	private final ConcurrentHashMap<Long, Lock> productLockMap = new ConcurrentHashMap<>();
+	// 存储用户的锁
+	private final Map<Long, Lock> userLockMap = new ConcurrentHashMap<>();
+	// 存储产品的上次抽奖时间和抽奖用户
+	private final Map<Long, DrawProtection> productDrawProtectionMap = new ConcurrentHashMap<>();
+
+	private static class DrawProtection {
+		LocalDateTime lastDrawTime;
+		Long userId;
+
+		DrawProtection(LocalDateTime lastDrawTime, Long userId) {
+			this.lastDrawTime = lastDrawTime;
+			this.userId = userId;
+		}
+	}
+
+	// 获取用户锁
+	private Lock getLockForUser(Long userId) {
+		return userLockMap.computeIfAbsent(userId, k -> new ReentrantLock());
+	}
+
+	// 获取用户抽奖的保护时间
+	private long getDrawProtectionTime(int drawCount) {
+		long protectionTime = 300 + (30 * (drawCount - 1)); // 单抽300秒，多抽累加，每次多抽加30秒
+		return Math.min(protectionTime, 600); // 最大保护时间600秒
+	}
+
+	public List<DrawResult> handleDrawForLock(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
+		Lock lock = getLockForUser(userId);
+		if (lock.tryLock()) {
+			try {
+				LocalDateTime now = LocalDateTime.now();
+				DrawProtection protection = productDrawProtectionMap.get(productId);
+
+				if (protection != null) {
+					long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
+					long protectionTime = getDrawProtectionTime(prizeNumbers.size());
+
+					System.out.println("Protection time: " + protectionTime + " seconds");
+					System.out.println("Seconds since last draw: " + secondsSinceLastDraw + " seconds");
+
+					// 检查是否在保护期内，且不是当前正在抽奖的用户
+					if (secondsSinceLastDraw < protectionTime && !Objects.equals(userId, protection.userId)) {
+						throw new Exception("抽獎保護期內，其他用户暂时不能抽獎。剩餘時間：" + (protectionTime - secondsSinceLastDraw) + "秒");
+					}
+				}
+
+				// 更新保护信息
+				productDrawProtectionMap.put(productId, new DrawProtection(now, userId));
+
+				// 继续处理抽奖逻辑
+				List<DrawResult> drawResults = handleDraw2(userId, productId, prizeNumbers);
+				return drawResults;
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception("抽獎發生錯誤: " + e.getMessage());
+			} finally {
+				lock.unlock();
+			}
+		} else {
+			throw new Exception("目前有其他用戶正在抽獎，請稍後。");
+		}
+	}
+
+
+
+
+
 
 	public List<DrawResult> handleDraw(Long userId, Long productId) throws Exception {
 		Random random = new Random();
@@ -139,7 +215,19 @@ public class DrawResultService {
 				drawResult.setUpdateDate(LocalDateTime.now());
 				drawResults.add(drawResult);
 
+
+				//告知抽獎結果跑馬燈
+				GachaMessage message = new GachaMessage();
+				message.setNickName("JohnDoe");
+				message.setName("哥吉拉 2023 SOFVICS 金色版本");
+				message.setProductDetail(selectedPrizeDetail);
+				message.setCreatedDate(LocalDateTime.now());
+
+				messagingTemplate.convertAndSend("/topic/lottery", message);
 				remainingDrawCount--;
+
+
+
 			}
 
 			// 批量插入抽奖结果
@@ -188,7 +276,6 @@ public class DrawResultService {
 			} else {
 				userRepository.updateBonus(userId);
 			}
-
 			return drawResults;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,7 +328,7 @@ public class DrawResultService {
 		ProductDetailRes selectedPrizeDetail;
 		if (random.nextDouble() < grandPrizeProbability) {
 			// 使用戶贏得大獎
-			selectedPrizeDetail = getGrandPrizeDetail(productId);
+					selectedPrizeDetail = getGrandPrizeDetail(productId);
 		} else {
 			// 使用戶贏得安慰獎
 			selectedPrizeDetail = getConsolationPrizeDetail(productId);

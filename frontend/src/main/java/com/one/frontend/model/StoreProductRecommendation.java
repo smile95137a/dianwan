@@ -23,18 +23,18 @@ public class StoreProductRecommendation {
     private String recommendationName;
 
     @Schema(description = "創建時間", example = "2024-08-22T15:30:00")
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
 
     @Schema(description = "更新時間", example = "2024-08-22T15:30:00")
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
 
     @Schema(description = "創建用戶 ID", example = "1")
     @Column(name = "created_user")
-    private Long createdUser;
+    private String createdUser;
 
     @Schema(description = "更新用戶 ID", example = "1")
     @Column(name = "update_user")
-    private Long updateUser;
+    private String updateUser;
 }
