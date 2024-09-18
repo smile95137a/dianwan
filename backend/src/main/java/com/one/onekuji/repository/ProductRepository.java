@@ -15,7 +15,7 @@ public interface ProductRepository {
             "product_type, prize_category, status, bonus_price, specification) " +
             "VALUES (" +
             "#{productName}, #{description}, #{price}, #{sliverPrice}, #{stockQuantity}, #{imageUrls}, " +
-            "#{productType}, #{prizeCategory}, #{status}, #{bonusPrice}, #{length}, #{specification})")
+            "#{productType}, #{prizeCategory}, #{status}, #{bonusPrice}, #{specification})")
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insertProduct(Product product);
 
