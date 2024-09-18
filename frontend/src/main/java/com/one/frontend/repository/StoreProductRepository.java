@@ -1,22 +1,16 @@
 package com.one.frontend.repository;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
-
 import com.one.frontend.model.StoreKeyword;
 import com.one.frontend.model.StoreProduct;
 import com.one.frontend.response.StoreProductRes;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface StoreProductRepository {
 
-	@Select("SELECT * FROM store_product LIMIT #{size} OFFSET #{offset}")
+	@Select("SELECT * FROM store_product order by created_at desc LIMIT #{size} OFFSET #{offset} ")
 	List<StoreProductRes> findAll(@Param("offset") int offset, @Param("size") int size);
 
 	@Select("SELECT * FROM store_product WHERE store_product_id = #{storeProductId}")
