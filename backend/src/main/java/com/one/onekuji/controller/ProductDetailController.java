@@ -43,7 +43,7 @@ public class ProductDetailController {
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<List<DetailRes>>> addProductDetails(
-            @RequestParam("productDetailReqs") String productDetailReqsJson,
+            @RequestParam("productDetailReq") String productDetailReqsJson,
             @RequestParam(value = "images", required = false) List<MultipartFile> images) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);

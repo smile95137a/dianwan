@@ -33,7 +33,7 @@ public interface ProductDetailRepository {
             "grade = #{grade}, " +
             "price = #{price}, " +
             "sliver_price = #{sliverPrice}, " +
-            "image_url = #{imageUrls}, " +
+            "image_urls = #{imageUrls}, " +
             "length = #{length}, " +
             "width = #{width}, " +
             "height = #{height}, " +
