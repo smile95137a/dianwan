@@ -80,6 +80,7 @@ public class StoreProductService {
         storeProduct.setSize(size);
         storeProduct.setSpecification(specification);
         storeProduct.setUpdatedAt(LocalDateTime.now());
+        storeProduct.setDetails(storeProductReq.getDetails());
 
         // Update the store product
         storeProductMapper.update(storeProduct);
@@ -139,6 +140,7 @@ public class StoreProductService {
         storeProduct.setShippingMethod(storeProductReq.getShippingMethod());
         storeProduct.setShippingPrice(storeProductReq.getShippingPrice());
         storeProduct.setSpecification(specification);
+        storeProduct.setDetails(storeProductReq.getDetails());
         return storeProduct;
     }
 

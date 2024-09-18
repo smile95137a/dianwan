@@ -92,6 +92,10 @@ public class StoreProduct {
     @Column(name = "shipping_price")
     private BigDecimal shippingPrice;
 
+    @Column(name = "details", columnDefinition = "LONGTEXT")
+    @Lob
+    private String details; // 商品详情，包含更详细的商品信息
+
     @Column(name= "specification")
     private String specification;
 }

@@ -15,12 +15,12 @@ public interface StoreProductMapper {
     StoreProduct findById(Long id);
 
     @Insert("INSERT INTO store_product (" +
-            "product_name, description, price, stock_quantity, image_urls, category_id, status, special_price, shipping_method, size, shipping_price, length, width, height, specification, created_at, updated_at, created_user, update_user,product_code) " +
+            "product_name, description, price, stock_quantity, image_urls, category_id, status, special_price, shipping_method, size, shipping_price, length, width, height, specification, created_at, updated_at, created_user, update_user,product_code,details) " +
             "VALUES (" +
             "#{productName}, #{description}, #{price}, #{stockQuantity}, " +
             "#{imageUrls}, #{categoryId}, #{status}, #{specialPrice}, #{shippingMethod}, #{size}, " +
             "#{shippingPrice}, #{length}, #{width}, #{height}, #{specification}, " +
-            "#{createdAt}, #{updatedAt}, #{createdUser}, #{updateUser},#{productCode})")
+            "#{createdAt}, #{updatedAt}, #{createdUser}, #{updateUser},#{productCode} , #{details})")
     @Options(useGeneratedKeys = true, keyProperty = "storeProductId")
     void insert(StoreProduct storeProduct);
 
@@ -29,7 +29,7 @@ public interface StoreProductMapper {
             "image_urls=#{imageUrls}, category_id=#{categoryId}, status=#{status}, special_price=#{specialPrice}, " +
             "shipping_method=#{shippingMethod}, size=#{size}, shipping_price=#{shippingPrice}, length=#{length}, " +
             "width=#{width}, height=#{height}, specification=#{specification}, " +
-            "updated_at=#{updatedAt}, update_user=#{updateUser} " +
+            "updated_at=#{updatedAt}, update_user=#{updateUser} , details = #{details} " +
             "WHERE store_product_id=#{storeProductId}")
     void update(StoreProduct storeProduct);
 
