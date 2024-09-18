@@ -3,6 +3,7 @@ package com.one.onekuji.controller;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
+import com.one.onekuji.model.StoreProduct;
 import com.one.onekuji.request.StoreProductReq;
 import com.one.onekuji.response.StoreProductRes;
 import com.one.onekuji.service.StoreProductService;
@@ -77,12 +78,19 @@ public class StoreProductController {
             ApiResponse<StoreProductRes> response = ResponseUtils.failure(404, "未找到該商品", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+
+
+
         List<String> fileUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
                     String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
+                }else{
+                    StoreProduct storeProductRes = storeProductService.getProductById(id);
+                    List<String> list = storeProductRes.getImageUrls();
+                    fileUrls.addAll(list);
                 }
             }
         }

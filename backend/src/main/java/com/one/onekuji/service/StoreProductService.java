@@ -30,6 +30,7 @@ public class StoreProductService {
                 .collect(Collectors.toList());
     }
 
+
     public StoreProductRes addStoreProduct(StoreProductReq storeProductReq) throws Exception {
 
         StoreCategory category = categoryService.getCategoryById(Long.valueOf(storeProductReq.getCategoryId()));
@@ -153,5 +154,10 @@ public class StoreProductService {
         text = text.replaceAll("\\[br\\]", "<br>");
 
         return text;
+    }
+
+    public StoreProduct getProductById(Long id) {
+        StoreProduct res = storeProductMapper.findById(id);
+        return res;
     }
 }
