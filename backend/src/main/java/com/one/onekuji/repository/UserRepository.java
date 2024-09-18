@@ -10,10 +10,10 @@ import java.util.List;
 @Mapper
 public interface UserRepository {
 
-    @Select("SELECT id, username, password, nick_name, email, phone_number, address, role_id, balance, bonus, sliver_coin, google_id, updated_at, draw_count FROM user")
+    @Select("SELECT id, username, password, nick_name, email, phone_number, address, role_id, balance, bonus, sliver_coin, updated_at, draw_count FROM user")
     List<UserRes> findAll();
 
-    @Select("SELECT id, username, password, nick_name, email, phone_number, address, role_id, balance, bonus, sliver_coin, google_id, updated_at, draw_count FROM user WHERE id = #{userId}")
+    @Select("SELECT id, username, password, nick_name, email, phone_number, address, role_id, balance, bonus, sliver_coin,, updated_at, draw_count FROM user WHERE id = #{userId}")
     UserRes findById(Long userId);
 
     @Insert("INSERT INTO user (username, password, nick_name, email, phone_number, address, role_id, balance, bonus, sliver_coin, google_id, created_at, draw_count , role_id) " +
