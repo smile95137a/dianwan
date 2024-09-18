@@ -3,6 +3,7 @@ package com.one.onekuji.controller;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
+import com.one.onekuji.model.StoreProduct;
 import com.one.onekuji.request.StoreProductReq;
 import com.one.onekuji.response.StoreProductRes;
 import com.one.onekuji.service.StoreProductService;
@@ -87,9 +88,8 @@ public class StoreProductController {
                     String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
                 }else{
-//                    StoreProduct storeProductRes = storeProductService.getProductById(id);
-//                    List<String> list = storeProductRes.getImageUrls();
-                    List<String> list = storeProductReq.getImageUrl();
+                    StoreProduct storeProductRes = storeProductService.getProductById(id);
+                    List<String> list = storeProductRes.getImageUrls();
                     fileUrls.addAll(list);
                 }
             }
