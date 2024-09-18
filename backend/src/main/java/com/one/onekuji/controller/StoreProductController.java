@@ -87,12 +87,12 @@ public class StoreProductController {
                 if (!image.isEmpty()) {
                     String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
                     fileUrls.add(fileUrl);
-                }else{
-                    StoreProduct storeProductRes = storeProductService.getProductById(id);
-                    List<String> list = storeProductRes.getImageUrls();
-                    fileUrls.addAll(list);
                 }
             }
+        }else{
+            StoreProduct storeProductRes = storeProductService.getProductById(id);
+            List<String> list = storeProductRes.getImageUrls();
+            fileUrls.addAll(list);
         }
 
         storeProductReq.setImageUrl(fileUrls);
