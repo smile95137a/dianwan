@@ -39,6 +39,11 @@ public interface OrderDetailRepository {
             "VALUES (#{orderDetail.orderId}, #{orderDetail.storeProductId}, #{orderDetail.quantity}, #{orderDetail.unitPrice}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned})")
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void saveOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
+
+    @Insert("INSERT INTO order_detail (order_id, product_detail_id, quantity, total_price, result_item_id, bonus_points_earned) " +
+            "VALUES (#{orderDetail.orderId}, #{orderDetail.productDetailId}, #{orderDetail.quantity}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned})")
+    @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
+    void savePrizeOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
     
     
     @Select("SELECT od.*, sp.store_product_id, sp.product_name, sp.description, sp.price, sp.stock_quantity, sp.image_urls " +
@@ -60,6 +65,26 @@ public interface OrderDetailRepository {
         @Result(property = "storeProduct.imageUrls", column = "image_urls"),
     })
     List<OrderDetailRes> findOrderDetailsByOrderId(Long orderId);
+
+
+    @Select("SELECT od.* , sp.product_detail_id , sp.product_name , sp.description , sp.sliver_price , sp.image_urls" +
+            "FROM order_detail od " +
+            "LEFT JOIN product_detail sp ON od.product_detail_id = sp.product_detail_id " +
+            "WHERE od.order_id = #{orderId}")
+    @Results({
+            @Result(property = "orderDetailId", column = "id"),
+            @Result(property = "productId", column = "product_id"),
+            @Result(property = "productDetailName", column = "product_detail_name"),
+            @Result(property = "quantity", column = "quantity"),
+            @Result(property = "unitPrice", column = "unit_price"),
+            @Result(property = "totalPrice", column = "total_price"),
+            @Result(property = "ProductDetail.productDetailId", column = "product_detail_id"),
+            @Result(property = "ProductDetail.productName", column = "product_name"),
+            @Result(property = "ProductDetail.description", column = "description"),
+            @Result(property = "ProductDetail.sliverPrice", column = "sliver_price"),
+            @Result(property = "storeProduct.imageUrls", column = "image_urls"),
+    })
+    List<OrderDetailRes> findPrizeOrderDetailsByOrderId(Long orderId);
 
 
 

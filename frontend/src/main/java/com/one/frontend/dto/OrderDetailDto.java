@@ -12,10 +12,10 @@ import java.math.BigDecimal;
 @Data
 public class OrderDetailDto {
 
-    private Integer id;
-    private Integer orderId;
-    private Integer productId;
-    private Integer productDetailId;
+    private Long id;
+    private Long orderId;
+    private Long productId;
+    private Long productDetailId;
     private String storeProductName;
     private String productDetailName;
     private Integer quantity;

@@ -11,11 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class ProductDetailRes {
-    private Integer productDetailId;
-    private Integer productId;
+    private Long productDetailId;
+    private Long productId;
     private String description;
     private String note;
-    private String size;
+    private BigDecimal size;
     private Integer quantity;
     private Integer stockQuantity;
     private String productName;

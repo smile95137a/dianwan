@@ -1,22 +1,13 @@
 package com.one.frontend.model;
 
-import java.math.BigDecimal;
-
-import com.one.frontend.eenum.OrderStatus;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -37,8 +28,8 @@ public class OrderDetail {
 	private Long orderId;
 
 	@Schema(description = "產品 ID", example = "1")
-	@Column(name = "product_id")
-	private Long productId;
+	@Column(name = "product_detail_id")
+	private Long productDetailId;
 
 	@Schema(description = "商店產品 ID", example = "1")
 	@Column(name = "store_product_id")

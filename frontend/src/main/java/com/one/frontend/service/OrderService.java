@@ -7,6 +7,7 @@ import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.model.CartItem;
 import com.one.frontend.model.Order;
 import com.one.frontend.model.OrderDetail;
+import com.one.frontend.model.PrizeCartItem;
 import com.one.frontend.repository.OrderDetailRepository;
 import com.one.frontend.repository.OrderRepository;
 import com.one.frontend.request.OrderQueryReq;
@@ -15,6 +16,7 @@ import com.one.frontend.response.OrderDetailRes;
 import com.one.frontend.response.OrderRes;
 import com.one.frontend.util.RandomUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,9 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final OrderDetailRepository orderDetailRepository;
 	private final CartItemService cartItemService;
+
+	@Autowired
+	private PrizeCartItemService prizeCartItemService;
 
 	public String ecpayCheckout(Integer userId) {
 
@@ -142,6 +147,60 @@ public class OrderService {
 		return orderNumber; // 返回訂單號
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	public String createPrizeOrder(PayCartRes payCartRes, List<PrizeCartItem> prizeCartItemList, Long userId) {
+
+		// 生成訂單號
+		String orderNumber = genOrderNumber();
+
+		// 計算運費，根據運輸方式動態設置
+		BigDecimal shippingCost = calculateShippingCost(payCartRes.getShippingMethod());
+
+		// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
+		Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(shippingCost) // 總金額 =
+				// 商品價格
+				// + 運費
+				.paymentMethod(payCartRes.getPaymentMethod()) // 從 PayCartRes 獲取支付方式
+				.shippingCost(shippingCost) // 保存運費
+				.shippingMethod(payCartRes.getShippingMethod()) // 從 PayCartRes 獲取運送方式
+				.shippingName(payCartRes.getShippingName()) // 從 PayCartRes 獲取收貨人姓名
+				.shippingEmail(payCartRes.getShippingEmail()) // 從 PayCartRes 獲取收貨人 Email
+				.shippingPhone(payCartRes.getShippingPhone()) // 從 PayCartRes 獲取收貨人電話
+				.shippingZipCode(payCartRes.getShippingZipCode()) // 從 PayCartRes 獲取收貨地址郵遞區號
+				.shippingCity(payCartRes.getShippingCity()) // 從 PayCartRes 獲取收貨城市
+				.shippingArea(payCartRes.getShippingArea()) // 從 PayCartRes 獲取收貨區域
+				.shippingAddress(payCartRes.getShippingAddress()) // 從 PayCartRes 獲取收貨地址
+				.billingName(payCartRes.getBillingName()) // 從 PayCartRes 獲取賬單姓名
+				.billingEmail(payCartRes.getBillingEmail()) // 從 PayCartRes 獲取賬單 Email
+				.billingPhone(payCartRes.getBillingPhone()) // 從 PayCartRes 獲取賬單電話
+				.billingZipCode(payCartRes.getBillingZipCode()) // 從 PayCartRes 獲取賬單地址郵遞區號
+				.billingCity(payCartRes.getBillingCity()) // 從 PayCartRes 獲取賬單城市
+				.billingArea(payCartRes.getBillingArea()) // 從 PayCartRes 獲取賬單區域
+				.billingAddress(payCartRes.getBillingAddress()) // 從 PayCartRes 獲取賬單地址
+				.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
+				.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
+				.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
+				.build();
+
+		// 插入訂單到資料庫
+		orderRepository.insertOrder(orderEntity);
+
+		// 根據訂單號查詢訂單ID
+		Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
+
+		// 轉換購物車項目到訂單詳情並保存
+		prizeCartItemList.stream().map(prizeCartItem -> mapPrizeCartItemToOrderDetail(prizeCartItem, orderId , shippingCost)) // 映射購物車項目為訂單詳情
+				.forEach(orderDetailRepository::savePrizeOrderDetail); // 保存訂單詳情
+
+		// 獲取所有購物車項的ID並移除
+		List<Long> prizeCartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+
+		// 移除購物車項
+		prizeCartItemService.removeCartItems(prizeCartItemIds, prizeCartItemList.get(0).getCartId());
+
+		return orderNumber; // 返回訂單號
+	}
+
 	// 根據不同的運送方式計算運費
 	private BigDecimal calculateShippingCost(String shippingMethodValue) {
 		switch (shippingMethodValue) {
@@ -175,11 +234,36 @@ public class OrderService {
 				.build();
 	}
 
+	public OrderDetail mapPrizeCartItemToOrderDetail(PrizeCartItem prizeCartItem, Long orderId , BigDecimal shippingCost) {
+
+
+		return OrderDetail.builder().orderId(orderId).productDetailId(prizeCartItem.getProductDetailId())
+				.quantity(prizeCartItem.getQuantity()).totalPrice(shippingCost)
+				.build();
+	}
+
 	public OrderRes getOrderByOrderNumber(Long userId, String orderNumber) {
 		try {
 			var order = orderRepository.getOrderByUserIdAndOrderNumber(userId, orderNumber);
 			if (order != null) {
 				List<OrderDetailRes> orderDetails = orderDetailRepository.findOrderDetailsByOrderId(order.getId());
+				order.setOrderDetails(orderDetails);
+			}
+
+			return order;
+		} catch (Exception e) {
+			// 在这里处理异常，例如记录日志或抛出自定义异常
+			System.err.println("Error retrieving order by order number: " + e.getMessage());
+			// 您可以选择抛出自定义异常，或者返回一个默认值（如null）
+			return null; // 或者 throw new CustomException("Failed to retrieve order", e);
+		}
+	}
+
+	public OrderRes getPrizeOrderByOrderNumber(Long userId, String orderNumber) {
+		try {
+			var order = orderRepository.getOrderByUserIdAndOrderNumber(userId, orderNumber);
+			if (order != null) {
+				List<OrderDetailRes> orderDetails = orderDetailRepository.findPrizeOrderDetailsByOrderId(order.getId());
 				order.setOrderDetails(orderDetails);
 			}
 

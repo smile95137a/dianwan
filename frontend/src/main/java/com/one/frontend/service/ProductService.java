@@ -26,7 +26,7 @@ public class ProductService {
         return null;
     }
 
-    public ProductRes getProductById(Integer productId) {
+    public ProductRes getProductById(Long productId) {
         return productRepository.getProductById(productId);
     }
 

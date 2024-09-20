@@ -1,14 +1,12 @@
 package com.one.frontend.response;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import com.one.frontend.model.OrderDetail;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -42,5 +40,6 @@ public class OrderRes {
 	private String trackingNumber;
 
 	private List<OrderDetailRes> orderDetails;
+
 
 }

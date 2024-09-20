@@ -22,7 +22,7 @@ public interface ProductRepository {
 
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
-    ProductRes getProductById(@Param("productId") Integer productId);
+    ProductRes getProductById(@Param("productId") Long productId);
 
     @Insert("INSERT INTO product (" +
             "product_name, description, price, stock_quantity, sold_quantity, " +

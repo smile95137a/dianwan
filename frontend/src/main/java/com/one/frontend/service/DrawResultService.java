@@ -3,6 +3,7 @@ package com.one.frontend.service;
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.eenum.PrizeCategory;
+import com.one.frontend.eenum.ProductType;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
 import com.one.frontend.response.ProductDetailRes;
@@ -34,6 +35,8 @@ public class DrawResultService {
 	private final ProductDetailRepository productDetailRepository;
 	private final PrizeNumberMapper prizeNumberMapper;
 	private final OrderService orderService;
+	private final PrizeCartItemRepository prizeCartItemRepository;
+	private final PrizeCartRepository prizeCartRepository;
 
 
 	@Autowired
@@ -160,7 +163,7 @@ public class DrawResultService {
 			}
 
 			// 获取商品价格
-			ProductRes product = productRepository.getProductById(Math.toIntExact(productId));
+			ProductRes product = productRepository.getProductById(productId);
 			BigDecimal amount = product.getPrice();
 
 			// 计算抽奖总金额
@@ -188,14 +191,14 @@ public class DrawResultService {
 
 			List<DrawResult> drawResults = new ArrayList<>();
 			int remainingDrawCount = prizeNumbers.size();
-
+			UserRes user = userRepository.getUserById(userId);
 			// 处理每个抽中的奖品
 			for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
 				prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(), selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
 
 				// 更新奖品数量
 				ProductDetailRes selectedPrizeDetail = productDetailRepository
-						.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
+						.getProductDetailById(selectedPrizeNumber.getProductDetailId());
 				selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
 				productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
 
@@ -218,8 +221,8 @@ public class DrawResultService {
 
 				//告知抽獎結果跑馬燈
 				GachaMessage message = new GachaMessage();
-				message.setNickName("JohnDoe");
-				message.setName("哥吉拉 2023 SOFVICS 金色版本");
+				message.setNickName(user.getNickname());
+				message.setName(selectedPrizeDetail.getProductName());
 				message.setProductDetail(selectedPrizeDetail);
 				message.setCreatedDate(LocalDateTime.now());
 
@@ -234,42 +237,74 @@ public class DrawResultService {
 			drawRepository.insertBatch(drawResults);
 
 			// 生成订单
-			String orderNumber = orderService.genOrderNumber();
-			Order orderEntity = Order.builder()
-					.userId(userId)
-					.orderNumber(orderNumber)
-					.createdAt(LocalDateTime.now())
-					.resultStatus(OrderStatus.PREPARING_SHIPMENT)
-					.totalAmount(totalAmount) // 使用总金额
-					.build();
-			orderRepository.insertOrder(orderEntity);
+//			String orderNumber = orderService.genOrderNumber();
+//			Order orderEntity = Order.builder()
+//					.userId(userId)
+//					.orderNumber(orderNumber)
+//					.createdAt(LocalDateTime.now())
+//					.resultStatus(OrderStatus.PREPARING_SHIPMENT)
+//					.totalAmount(totalAmount) // 使用总金额
+//					.build();
+//			orderRepository.insertOrder(orderEntity);
 
 			// 获取订单ID
-			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
-			List<OrderDetailDto> orderDetailList = new ArrayList<>();
+//			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
+//			List<OrderDetailDto> orderDetailList = new ArrayList<>();
 
 			// 生成订单明细
-			for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
-				// 重新获取每个奖品的 ProductDetailRes
-				ProductDetailRes selectedPrizeDetail = productDetailRepository
-						.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
+//			for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
+//				// 重新获取每个奖品的 ProductDetailRes
+//				ProductDetailRes selectedPrizeDetail = productDetailRepository
+//						.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
+//
+//				OrderDetailDto orderDetail = new OrderDetailDto();
+//				orderDetail.setOrderId(Math.toIntExact(orderId));
+//				orderDetail.setProductId(productId.intValue());
+//				orderDetail.setProductDetailId(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
+//				orderDetail.setProductDetailName(selectedPrizeDetail.getProductName()); // 使用重新获取的 selectedPrizeDetail
+//				orderDetail.setQuantity(1);
+//				orderDetail.setUnitPrice(amount);
+//				orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
+//				orderDetailList.add(orderDetail);
+//			}
+//
+//			// 批量插入订单明细
+//			orderDetailRepository.insertOrderDetail(orderDetailList);
 
-				OrderDetailDto orderDetail = new OrderDetailDto();
-				orderDetail.setOrderId(Math.toIntExact(orderId));
-				orderDetail.setProductId(productId.intValue());
-				orderDetail.setProductDetailId(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
-				orderDetail.setProductDetailName(selectedPrizeDetail.getProductName()); // 使用重新获取的 selectedPrizeDetail
-				orderDetail.setQuantity(1);
-				orderDetail.setUnitPrice(amount);
-				orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
-				orderDetailList.add(orderDetail);
+			//商品加入賞品盒
+			Long prizeCartId = prizeCartRepository.getCartIdByUserId(userId);
+			List<PrizeCartItem> cartItemList = new ArrayList<>();
+			if(!(prizeCartId == null)){
+				for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
+					PrizeCartItem prizeCartItem = new PrizeCartItem();
+					ProductDetailRes selectedPrizeDetail = productDetailRepository
+							.getProductDetailById(selectedPrizeNumber.getProductDetailId());
+					ProductRes pro = productRepository.getProductById(productId);
+					ProductType productType = pro.getProductType();
+					if (productType.equals(ProductType.GACHA) || productType.equals(ProductType.BLIND_BOX)) {
+						prizeCartItem.setSliverPrice(BigDecimal.ZERO);
+					} else {
+						prizeCartItem.setSliverPrice(selectedPrizeDetail.getSliverPrice());
+					}
+					prizeCartItem.setCartId(prizeCartId);
+					prizeCartItem.setSize(selectedPrizeDetail.getSize());
+
+					prizeCartItem.setProductDetailId(selectedPrizeDetail.getProductDetailId());
+					prizeCartItem.setIsSelected(true);
+					cartItemList.add(prizeCartItem);
+				}
+			}else{
+				throw new Exception("賞品盒不存在");
 			}
 
-			// 批量插入订单明细
-			orderDetailRepository.insertOrderDetail(orderDetailList);
+
+			prizeCartItemRepository.insertBatch(cartItemList);
+
+
+
 
 			// 处理用户抽奖次数和红利
-			UserRes user = userRepository.getUserById(userId);
+
 			Long drawCount = user.getDrawCount();
 			if (drawCount < 3L) {
 				userRepository.addDrawCount(userId);
@@ -301,7 +336,7 @@ public class DrawResultService {
 
 		// 扣除會員內儲值金
 		BigDecimal totalAmount = BigDecimal.ZERO;
-		ProductRes product2 = productRepository.getProductById(Math.toIntExact(productId));
+		ProductRes product2 = productRepository.getProductById(productId);
 		BigDecimal amount = product2.getPrice();
 		PrizeCategory category = product2.getPrizeCategory();
 		Integer balanceInt = userRepository.getBalance(userId);
@@ -370,8 +405,8 @@ public class DrawResultService {
 
 		// 生成订单明细
 		OrderDetailDto orderDetail = new OrderDetailDto();
-		orderDetail.setOrderId(Math.toIntExact(orderId));
-		orderDetail.setProductId(productId.intValue());
+		orderDetail.setOrderId(orderId);
+		orderDetail.setProductId(productId);
 		orderDetail.setProductDetailId(selectedPrizeDetail.getProductDetailId());
 		orderDetail.setProductDetailName(selectedPrizeDetail.getProductName());
 		orderDetail.setQuantity(1);

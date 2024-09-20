@@ -21,6 +21,7 @@ public class OrderDetailRes {
 	private BigDecimal unitPrice;
 	private Integer totalPrice;
 	private StoreProductRes storeProduct;
+	private ProductDetailRes productDetailRes;
 
 
 }

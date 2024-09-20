@@ -35,8 +35,6 @@ public class CartItemService {
 			//驗證size是否正確
 			BigDecimal productSize = productRes.getSize();
 			BigDecimal size = productRes.getLength().multiply(productRes.getHeight()).multiply(productRes.getWidth());
-			System.out.println(productSize.toBigInteger().intValueExact());
-			System.out.println(size.toBigInteger().intValueExact());
 			if(!(productSize.toBigInteger().intValueExact() == (productRes.getSize().toBigInteger().intValueExact()))){
 				throw new RuntimeException("size不正確");
 			}

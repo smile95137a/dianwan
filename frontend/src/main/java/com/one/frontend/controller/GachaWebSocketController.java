@@ -11,7 +11,7 @@ public class GachaWebSocketController {
     @MessageMapping("/draw")
     @SendTo("/topic/lottery")
     public GachaMessage sendLotteryMessage(GachaMessage message) throws Exception {
-        // 在这里可以加入逻辑，判断是否中奖
+        System.out.println("Received message: " + message);
         return message;
     }
 }

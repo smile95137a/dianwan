@@ -37,7 +37,7 @@ public class ProductController {
     @Operation(summary = "獲取產品詳情", description = "通過產品 ID 獲取產品的詳細信息")
     @GetMapping("/query/{id}")
     public ResponseEntity<ApiResponse<ProductRes>> getProductById(@PathVariable Long id) {
-        ProductRes productRes = productService.getProductById(Math.toIntExact(id));
+        ProductRes productRes = productService.getProductById(id);
         if (productRes == null) {
             ApiResponse<ProductRes> response = ResponseUtils.failure(404, "產品不存在", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

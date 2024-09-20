@@ -1,16 +1,10 @@
 package com.one.frontend.request;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import com.one.frontend.eenum.OrderStatus;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -39,6 +33,8 @@ public class PayCartRes {
     private String invoice; // 发票信息，订单的发票相关信息
     
     private List<Long> cartItemIds;
+
+    private List<Long> prizeCartItemIds;
 }
 
 

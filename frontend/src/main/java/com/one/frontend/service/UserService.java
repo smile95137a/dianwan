@@ -1,25 +1,23 @@
 package com.one.frontend.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.one.frontend.model.Cart;
+import com.one.frontend.model.PrizeCart;
 import com.one.frontend.model.Role;
 import com.one.frontend.model.User;
 import com.one.frontend.repository.CartRepository;
+import com.one.frontend.repository.PrizeCartRepository;
 import com.one.frontend.repository.RoleRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
 import com.one.frontend.util.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class UserService {
@@ -36,27 +34,13 @@ public class UserService {
 	@Autowired
 	private RoleRepository roleRepository;
 
-	private final String MEMBER = "未驗證會員";
+	@Autowired
+	private PrizeCartRepository prizeCartRepository;
 
-	public List<User> getAllUser() {
-		return userRepository.getAllUser();
-	}
+	private final String MEMBER = "未驗證會員";
 
 	public UserRes getUserById(Long userId) {
 		return userRepository.getUserById(userId);
-	}
-
-	public String deleteUser(Long userId) {
-		try {
-			userRepository.deleteUser(userId);
-			return "1";
-		} catch (Exception e) {
-			return "0";
-		}
-	}
-
-	public int getUserCountByRoleId(int roleId) {
-		return userRepository.countByRoleId(roleId);
 	}
 
 	public UserRes registerUser(UserReq userDto) throws Exception {
@@ -89,8 +73,17 @@ public class UserService {
 			User userCart = userRepository.getUserByUserName(userDto.getUsername());
 			Cart cart = new Cart();
 			cart.setUserId(userCart.getId());
+			cart.setUserUid(userCart.getUserUid());
 			cart.setCreatedAt(LocalDateTime.now());
+			cart.setUpdatedAt(LocalDateTime.now());
 			cartRepository.addCart(cart);
+
+			PrizeCart prizeCart = new PrizeCart();
+			prizeCart.setUserId(userCart.getId());
+			prizeCart.setUserUid(userCart.getUserUid());
+			prizeCart.setCreatedAt(LocalDateTime.now());
+			prizeCart.setUpdatedAt(LocalDateTime.now());
+			prizeCartRepository.addPrizeCart(prizeCart);
 
 			return userRes;
 		} catch (Exception e) {

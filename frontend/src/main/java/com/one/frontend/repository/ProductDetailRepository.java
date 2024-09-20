@@ -12,7 +12,7 @@ public interface ProductDetailRepository {
     @Select("select * from product_detail")
     List<ProductDetailRes> getAllProductDetail();
     @Select("select * from product_detail where product_detail_id = #{productDetailId}")
-    ProductDetailRes getProductDetailById(Integer productDetailId);
+    ProductDetailRes getProductDetailById(Long productDetailId);
 
     @Insert("INSERT INTO product_detail (" +
             "product_id, product_name, description, size, grade, image, create_date) " +

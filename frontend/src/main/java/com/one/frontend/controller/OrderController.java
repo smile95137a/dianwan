@@ -5,14 +5,12 @@ import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
-import com.one.frontend.service.CartItemService;
-import com.one.frontend.service.CartService;
-import com.one.frontend.service.OrderDetailService;
-import com.one.frontend.service.OrderService;
+import com.one.frontend.service.*;
 import com.one.frontend.util.ResponseUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +28,11 @@ public class OrderController {
 	private final UserRepository userRepository;
 	private final CartItemService cartItemService;
 	private final CartService cartService;
+	@Autowired
+	private PrizeCartService prizeCartService;
+
+	@Autowired
+	private PrizeCartItemService prizeCartItemService;
 
 //	// 根据ID获取订单
 //	@GetMapping("/{userUid}")
@@ -89,11 +92,36 @@ public class OrderController {
 		return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
 	}
 
+	@PostMapping("/product/pay")
+	public ResponseEntity<?> payPrizeCartItem(@RequestBody PayCartRes payCartRes) {
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		Long cartId = prizeCartService.getCartIdByUserId(userId);
+
+		if (cartId == null) {
+			var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
+			return ResponseEntity.ok(response);
+		}
+
+		var prizeCartItemList = prizeCartItemService.findByCartIdAndCartItemList(cartId, payCartRes.getPrizeCartItemIds());
+		var orderNumber = orderService.createPrizeOrder(payCartRes, prizeCartItemList, userId);
+
+		return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
+	}
+
 	@GetMapping("/storeProduct/{orderNumber}")
 	public ResponseEntity<?> getStoreProductOrderById(@PathVariable String orderNumber) {
 		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
 		var userId = userDetails.getId();
 		var res = orderService.getOrderByOrderNumber(userId, orderNumber);
+		return ResponseEntity.ok(ResponseUtils.success(200, null, res));
+	}
+
+	@GetMapping("/productDetail/{orderNumber}")
+	public ResponseEntity<?> getStorePrizeProductOrderById(@PathVariable String orderNumber) {
+		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		var res = orderService.getPrizeOrderByOrderNumber(userId, orderNumber);
 		return ResponseEntity.ok(ResponseUtils.success(200, null, res));
 	}
 
