@@ -1,6 +1,7 @@
 package com.one.onekuji.controller;
 
 import com.one.onekuji.model.ApiResponse;
+import com.one.onekuji.model.User;
 import com.one.onekuji.request.UserReq;
 import com.one.onekuji.response.UserRes;
 import com.one.onekuji.service.UserService;
@@ -43,19 +44,25 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // 創建新用戶
+    // 新增用戶
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse<UserRes>> createUser(@RequestBody UserReq userReq) {
-        UserRes res = userService.createUser(userReq);
-        ApiResponse<UserRes> response = ResponseUtils.success(201, "用戶創建成功", res);
+    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody UserReq userReq) {
+        User res = userService.createUser(userReq);
+        ApiResponse<User> response = ResponseUtils.success(201, "用戶創建成功", res);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 更新用戶
     @PutMapping("/update/{userId}")
-    public ResponseEntity<ApiResponse<UserRes>> updateUser(@PathVariable("userId") Long userId, @RequestBody UserReq userReq) {
-        UserRes res = userService.updateUser(userId, userReq);
-        ApiResponse<UserRes> response = ResponseUtils.success(200, "用戶更新成功", res);
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable("userId") Long userId, @RequestBody UserReq userReq) {
+        try {
+            User res = userService.updateUser(userId, userReq);
+            ApiResponse<User> response = ResponseUtils.success(200, "用戶更新成功", res);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ApiResponse<User> response = ResponseUtils.success(500, "錯誤", null);
         return ResponseEntity.ok(response);
     }
 

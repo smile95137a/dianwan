@@ -4,6 +4,7 @@ import com.one.frontend.model.PrizeCart;
 import com.one.frontend.response.PrizeCartItemRes;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -12,8 +13,9 @@ import java.util.List;
 public interface PrizeCartRepository {
 
 
-    @Insert("INSERT INTO `prize_cart` (user_id,  ,created_at , updated_at , user_uid) " +
-            "VALUES (#{userId}, #{createdAt} , #{updatedAt} , #{userUid})")
+    @Insert("INSERT INTO prize_cart (user_id, created_at, updated_at, user_uid) " +
+            "VALUES (#{userId}, #{createdAt}, #{updatedAt}, #{userUid})")
+    @Options(useGeneratedKeys = true, keyProperty = "cartId")
     void addPrizeCart(PrizeCart prizeCart);
 
     @Select("SELECT b.*, c.* " +

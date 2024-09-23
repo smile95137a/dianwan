@@ -26,9 +26,10 @@ public class OrderService {
         return orderMapper.getAllOrders();
     }
 
-    public void updateOrder(Long id ,Order order) {
+    public Order updateOrder(Long id, Order order) {
         order.setUpdatedAt(LocalDateTime.now());
-        orderMapper.updateOrder(id , order);
+        orderMapper.updateOrder(id, order);
+        return order;
     }
 
     public void deleteOrder(Long id) {

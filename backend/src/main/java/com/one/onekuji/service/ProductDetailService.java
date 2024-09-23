@@ -33,10 +33,15 @@ public class ProductDetailService {
         List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
         int totalQuantity = 0;
 
+        // 計算總數量
         for (DetailReq detailReq : detailReqs) {
             totalQuantity += detailReq.getQuantity();
         }
-        productRepository.updateTotalQua(totalQuantity , detailReqs.get(0).getProductId());
+
+        // 更新產品總數量
+        productRepository.updateTotalQua(totalQuantity, detailReqs.get(0).getProductId());
+
+        // 創建並打亂獎品編號
         List<Integer> shuffledNumbers = new ArrayList<>();
         for (int i = 1; i <= totalQuantity; i++) {
             shuffledNumbers.add(i);
@@ -46,17 +51,22 @@ public class ProductDetailService {
         int currentIndex = 0;
 
         for (DetailReq detailReq : detailReqs) {
+            // 轉義 HTML 字符
             detailReq.setDescription(escapeTextForHtml(detailReq.getDescription()));
             detailReq.setSpecification(escapeTextForHtml(detailReq.getSpecification()));
 
+            // 計算尺寸
             BigDecimal size = detailReq.getHeight()
                     .multiply(detailReq.getWidth())
                     .multiply(detailReq.getLength());
             detailReq.setSize(size.toString());
 
+            // 插入產品細節
             productDetailMapper.insert(detailReq);
             Long productDetailId = Long.valueOf(detailReq.getProductDetailId());
 
+            // 為每個數量創建獎品編號
+            List<PrizeNumber> detailPrizeNumbers = new ArrayList<>();
             for (int i = 0; i < detailReq.getQuantity(); i++) {
                 PrizeNumber prizeNumber = new PrizeNumber();
                 prizeNumber.setProductId(detailReq.getProductId());
@@ -64,15 +74,20 @@ public class ProductDetailService {
                 prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex)));
                 prizeNumber.setIsDrawn(false);
                 prizeNumber.setLevel(detailReq.getGrade());
-                allPrizeNumbers.add(prizeNumber);
+                detailPrizeNumbers.add(prizeNumber);
                 currentIndex++;
             }
 
+            // 打亂當前產品細節的獎品編號
+            Collections.shuffle(detailPrizeNumbers);
+            allPrizeNumbers.addAll(detailPrizeNumbers);
+
+            // 獲取並添加詳細回應
             DetailRes detailRes = productDetailMapper.findById(productDetailId);
             detailResList.add(detailRes);
         }
 
-        // 批量插入所有奖品编号
+        // 批量插入所有獎品編號
         if (!allPrizeNumbers.isEmpty()) {
             prizeNumberMapper.insertBatch(allPrizeNumbers);
         }

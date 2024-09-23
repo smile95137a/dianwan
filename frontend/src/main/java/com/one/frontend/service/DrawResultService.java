@@ -3,6 +3,7 @@ package com.one.frontend.service;
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.eenum.PrizeCategory;
+import com.one.frontend.eenum.ProductStatus;
 import com.one.frontend.eenum.ProductType;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
@@ -95,8 +96,8 @@ public class DrawResultService {
 				productDrawProtectionMap.put(productId, new DrawProtection(now, userId));
 
 				// 继续处理抽奖逻辑
-				List<DrawResult> drawResults = handleDraw2(userId, productId, prizeNumbers);
-				return drawResults;
+//				List<DrawResult> drawResults = handleDraw2(userId, productId, prizeNumbers);
+				return null;
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("抽獎發生錯誤: " + e.getMessage());
@@ -146,11 +147,18 @@ public class DrawResultService {
 
 	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
 		try {
+
+			Long prizeCart = prizeCartRepository.getCartIdByUserId(userId);
+			if(prizeCart == null){
+				throw new Exception("沒有賞品盒不能抽獎，請聯繫客服人員");
+			}
+
+
 			// 确认商品是否存在
 			List<PrizeNumber> availablePrizeNumbers = prizeNumberMapper
 					.getAvailablePrizeNumbersByProductDetailId(productId);
 			if (availablePrizeNumbers.isEmpty()) {
-				throw new Exception("所有奖品已被抽完");
+				throw new Exception("所有獎品已被抽完");
 			}
 
 			// 查找指定的奖品编号
@@ -159,7 +167,7 @@ public class DrawResultService {
 					.collect(Collectors.toList());
 
 			if (selectedPrizeNumbers.size() < prizeNumbers.size()) {
-				throw new Exception("部分指定的奖品编号不存在或已被抽走");
+				throw new Exception("指定的獎品編號不存在或已被抽走");
 			}
 
 			// 获取商品价格
@@ -178,17 +186,17 @@ public class DrawResultService {
 					BigDecimal newBonusPoints = bonusPoints.subtract(totalAmount);
 					userRepository.deductUserBonusPoints(userId, newBonusPoints);
 				} else {
-					throw new Exception("红利不足，请加值");
+					throw new Exception("红利不足，請加值");
 				}
 			} else {
 				if (balance.compareTo(totalAmount) >= 0) {
 					BigDecimal newBalance = balance.subtract(totalAmount);
 					userRepository.deductUserBalance(userId, newBalance);
 				} else {
-					throw new Exception("余额不足，请加值");
+					throw new Exception("餘額不足，請加值");
 				}
 			}
-
+			handleDrawForLock(userId ,productId , prizeNumbers);
 			List<DrawResult> drawResults = new ArrayList<>();
 			int remainingDrawCount = prizeNumbers.size();
 			UserRes user = userRepository.getUserById(userId);
@@ -236,41 +244,6 @@ public class DrawResultService {
 			// 批量插入抽奖结果
 			drawRepository.insertBatch(drawResults);
 
-			// 生成订单
-//			String orderNumber = orderService.genOrderNumber();
-//			Order orderEntity = Order.builder()
-//					.userId(userId)
-//					.orderNumber(orderNumber)
-//					.createdAt(LocalDateTime.now())
-//					.resultStatus(OrderStatus.PREPARING_SHIPMENT)
-//					.totalAmount(totalAmount) // 使用总金额
-//					.build();
-//			orderRepository.insertOrder(orderEntity);
-
-			// 获取订单ID
-//			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
-//			List<OrderDetailDto> orderDetailList = new ArrayList<>();
-
-			// 生成订单明细
-//			for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
-//				// 重新获取每个奖品的 ProductDetailRes
-//				ProductDetailRes selectedPrizeDetail = productDetailRepository
-//						.getProductDetailById(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
-//
-//				OrderDetailDto orderDetail = new OrderDetailDto();
-//				orderDetail.setOrderId(Math.toIntExact(orderId));
-//				orderDetail.setProductId(productId.intValue());
-//				orderDetail.setProductDetailId(Math.toIntExact(selectedPrizeNumber.getProductDetailId()));
-//				orderDetail.setProductDetailName(selectedPrizeDetail.getProductName()); // 使用重新获取的 selectedPrizeDetail
-//				orderDetail.setQuantity(1);
-//				orderDetail.setUnitPrice(amount);
-//				orderDetail.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
-//				orderDetailList.add(orderDetail);
-//			}
-//
-//			// 批量插入订单明细
-//			orderDetailRepository.insertOrderDetail(orderDetailList);
-
 			//商品加入賞品盒
 			Long prizeCartId = prizeCartRepository.getCartIdByUserId(userId);
 			List<PrizeCartItem> cartItemList = new ArrayList<>();
@@ -311,6 +284,14 @@ public class DrawResultService {
 			} else {
 				userRepository.updateBonus(userId);
 			}
+
+			ProductRes res = productRepository.getProductById(productId);
+			if(res.getStockQuantity() <= 0){
+				res.setStatus(ProductStatus.UNAVAILABLE);
+				productRepository.updateProductQuantity(res);
+			}
+
+
 			return drawResults;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,6 +25,7 @@ public class UserReq {
 	private String address;
 	private String lineId;
 	private Long roleId;
+	private BigDecimal balance;
 	private LocalDateTime updatedAt;
 	private LocalDateTime createdAt;
 }

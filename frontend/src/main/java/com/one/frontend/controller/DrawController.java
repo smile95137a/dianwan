@@ -62,7 +62,7 @@ public class DrawController {
 		var userDetails = SecurityUtils.getCurrentUserPrinciple();
 		var userId = userDetails.getId();
 		try {
-			List<DrawResult> drawResult = drawResultService.handleDrawForLock(userId, drawDto.getProductId(), drawDto.getPrizeNumbers());
+			List<DrawResult> drawResult = drawResultService.handleDraw2(userId, drawDto.getProductId(), drawDto.getPrizeNumbers());
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, drawResult);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {

@@ -20,8 +20,30 @@ public interface OrderRepository {
     @Select("SELECT * FROM `order` ")
     List<Order> getAllOrders();
 
-    @Update("UPDATE `order` SET status = #{order.status}, updated_at = #{order.updatedAt}, notes = #{order.notes} WHERE id = #{id}")
-    void updateOrder(@Param("id") Long id ,@Param("order")Order order);
+    @Update({
+            "UPDATE `order`",
+            "SET result_status = #{order.resultStatus},",
+            "updated_at = #{order.updatedAt},",
+            "payment_method = #{order.paymentMethod},",
+            "shipping_name = #{order.shippingName},",
+            "shipping_email = #{order.shippingEmail},",
+            "shipping_phone = #{order.shippingPhone},",
+            "shipping_zip_code = #{order.shippingZipCode},",
+            "shipping_city = #{order.shippingCity},",
+            "shipping_area = #{order.shippingArea},",
+            "shipping_address = #{order.shippingAddress},",
+            "billing_name = #{order.billingName},",
+            "billing_email = #{order.billingEmail},",
+            "billing_phone = #{order.billingPhone},",
+            "billing_zip_code = #{order.billingZipCode},",
+            "billing_city = #{order.billingCity},",
+            "billing_area = #{order.billingArea},",
+            "billing_address = #{order.billingAddress},",
+            "invoice = #{order.invoice},",
+            "tracking_number = #{order.trackingNumber}",
+            "WHERE id = #{id}"
+    })
+    void updateOrder(@Param("id") Long id, @Param("order") Order order);
 
     @Delete("DELETE FROM `order`  WHERE id = #{id}")
     void deleteOrder(Long id);

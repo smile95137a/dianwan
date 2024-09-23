@@ -141,6 +141,10 @@ public class ProductController {
                     fileUrls.add(fileUrl);
                 }
             }
+        }else{
+            ProductRes storeProductRes = productService.getProductById(id);
+            List<String> list = storeProductRes.getImageUrls();
+            fileUrls.addAll(list);
         }
 
         storeProductReq.setImageUrls(fileUrls);

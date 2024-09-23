@@ -33,7 +33,7 @@ public class UserRes {
     private String address;
 
     @Schema(description = "用户角色 ID", example = "2")
-    private Integer roleId;
+    private Long roleId;
 
     private BigDecimal balance;
     private BigDecimal bonus;

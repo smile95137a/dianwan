@@ -32,11 +32,13 @@ public class AuthService {
 		CustomUserDetails userDetail = SecurityUtils.getCurrentUserPrinciple();
 		String token = jwtTokenProvider.generateToken(userDetail);
 		User user = userRepository.getUserByUserName(loginDto.getUsername());
+
+		if (user.getRoleId() == 4) {
+			throw new Exception("不屬於認證會員，請先認證");
+		} else if(user.getRoleId() == 5){
+			throw new Exception("屬於黑名單用戶，無法登入");
+		}
 		return new LoginResponse(token, user.getId(), user.getUsername(), user.getUserUid());
-//		if (user.getRoleId() == 3 || user.getRoleId() == 1 || user.getRoleId() == 2) {
-//		} else {
-//			throw new Exception("不屬於認證會員，請先認證");
-//		}
 	}
 
 }

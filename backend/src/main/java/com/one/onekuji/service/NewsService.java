@@ -39,14 +39,15 @@ public class NewsService {
     // 更新新闻
     public int updateNews(String newsUid , News news) {
         News the_news = newsRepository.getNewsById(newsUid);
-        String content = formatTextToHtml(the_news.getContent());
+        String content = formatTextToHtml(news.getContent());
+        the_news.setNewsUid(newsUid);
         the_news.setContent(content);
         the_news.setImageUrls(news.getImageUrls());
         the_news.setTitle(news.getTitle());
         the_news.setPreview(news.getPreview());
         the_news.setUpdatedDate(news.getUpdatedDate());
         the_news.setStatus(news.getStatus());
-        return newsRepository.updateNews(news);
+        return newsRepository.updateNews(the_news);
     }
 
     // 删除新闻
