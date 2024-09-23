@@ -99,4 +99,7 @@ public class ProductDetail{
     @Column(name = "height")
     private BigDecimal height;
 
+    @Column(name = "probability")
+    private Double probability;
+
 }

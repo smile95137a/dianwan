@@ -136,7 +136,8 @@ public class ProductDetailService {
                 detailReq.getLength(),
                 detailReq.getWidth(),
                 detailReq.getHeight(),
-                escapeTextForHtml(detailReq.getSpecification()) // Escape HTML in specification
+                escapeTextForHtml(detailReq.getSpecification()),
+                detailReq.getProbability()
         );
     }
 

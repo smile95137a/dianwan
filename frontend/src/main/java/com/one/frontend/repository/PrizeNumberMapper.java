@@ -2,6 +2,7 @@ package com.one.frontend.repository;
 
 import com.one.frontend.model.PrizeNumber;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -23,4 +24,20 @@ public interface PrizeNumberMapper {
     @Select("select `number` from prize_number where product_id = #{productId} and is_drawn = false;")
     List<Long> getNumbers(Long productId);
 
+    @Select({
+            "<script>",
+            "SELECT * FROM prize_number",
+            "WHERE product_id = #{productId}",
+            "AND number IN",
+            "<foreach item='number' collection='numbers' open='(' separator=',' close=')'>",
+            "#{number}",
+            "</foreach>",
+            "</script>"
+    })
+    List<PrizeNumber> getPrizeNumbersByProductIdAndNumbers(
+            @Param("productId") Long productId,
+            @Param("numbers") List<String> numbers
+    );
+    @Update("UPDATE prize_number SET is_drawn = TRUE , level = #{level} WHERE number = #{number} and product_id = #{productId} and product_detail_id = #{productDetailId}")
+    void updatePrizeNumber(PrizeNumber prizeNumber);
 }

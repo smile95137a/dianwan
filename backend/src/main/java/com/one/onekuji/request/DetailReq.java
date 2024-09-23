@@ -28,4 +28,5 @@ public class DetailReq {
     private BigDecimal width;
     private BigDecimal height;
     private String specification;
+    private Double probability;
 }

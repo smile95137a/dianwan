@@ -147,29 +147,26 @@ public class DrawResultService {
 
 	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
 		try {
-
+			// 验证用戶
 			Long prizeCart = prizeCartRepository.getCartIdByUserId(userId);
-			if(prizeCart == null){
+			if (prizeCart == null) {
 				throw new Exception("沒有賞品盒不能抽獎，請聯繫客服人員");
 			}
 
-
-			// 确认商品是否存在
-			List<PrizeNumber> availablePrizeNumbers = prizeNumberMapper
-					.getAvailablePrizeNumbersByProductDetailId(productId);
-			if (availablePrizeNumbers.isEmpty()) {
-				throw new Exception("所有獎品已被抽完");
+			// 获取产品详细列表
+			List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(productId);
+			if (productDetails.isEmpty()) {
+				throw new Exception("該產品沒有可用的獎品");
 			}
 
-			// 查找指定的奖品编号
-			List<PrizeNumber> selectedPrizeNumbers = availablePrizeNumbers.stream()
-					.filter(pn -> prizeNumbers.contains(pn.getNumber()) && !pn.getIsDrawn())
-					.collect(Collectors.toList());
-
+			// 获取选中的奖品编号
+			List<PrizeNumber> selectedPrizeNumbers = prizeNumberMapper.getPrizeNumbersByProductIdAndNumbers(productId, prizeNumbers);
 			if (selectedPrizeNumbers.size() < prizeNumbers.size()) {
-				throw new Exception("指定的獎品編號不存在或已被抽走");
+				throw new Exception("部分指定的獎品編號不存在");
 			}
 
+			// 为每个选择的编号随机抽奖（按概率）
+			List<PrizeNumber> drawnPrizeNumbers = drawPrizesForNumbersWithStock(selectedPrizeNumbers, productDetails);
 			// 获取商品价格
 			ProductRes product = productRepository.getProductById(productId);
 			BigDecimal amount = product.getPrice();
@@ -207,9 +204,6 @@ public class DrawResultService {
 				// 更新奖品数量
 				ProductDetailRes selectedPrizeDetail = productDetailRepository
 						.getProductDetailById(selectedPrizeNumber.getProductDetailId());
-				selectedPrizeDetail.setQuantity(selectedPrizeDetail.getQuantity() - 1);
-				productDetailRepository.updateProductDetailQuantity(selectedPrizeDetail);
-
 				// 记录抽奖结果
 				DrawResult drawResult = new DrawResult();
 				drawResult.setUserId(userId);
@@ -298,6 +292,76 @@ public class DrawResultService {
 			throw new Exception("抽奖过程中出现错误: " + e.getMessage());
 		}
 	}
+
+	private List<PrizeNumber> drawPrizesForNumbersWithStock(List<PrizeNumber> selectedPrizeNumbers,
+															List<ProductDetailRes> productDetails) {
+		List<PrizeNumber> drawnPrizeNumbers = new ArrayList<>();
+
+		for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
+			PrizeNumber drawnPrizeNumber = drawPrizeForNumber(selectedPrizeNumber, productDetails);
+			if (drawnPrizeNumber != null) {
+				drawnPrizeNumbers.add(drawnPrizeNumber);
+			} else {
+				// 处理所有奖品都抽完的情况，可以抛出异常或返回空列表
+				throw new RuntimeException("所有奖品都已抽完");
+			}
+		}
+
+		return drawnPrizeNumbers;
+	}
+
+	public PrizeNumber drawPrizeForNumber(PrizeNumber selectedPrizeNumber, List<ProductDetailRes> productDetails) {
+		Random random = new Random();
+
+		while (true) {
+			List<ProductDetailRes> availableProductDetails = productDetails.stream()
+					.filter(detail -> detail.getQuantity() > 0)
+					.collect(Collectors.toList());
+
+
+			if (availableProductDetails.isEmpty()) {
+				return null; // 所有奖品都已抽完
+			}
+
+			double totalProbability = availableProductDetails.stream()
+					.mapToDouble(ProductDetailRes::getProbability)
+					.sum();
+
+			availableProductDetails.sort((o1, o2) -> Double.compare(o2.getProbability(), o1.getProbability()));
+
+			double randomNumber = random.nextDouble();
+			double cumulativeProbability = 0.0;
+
+			for (ProductDetailRes detail : availableProductDetails) {
+				double normalizedProbability = detail.getProbability() / totalProbability;
+				cumulativeProbability += normalizedProbability;
+
+
+				if (randomNumber <= cumulativeProbability) {
+					// 检查库存
+					if (detail.getQuantity() > 0) {
+						// 更新 PrizeNumber
+						selectedPrizeNumber.setLevel(detail.getGrade());
+						selectedPrizeNumber.setIsDrawn(true);
+						prizeNumberMapper.updatePrizeNumber(selectedPrizeNumber);
+
+						// 更新库存，确保库存不为负
+						int newQuantity = detail.getQuantity() - 1;
+						if (newQuantity >= 0) {
+							detail.setQuantity(newQuantity);
+							productDetailRepository.updateProductDetailQuantity(detail); // 立即更新数据库
+
+							return selectedPrizeNumber; // 返回更新后的 selectedPrizeNumber 对象
+						} else {
+							break; // 库存不足，退出 for 循环，继续 while
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 
 
 	public DrawResult handleDrawRandom(Long userId, Long productId) throws Exception {
@@ -408,4 +472,5 @@ public class DrawResultService {
 	public ProductDetailRes getConsolationPrizeDetail(Long productId) {
 		return productDetailRepository.findFirstByProductIdAndPrizeType(productId, "CONSOLATION");
 	}
+
 }

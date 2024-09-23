@@ -100,4 +100,6 @@ public class ProductDetail {
     @Column(name = "height")
     private BigDecimal height;
 
+
+
 }

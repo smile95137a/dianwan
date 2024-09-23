@@ -33,4 +33,7 @@ public class PrizeNumber{
     @Schema(description = "獎品級別", example = "A")
     @Column(name = "level", length = 50)
     private String level;
+
+    @Column(name = "probability")
+    private Double probability;
 }

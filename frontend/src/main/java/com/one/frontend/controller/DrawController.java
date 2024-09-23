@@ -82,7 +82,7 @@ public class DrawController {
 			ApiResponse<DrawResult> response = ResponseUtils.success(200, null, drawResult);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			ApiResponse<DrawResult> response = ResponseUtils.failure(400, "抽奖失败", null);
+			ApiResponse<DrawResult> response = ResponseUtils.failure(400, "抽獎失敗", null);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
 	}
