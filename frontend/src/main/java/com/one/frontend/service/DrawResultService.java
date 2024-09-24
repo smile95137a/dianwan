@@ -66,40 +66,45 @@ public class DrawResultService {
 		return userLockMap.computeIfAbsent(userId, k -> new ReentrantLock());
 	}
 
+	// 获取抽奖保护时间，根据抽奖次数计算保护期时间
 	private long getDrawProtectionTime(int drawCount) {
-		long protectionTime = 300 + (30 * (drawCount - 1));
-		return Math.min(protectionTime, 600);
+		long protectionTime = 300 + (30 * (drawCount - 1)); // 初始保护时间300秒，每多抽一次加30秒
+		return Math.min(protectionTime, 600); // 最大保护时间为600秒
 	}
 
+	// 抽奖操作，处理锁机制和保护期
 	public LocalDateTime handleDrawForLock(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
-		Lock lock = getLockForUser(userId);
-		if (lock.tryLock()) {
+		Lock lock = getLockForUser(userId); // 获取用户锁
+		if (lock.tryLock()) { // 尝试获取锁
 			try {
-				LocalDateTime now = LocalDateTime.now();
-				DrawProtection protection = productDrawProtectionMap.get(productId);
-				long protectionTime = getDrawProtectionTime(prizeNumbers.size());
+				LocalDateTime now = LocalDateTime.now(); // 当前时间
+				DrawProtection protection = productDrawProtectionMap.get(productId); // 获取该产品的保护信息
+				long protectionTime = getDrawProtectionTime(prizeNumbers.size()); // 根据抽奖次数计算保护时间
 
+				// 如果有保护信息，计算是否在保护期内
 				if (protection != null) {
 					long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
-
 					System.out.println("Protection time: " + protectionTime + " seconds");
 					System.out.println("Seconds since last draw: " + secondsSinceLastDraw + " seconds");
 
+					// 如果在保护期内，且不是同一个用户，则抛出异常
 					if (secondsSinceLastDraw < protectionTime && !Objects.equals(userId, protection.userId)) {
 						throw new Exception("抽獎保護期內，其他用戶不能抽獎。剩餘時間：" + (protectionTime - secondsSinceLastDraw) + "秒");
 					}
 				}
 
-				// 更新抽奖保护信息
+				// 更新抽奖保护信息，设置新的保护时间
 				productDrawProtectionMap.put(productId, new DrawProtection(now, userId));
+				System.out.println("Updated DrawProtection for productId: " + productId + ", userId: " + userId);
 
+				// 返回保护期的结束时间
 				LocalDateTime endTimes = now.plusSeconds(protectionTime);
 				return endTimes;
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("抽獎發生錯誤: " + e.getMessage());
 			} finally {
-				lock.unlock();
+				lock.unlock(); // 释放锁
 			}
 		} else {
 			throw new Exception("目前有其他用戶正在抽獎，請稍後。");
@@ -132,7 +137,7 @@ public class DrawResultService {
 					.getAllPrizeNumbersByProductDetailId(Long.valueOf(productDetail.getProductDetailId()));
 			for (PrizeNumber prize : prizeNumbers) {
 				if (!prize.getIsDrawn()) {
-					prize.setLevel(null);
+					prize.setLevel(null);  // 只显示未抽中的奖品
 				}
 			}
 			allPrizeNumbers.addAll(prizeNumbers);
@@ -143,21 +148,23 @@ public class DrawResultService {
 
 		// 4. 获取当前产品的抽奖保护状态
 		DrawProtection protection = productDrawProtectionMap.get(productId);
-		LocalDateTime endTimes = null; // 初始化 endTimes
+		LocalDateTime endTimes = null; // 初始化 endTimes 为 null
 
-		// 5. 计算剩余保护时间
+		// 5. 如果有保护状态且与当前用户无关，计算保护时间
 		if (protection != null) {
 			long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
+			// 获取已抽奖次数
 			int drawCount = (int) allPrizeNumbers.stream().filter(PrizeNumber::getIsDrawn).count();
 			long protectionTime = getDrawProtectionTime(drawCount);
 
-			if (secondsSinceLastDraw < protectionTime && !Objects.equals(userId, protection.userId)) {
-				// 计算保护时间的结束点
+			// 判断是否在保护期内
+			if (secondsSinceLastDraw < protectionTime) {
+				// 设置保护期的结束时间
 				endTimes = protection.lastDrawTime.plusSeconds(protectionTime);
 			}
 		}
 
-		// 6. 构建并返回 DrawResponse，包括奖品列表和保护结束时间
+		// 6. 返回结果，包括奖品列表和保护结束时间
 		return new DrawResponse(allPrizeNumbers, endTimes);
 	}
 
