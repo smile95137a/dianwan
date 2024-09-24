@@ -64,4 +64,6 @@ public class DrawResult{
 
     @Column(name = "total_draw_count")
     private Long totalDrawCount;
+
+    private Long remainingTime;
 }

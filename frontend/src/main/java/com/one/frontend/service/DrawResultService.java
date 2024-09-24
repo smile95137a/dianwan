@@ -7,6 +7,7 @@ import com.one.frontend.eenum.ProductStatus;
 import com.one.frontend.eenum.ProductType;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
+import com.one.frontend.response.DrawResponse;
 import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
 import com.one.frontend.response.UserRes;
@@ -70,16 +71,16 @@ public class DrawResultService {
 		return Math.min(protectionTime, 600);
 	}
 
-	public List<DrawResult> handleDrawForLock(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
+	public LocalDateTime handleDrawForLock(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
 		Lock lock = getLockForUser(userId);
 		if (lock.tryLock()) {
 			try {
 				LocalDateTime now = LocalDateTime.now();
 				DrawProtection protection = productDrawProtectionMap.get(productId);
+				long protectionTime = getDrawProtectionTime(prizeNumbers.size());
 
 				if (protection != null) {
 					long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
-					long protectionTime = getDrawProtectionTime(prizeNumbers.size());
 
 					System.out.println("Protection time: " + protectionTime + " seconds");
 					System.out.println("Seconds since last draw: " + secondsSinceLastDraw + " seconds");
@@ -89,10 +90,11 @@ public class DrawResultService {
 					}
 				}
 
+				// 更新抽奖保护信息
 				productDrawProtectionMap.put(productId, new DrawProtection(now, userId));
 
-//				List<DrawResult> drawResults = handleDraw2(userId, productId, prizeNumbers);
-				return null;
+				LocalDateTime endTimes = now.plusSeconds(protectionTime);
+				return endTimes;
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new Exception("抽獎發生錯誤: " + e.getMessage());
@@ -119,26 +121,46 @@ public class DrawResultService {
         return handleDraw2(userId , productId , prizeNumbers);
 	}
 
-	public List<PrizeNumber> getAllPrizes(Long productId) {
+	public DrawResponse getAllPrizes(Long productId, Long userId) {
+		// 1. 获取产品详细信息
 		List<ProductDetail> productDetails = productDetailRepository.getAllProductDetailsByProductId(productId);
-
 		List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
 
+		// 2. 获取奖品编号
 		for (ProductDetail productDetail : productDetails) {
 			List<PrizeNumber> prizeNumbers = prizeNumberMapper
 					.getAllPrizeNumbersByProductDetailId(Long.valueOf(productDetail.getProductDetailId()));
-
 			for (PrizeNumber prize : prizeNumbers) {
 				if (!prize.getIsDrawn()) {
 					prize.setLevel(null);
 				}
 			}
-
 			allPrizeNumbers.addAll(prizeNumbers);
 		}
 
-		return allPrizeNumbers;
+		// 3. 获取当前时间
+		LocalDateTime now = LocalDateTime.now();
+
+		// 4. 获取当前产品的抽奖保护状态
+		DrawProtection protection = productDrawProtectionMap.get(productId);
+		LocalDateTime endTimes = null; // 初始化 endTimes
+
+		// 5. 计算剩余保护时间
+		if (protection != null) {
+			long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
+			int drawCount = (int) allPrizeNumbers.stream().filter(PrizeNumber::getIsDrawn).count();
+			long protectionTime = getDrawProtectionTime(drawCount);
+
+			if (secondsSinceLastDraw < protectionTime && !Objects.equals(userId, protection.userId)) {
+				// 计算保护时间的结束点
+				endTimes = protection.lastDrawTime.plusSeconds(protectionTime);
+			}
+		}
+
+		// 6. 构建并返回 DrawResponse，包括奖品列表和保护结束时间
+		return new DrawResponse(allPrizeNumbers, endTimes);
 	}
+
 
 	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
 		try {
@@ -188,7 +210,7 @@ public class DrawResultService {
 					throw new Exception("餘額不足，請加值");
 				}
 			}
-			handleDrawForLock(userId ,productId , prizeNumbers);
+			LocalDateTime endTimes = handleDrawForLock(userId ,productId , prizeNumbers);
 			List<DrawResult> drawResults = new ArrayList<>();
 			int remainingDrawCount = prizeNumbers.size();
 			UserRes user = userRepository.getUserById(userId);

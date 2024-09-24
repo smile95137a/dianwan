@@ -5,7 +5,7 @@ import com.one.frontend.dto.DrawDto;
 import com.one.frontend.dto.GachaDrawDto;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.DrawResult;
-import com.one.frontend.model.PrizeNumber;
+import com.one.frontend.response.DrawResponse;
 import com.one.frontend.service.DrawResultService;
 import com.one.frontend.util.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,13 +46,15 @@ public class DrawController {
 
 	@GetMapping("/status/{productId}")
 	@Operation(summary = "檢視抽況", description = "根据产品ID获取所有奖项状态")
-	public ResponseEntity<ApiResponse<List<PrizeNumber>>> getDrawStatus(@PathVariable Long productId) {
-		List<PrizeNumber> prizes = drawResultService.getAllPrizes(productId);
+	public ResponseEntity<ApiResponse<DrawResponse>> getDrawStatus(@PathVariable Long productId) {
+		var userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		DrawResponse prizes = drawResultService.getAllPrizes(productId , userId);
 		if (prizes == null) {
-			ApiResponse<List<PrizeNumber>> response = ResponseUtils.failure(404, "沒有此ID", null);
+			ApiResponse<DrawResponse> response = ResponseUtils.failure(404, "沒有此ID", null);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 		}
-		ApiResponse<List<PrizeNumber>> response = ResponseUtils.success(200, null, prizes);
+		ApiResponse<DrawResponse> response = ResponseUtils.success(200, null, prizes);
 		return ResponseEntity.ok(response);
 	}
 
@@ -82,7 +84,7 @@ public class DrawController {
 			ApiResponse<DrawResult> response = ResponseUtils.success(200, null, drawResult);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			ApiResponse<DrawResult> response = ResponseUtils.failure(400, "抽獎失敗", null);
+			ApiResponse<DrawResult> response = ResponseUtils.failure(400, "抽奖失败", null);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
 	}
