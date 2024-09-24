@@ -61,15 +61,13 @@ public class DrawResultService {
 		}
 	}
 
-	// 获取用户锁
 	private Lock getLockForUser(Long userId) {
 		return userLockMap.computeIfAbsent(userId, k -> new ReentrantLock());
 	}
 
-	// 获取用户抽奖的保护时间
 	private long getDrawProtectionTime(int drawCount) {
-		long protectionTime = 300 + (30 * (drawCount - 1)); // 单抽300秒，多抽累加，每次多抽加30秒
-		return Math.min(protectionTime, 600); // 最大保护时间600秒
+		long protectionTime = 300 + (30 * (drawCount - 1));
+		return Math.min(protectionTime, 600);
 	}
 
 	public List<DrawResult> handleDrawForLock(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
@@ -86,16 +84,13 @@ public class DrawResultService {
 					System.out.println("Protection time: " + protectionTime + " seconds");
 					System.out.println("Seconds since last draw: " + secondsSinceLastDraw + " seconds");
 
-					// 检查是否在保护期内，且不是当前正在抽奖的用户
 					if (secondsSinceLastDraw < protectionTime && !Objects.equals(userId, protection.userId)) {
-						throw new Exception("抽獎保護期內，其他用户暂时不能抽獎。剩餘時間：" + (protectionTime - secondsSinceLastDraw) + "秒");
+						throw new Exception("抽獎保護期內，其他用戶不能抽獎。剩餘時間：" + (protectionTime - secondsSinceLastDraw) + "秒");
 					}
 				}
 
-				// 更新保护信息
 				productDrawProtectionMap.put(productId, new DrawProtection(now, userId));
 
-				// 继续处理抽奖逻辑
 //				List<DrawResult> drawResults = handleDraw2(userId, productId, prizeNumbers);
 				return null;
 			} catch (Exception e) {
@@ -135,7 +130,7 @@ public class DrawResultService {
 
 			for (PrizeNumber prize : prizeNumbers) {
 				if (!prize.getIsDrawn()) {
-					prize.setLevel(null); // 如果未抽中，设置 grade 为 null
+					prize.setLevel(null);
 				}
 			}
 
