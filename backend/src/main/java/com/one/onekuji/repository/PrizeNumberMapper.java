@@ -18,11 +18,11 @@ public interface PrizeNumberMapper {
     })
     @Options(useGeneratedKeys = true, keyProperty = "prizeNumberId")
     void insertBatch(@Param("prizeNumbers") List<PrizeNumber> prizeNumbers);
-    @Select("SELECT MAX(number) FROM prizenumber WHERE product_id = #{productId}")
+    @Select("SELECT MAX(number) FROM prize_number WHERE product_id = #{productId}")
     Integer getMaxPrizeNumberByProductId(Long productId);
 
-    @Delete("DELETE FROM prizenumber WHERE product_id = #{productId}")
-    void deleteProductById(Integer productId);
-    @Delete("DELETE FROM prizenumber WHERE product_detail_id = #{productDetailId}")
+    @Delete("DELETE FROM prize_number WHERE product_id = #{productId}")
+    void deleteProductById(Long productId);
+    @Delete("DELETE FROM prize_number WHERE product_detail_id = #{productDetailId}")
     void deteleByProductDetail(Integer productDetailId);
 }

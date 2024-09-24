@@ -76,7 +76,7 @@ public class ProductService {
         if (product == null) {
             return false;
         }
-        prizeNumberMapper.deleteProductById(Math.toIntExact(id));
+        prizeNumberMapper.deleteProductById(id);
         productDetailRepository.deleteProductDetailByProductId(Math.toIntExact(id));
         productRepository.deleteProduct(id);
 
