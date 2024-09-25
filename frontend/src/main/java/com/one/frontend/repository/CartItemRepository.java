@@ -1,6 +1,7 @@
 package com.one.frontend.repository;
 
 import com.one.frontend.model.CartItem;
+import com.one.frontend.response.CartItemRes;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -47,4 +48,7 @@ public interface CartItemRepository {
         "</script>"
     })
     List<CartItem> findByCartIdAndCartItemList(@Param("cartId") Long cartId, @Param("cartItemIds") List<Long> cartItemIds);
+
+    @Select("SELECT quantity FROM onekuji.cart a join cart_item b on a.cart_id = b.cart_id where user_id = #{userId} and store_product_id = #{storeProductId}")
+    CartItemRes findQua(Long userId, Long storeProductId);
 }

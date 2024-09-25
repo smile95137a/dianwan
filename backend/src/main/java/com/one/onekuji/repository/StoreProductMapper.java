@@ -36,4 +36,9 @@ public interface StoreProductMapper {
 
     @Delete("DELETE FROM store_product WHERE store_product_id = #{id}")
     void delete(Long id);
+    @Delete("DELETE FROM store_product WHERE category_id = #{id}")
+    void deleteByCategory(Long categoryId);
+
+    @Select("SELECT * FROM store_product WHERE category_id = #{id}")
+    List<StoreProduct> getProductByCategoryId(Long id);
 }

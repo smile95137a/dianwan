@@ -57,7 +57,7 @@ public class CartItemController {
             CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
             var userId = userDetails.getId();
 
-            Boolean result = cartItemService.checkQu(quantity);
+            Boolean result = cartItemService.checkQu(quantity , userId);
             var response = ResponseUtils.success(201, "數量正確", result);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {

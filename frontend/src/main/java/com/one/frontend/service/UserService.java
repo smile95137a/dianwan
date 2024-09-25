@@ -6,6 +6,7 @@ import com.one.frontend.request.UserReq;
 import com.one.frontend.response.UserRes;
 import com.one.frontend.util.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,9 @@ public class UserService {
 
 	@Autowired
 	private MailService mailService;
+
+	@Value("${verification.url}")
+	private String verificationUrl;
 
 	private final String MEMBER = "未驗證會員";
 
@@ -162,9 +166,9 @@ public class UserService {
 		tokenRepository.save(verificationToken);
 
 		// 2. 生成验证链接
-		String verificationUrl = "http://localhost:8081/verify?token=" + token;
+		String verificationUrls = verificationUrl + token;
 
 		// 3. 发送邮件
-		mailService.sendVerificationMail(user.getUsername(), verificationUrl);
+		mailService.sendVerificationMail(user.getUsername(), verificationUrls);
 	}
 }

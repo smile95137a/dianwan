@@ -90,6 +90,6 @@ public interface UserRepository {
 
 	@Update("update `user` set sliver_coin = sliver_coin + #{sliverCoin} where id = #{userId}")
 	void updateSliverCoin(@Param("userId") Long userId, @Param("sliverCoin") BigDecimal sliverCoin);
-	@Update("update `user` set role_id = ##{roleId} where id = #{userId}")
+	@Update("update `user` set role_id = #{roleId} where id = #{id}")
 	void updateUserRoleId(User user);
 }

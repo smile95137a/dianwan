@@ -2,6 +2,7 @@ package com.one.onekuji.service;
 
 import com.one.onekuji.model.StoreCategory;
 import com.one.onekuji.model.StoreProduct;
+import com.one.onekuji.repository.ProductRecommendationMappingMapper;
 import com.one.onekuji.repository.StoreProductMapper;
 import com.one.onekuji.request.StoreProductReq;
 import com.one.onekuji.response.StoreProductRes;
@@ -22,6 +23,10 @@ public class StoreProductService {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ProductRecommendationMappingMapper productRecommendationMappingMapper;
+
 
     public List<StoreProductRes> getAllStoreProduct() {
         List<StoreProduct> storeProductList = storeProductMapper.findAll();
@@ -95,6 +100,9 @@ public class StoreProductService {
         if (storeProduct == null) {
             return false;
         }
+
+        productRecommendationMappingMapper.delete(storeProduct.getStoreProductId());
+
         storeProductMapper.delete(id);
         return true;
     }

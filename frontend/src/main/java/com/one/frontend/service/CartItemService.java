@@ -3,6 +3,7 @@ package com.one.frontend.service;
 import com.one.frontend.model.CartItem;
 import com.one.frontend.repository.CartItemRepository;
 import com.one.frontend.request.CartItemReq;
+import com.one.frontend.response.CartItemRes;
 import com.one.frontend.response.StoreProductRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -98,12 +99,14 @@ public class CartItemService {
 	}
 
 
-	public Boolean checkQu(CartItemReq quantity) throws Exception {
+	public Boolean checkQu(CartItemReq quantity , Long userId) throws Exception {
 		StoreProductRes productRes = storeProductService.getStoreProductByProductCode(quantity.getProductCode());
+		CartItemRes cartItemRes = cartItemRepository.findQua(userId , productRes.getStoreProductId());
 		if (productRes == null) {
 			throw new RuntimeException("Product not found while adding cart item");
 		}
-		if(quantity.getQuantity() > productRes.getStockQuantity()){
+		int total = quantity.getQuantity() + cartItemRes.getQuantity();
+		if(total > productRes.getStockQuantity()){
 			throw new Exception("已達商品數量上限");
 		}
 

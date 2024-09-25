@@ -41,4 +41,8 @@ public class ProductRecommendationMapping {
     @Schema(description = "更新用戶 ID", example = "1")
     @Column(name = "update_user")
     private String updateUser;
+
+    private String productName;
+
+    private String recommendationName;
 }
