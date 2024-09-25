@@ -19,7 +19,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @AllArgsConstructor
@@ -36,21 +35,35 @@ public class SpringSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http , CorsConfigurationSource corsConfigurationSource) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+////                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+//                .authorizeRequests()
+////                .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+////                .requestMatchers("/api/user/**").hasRole("ADMIN")
+////                .requestMatchers("/api/**").authenticated()
+//                .requestMatchers("/img/**").permitAll()
+//                .requestMatchers("/api/**").permitAll()
+//                .anyRequest().permitAll()
+//                .and()
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http , CorsConfigurationSource corsConfigurationSource) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-//                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                .authorizeRequests()
-//                .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-//                .requestMatchers("/api/user/**").hasRole("ADMIN")
-//                .requestMatchers("/api/**").authenticated()
-                .requestMatchers("/img/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
-                .anyRequest().permitAll()
-                .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .authorizeHttpRequests(
+                        auth -> auth.requestMatchers("/auth/**", "/oauth2/**").permitAll().requestMatchers("/img/**")
+                                .permitAll().requestMatchers("/**").permitAll().anyRequest().authenticated());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
