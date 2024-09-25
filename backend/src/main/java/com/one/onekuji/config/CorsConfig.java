@@ -21,11 +21,11 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 允许所有路径
-                .allowedOrigins("*") // 允许的源
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的 HTTP 方法
-                .allowCredentials(true) // 允许携带凭证
-                .maxAge(3600) // 预检请求的有效期（秒）
-                .allowedHeaders("*");
+        registry.addMapping("/**")
+                .allowedOrigins("https://onemorelottery.tw") // 明確指定允許的源
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
