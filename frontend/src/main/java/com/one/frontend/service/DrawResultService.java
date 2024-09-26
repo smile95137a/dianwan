@@ -217,7 +217,10 @@ public class DrawResultService {
 					throw new Exception("餘額不足，請加值");
 				}
 			}
-			LocalDateTime endTimes = handleDrawForLock(userId ,productId , prizeNumbers);
+			LocalDateTime endTimes = null;
+			if(product.getProductType() == ProductType.PRIZE){
+				endTimes = handleDrawForLock(userId ,productId , prizeNumbers);
+			}
 			List<DrawResult> drawResults = new ArrayList<>();
 			int remainingDrawCount = prizeNumbers.size();
 			UserRes user = userRepository.getUserById(userId);

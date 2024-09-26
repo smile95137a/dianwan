@@ -50,14 +50,16 @@ public class ProductDetailController {
         List<DetailReq> detailReqs = objectMapper.readValue(productDetailReqsJson, new TypeReference<List<DetailReq>>() {});
 
         Map<Integer, String> imageUrlsMap = new HashMap<>();
-        List<String> fileUrls = new ArrayList<>();
         if (images != null && !images.isEmpty()) {
             // 上传图片并获取其 URL
             for (int i = 0; i < images.size(); i++) {
                 MultipartFile image = images.get(i);
                 if (!image.isEmpty() && i < detailReqs.size()) {
                     String fileUrl = ImageUtil.upload(image);
-                    imageUrlsMap.put(i, fileUrl);
+                    // 这里检查 fileUrl 是否为空字符串
+                    if (fileUrl != null && !fileUrl.trim().isEmpty()) {
+                        imageUrlsMap.put(i, fileUrl);
+                    }
                 }
             }
         }
@@ -65,18 +67,19 @@ public class ProductDetailController {
         for (int i = 0; i < detailReqs.size(); i++) {
             DetailReq detailReq = detailReqs.get(i);
             String imageUrl = imageUrlsMap.get(i);
-            if (imageUrl != null) {
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                 if (detailReq.getImageUrls() == null) {
                     detailReq.setImageUrls(new ArrayList<>());
                 }
                 detailReq.getImageUrls().add(imageUrl);
             }
         }
-        List<DetailRes> detailResList = productDetailService.addProductDetails(detailReqs);
 
+        List<DetailRes> detailResList = productDetailService.addProductDetails(detailReqs);
         ApiResponse<List<DetailRes>> response = ResponseUtils.success(201, null, detailResList);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
 
     @PutMapping(value = "/update/{id}")
@@ -87,6 +90,7 @@ public class ProductDetailController {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
         DetailReq productDetailReq = objectMapper.readValue(productDetailReqJson, DetailReq.class);
+
         if (productDetailReq == null) {
             ApiResponse<DetailRes> response = ResponseUtils.failure(404, "未找到該商品", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -97,7 +101,10 @@ public class ProductDetailController {
             for (MultipartFile image : images) {
                 if (!image.isEmpty()) {
                     String fileUrl = ImageUtil.upload(image);
-                    fileUrls.add(fileUrl);
+                    // 这里检查 fileUrl 是否为空字符串
+                    if (fileUrl != null && !fileUrl.trim().isEmpty()) {
+                        fileUrls.add(fileUrl);
+                    }
                 }
             }
         }
@@ -109,11 +116,11 @@ public class ProductDetailController {
             productDetailReq.getImageUrls().addAll(fileUrls);
         }
 
-
         DetailRes productDetailRes = productDetailService.updateProductDetail(id, productDetailReq);
         ApiResponse<DetailRes> response = ResponseUtils.success(200, "商品已成功更新", productDetailRes);
         return ResponseEntity.ok(response);
     }
+
 
     @DeleteMapping(value = "/delete/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProductDetail(@PathVariable Long id) {
