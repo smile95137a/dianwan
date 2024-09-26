@@ -103,7 +103,10 @@ public class ProductDetailController {
                     String fileUrl = ImageUtil.upload(image);
                     // 这里检查 fileUrl 是否为空字符串
                     if (fileUrl != null && !fileUrl.trim().isEmpty()) {
-                        fileUrls.add(fileUrl);
+                        if(!(fileUrl.equals(""))){
+                            fileUrls.add(fileUrl);
+                        }
+
                     }
                 }
             }
