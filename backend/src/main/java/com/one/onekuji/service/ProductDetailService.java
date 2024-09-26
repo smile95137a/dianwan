@@ -54,7 +54,7 @@ public class ProductDetailService {
             // 轉義 HTML 字符
             detailReq.setDescription(escapeTextForHtml(detailReq.getDescription()));
             detailReq.setSpecification(escapeTextForHtml(detailReq.getSpecification()));
-
+            detailReq.setStockQuantity(detailReq.getQuantity());
             // 計算尺寸
             BigDecimal size = detailReq.getHeight()
                     .multiply(detailReq.getWidth())
