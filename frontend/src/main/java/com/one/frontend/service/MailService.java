@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,12 +16,16 @@ public class MailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${custom.mail.from}")
+    private String from;
+
     public void sendVerificationMail(String to, String verificationUrl) {
         // 创建 MIME 邮件
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 
         try {
+            helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject("升級再來一抽認證會員");
             // 将邮件内容设置为 HTML 格式
