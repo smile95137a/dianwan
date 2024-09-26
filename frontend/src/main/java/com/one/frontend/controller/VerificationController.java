@@ -10,10 +10,7 @@ import com.one.frontend.repository.VerificationTokenRepository;
 import com.one.frontend.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +27,8 @@ public class VerificationController {
     @Autowired
     private RoleRepository roleRepository;
 
-    @GetMapping("/verify/{token}")
-    public ResponseEntity<ApiResponse<String>> verifyUser(@PathVariable String token) {
+    @GetMapping("/verify")
+    public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam String token) {
         try {
             VerificationToken verificationToken = tokenRepository.findByToken(token);
 
