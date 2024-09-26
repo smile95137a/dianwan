@@ -1,6 +1,7 @@
 package com.one.frontend.model;
 
-import jakarta.persistence.Column;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Entity
+@Schema(description = "訂單模型")
+@Table(name = "`sign_in`")
 public class SignIn {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="id")
     private Long id;
     @Column(name ="sliver_price")

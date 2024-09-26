@@ -58,4 +58,6 @@ public interface ProductRepository {
             "stock_quantity = #{stockQuantity} " +
             "WHERE product_id = #{productId}")
     void updateProductQuantity(ProductRes product);
+    @Update("update product set status = 'UNAVAILABLE' where product_id = #{productId}")
+    void updateStatus(Long productId);
 }

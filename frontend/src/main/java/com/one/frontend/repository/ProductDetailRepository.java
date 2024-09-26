@@ -57,7 +57,9 @@ public interface ProductDetailRepository {
     @Update("UPDATE product_detail SET quantity = #{quantity}, drawn_numbers = #{drawnNumbers} WHERE product_detail_id = #{productDetailId}")
     void updateProductDetailQuantityAndDrawnNumbers(ProductDetail productDetail);
 
-    @Select("SELECT * FROM product_details WHERE product_id = #{productId} AND prize_type = #{prizeType} LIMIT 1")
+    @Select("SELECT * FROM product_detail WHERE product_id = #{productId} AND prize_type = #{prizeType} LIMIT 1")
     ProductDetailRes findFirstByProductIdAndPrizeType(@Param("productId") Long productId, @Param("prizeType") String prizeType);
 
+    @Select("select * from product_detail WHERE product_id = #{productId} and grade = 'SP'")
+    ProductDetailRes getProductDetailSpPrizeByProductId(Long productId);
 }

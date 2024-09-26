@@ -33,15 +33,17 @@ public class ProductDetailService {
         List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
         int totalQuantity = 0;
 
-        // 計算總數量
+        // 计算总数量，排除 grade 为 "SP" 的项
         for (DetailReq detailReq : detailReqs) {
-            totalQuantity += detailReq.getQuantity();
+            if (shouldIncludeInPrizeNumbers(detailReq)) {
+                totalQuantity += detailReq.getQuantity();
+            }
         }
 
-        // 更新產品總數量
+        // 更新产品总数量
         productRepository.updateTotalQua(totalQuantity, detailReqs.get(0).getProductId());
 
-        // 創建並打亂獎品編號
+        // 创建并打乱奖品编号
         List<Integer> shuffledNumbers = new ArrayList<>();
         for (int i = 1; i <= totalQuantity; i++) {
             shuffledNumbers.add(i);
@@ -51,49 +53,59 @@ public class ProductDetailService {
         int currentIndex = 0;
 
         for (DetailReq detailReq : detailReqs) {
-            // 轉義 HTML 字符
+            // 转义 HTML 字符
             detailReq.setDescription(escapeTextForHtml(detailReq.getDescription()));
             detailReq.setSpecification(escapeTextForHtml(detailReq.getSpecification()));
             detailReq.setStockQuantity(detailReq.getQuantity());
-            // 計算尺寸
+
+            // 计算尺寸
             BigDecimal size = detailReq.getHeight()
                     .multiply(detailReq.getWidth())
                     .multiply(detailReq.getLength());
             detailReq.setSize(size.toString());
 
-            // 插入產品細節
+            // 插入产品细节
             productDetailMapper.insert(detailReq);
             Long productDetailId = Long.valueOf(detailReq.getProductDetailId());
 
-            // 為每個數量創建獎品編號
-            List<PrizeNumber> detailPrizeNumbers = new ArrayList<>();
-            for (int i = 0; i < detailReq.getQuantity(); i++) {
-                PrizeNumber prizeNumber = new PrizeNumber();
-                prizeNumber.setProductId(detailReq.getProductId());
-                prizeNumber.setProductDetailId(Math.toIntExact(productDetailId));
-                prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex)));
-                prizeNumber.setIsDrawn(false);
-                prizeNumber.setLevel(detailReq.getGrade());
-                detailPrizeNumbers.add(prizeNumber);
-                currentIndex++;
+            // 为每个数量创建奖品编号，排除 grade 为 "SP" 的项
+            if (shouldIncludeInPrizeNumbers(detailReq)) {
+                List<PrizeNumber> detailPrizeNumbers = new ArrayList<>();
+                for (int i = 0; i < detailReq.getQuantity(); i++) {
+                    PrizeNumber prizeNumber = new PrizeNumber();
+                    prizeNumber.setProductId(detailReq.getProductId());
+                    prizeNumber.setProductDetailId(Math.toIntExact(productDetailId));
+                    prizeNumber.setNumber(String.valueOf(shuffledNumbers.get(currentIndex)));
+                    prizeNumber.setIsDrawn(false);
+                    prizeNumber.setLevel(detailReq.getGrade());
+                    detailPrizeNumbers.add(prizeNumber);
+                    currentIndex++;
+                }
+
+                // 打乱当前产品细节的奖品编号
+                Collections.shuffle(detailPrizeNumbers);
+                allPrizeNumbers.addAll(detailPrizeNumbers);
             }
 
-            // 打亂當前產品細節的獎品編號
-            Collections.shuffle(detailPrizeNumbers);
-            allPrizeNumbers.addAll(detailPrizeNumbers);
-
-            // 獲取並添加詳細回應
+            // 获取并添加详细响应
             DetailRes detailRes = productDetailMapper.findById(productDetailId);
             detailResList.add(detailRes);
         }
 
-        // 批量插入所有獎品編號
+        // 批量插入所有奖品编号
         if (!allPrizeNumbers.isEmpty()) {
             prizeNumberMapper.insertBatch(allPrizeNumbers);
         }
 
         return detailResList;
     }
+
+    // 判断是否应将该项包括在奖品编号中
+    private boolean shouldIncludeInPrizeNumbers(DetailReq detailReq) {
+        return !"SP".equals(detailReq.getGrade());
+    }
+
+
 
 
 

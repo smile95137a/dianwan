@@ -295,6 +295,49 @@ public class DrawResultService {
 			prizeCartItemRepository.insertBatch(cartItemList);
 
 
+			// 如果抽完数量变1 1代表剩SP赏的时候要送SP赏
+			List<PrizeCartItem> cartItemArr = new ArrayList<>();
+			Long prizeCartId2 = prizeCartRepository.getCartIdByUserId(userId);
+			List<ProductDetailRes> productDetail = productDetailRepository.getProductDetailByProductId(productId);
+			ProductDetailRes spPrize = productDetailRepository.getProductDetailSpPrizeByProductId(productId);
+			int totalQue = 0;
+
+// 计算总数量
+			for (ProductDetailRes res : productDetail) {
+				totalQue += res.getQuantity();
+			}
+
+// 检查总数量是否为1
+			if (totalQue == 1 && spPrize != null) {
+				PrizeCartItem cartItem = new PrizeCartItem();
+				cartItem.setCartId(prizeCartId2);
+				cartItem.setSize(spPrize.getSize());
+				cartItem.setQuantity(1);
+				cartItem.setSliverPrice(spPrize.getSliverPrice());
+				cartItem.setProductDetailId(spPrize.getProductDetailId());
+				cartItem.setIsSelected(true);
+				cartItemArr.add(cartItem);
+			}
+
+// 将新创建的 cartItem 添加到 cartItemList 中
+			if (!cartItemArr.isEmpty()) {
+				cartItemList.addAll(cartItemArr); // 将 cartItemArr 添加到 cartItemList
+			}
+
+			if (!cartItemList.isEmpty()) {
+				prizeCartItemRepository.insertBatch(cartItemList);
+			} else {
+				System.out.println("cartItemList is empty, skipping insertBatch.");
+			}
+
+// 扣除SP赏的数量
+			if (spPrize.getQuantity() > 0) { // 检查数量是否大于0
+				spPrize.setQuantity(spPrize.getQuantity() - 1);
+				productDetailRepository.updateProductDetailQuantity(spPrize);
+				productRepository.updateStatus(productId);
+			} else {
+				System.out.println("SP prize quantity is already 0, skipping update.");
+			}
 
 
 			// 处理用户抽奖次数和红利
