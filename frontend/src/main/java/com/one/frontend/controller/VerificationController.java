@@ -27,8 +27,8 @@ public class VerificationController {
     @Autowired
     private RoleRepository roleRepository;
 
-    @GetMapping("/verify")
-    public ResponseEntity<ApiResponse<String>> verifyUser(@RequestParam String token) {
+    @PostMapping("/verify/{token}")
+    public ResponseEntity<ApiResponse<String>> verifyUser(@PathVariable String token) {
         try {
             VerificationToken verificationToken = tokenRepository.findByToken(token);
 
