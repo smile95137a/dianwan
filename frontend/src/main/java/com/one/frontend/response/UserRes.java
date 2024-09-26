@@ -1,16 +1,14 @@
 package com.one.frontend.response;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Set;
-
 import com.one.frontend.model.Role;
-
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -64,4 +62,5 @@ public class UserRes {
 	
 	private String invoiceInfo;
 	private String invoiceInfoEmail;
+	private String zipCode;
 }

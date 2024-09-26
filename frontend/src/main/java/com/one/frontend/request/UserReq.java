@@ -22,4 +22,6 @@ public class UserReq {
 	private String lineId;
 	private String invoiceInfo;
 	private String invoiceInfoEmail;
+
+	private String zipCode;
 }

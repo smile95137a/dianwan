@@ -29,8 +29,8 @@ public interface UserRepository {
 	@Select("SELECT * FROM user")
 	List<User> getAllUser();
 
-	@Insert("INSERT INTO `user` (username, password, email, nickname, phone_number, address, city, area, address_name, line_id, created_at, balance, bonus, sliver_coin, provider, role_id, user_uid, status, draw_count, invoice_info, invoice_info_email) "
-			+ "VALUES (#{username}, #{password}, #{email}, #{nickname}, #{phoneNumber}, #{address}, #{city}, #{area}, #{addressName}, #{lineId}, #{createdAt}, #{balance}, #{bonus}, #{sliverCoin}, #{provider}, #{roleId}, #{userUid}, #{status}, #{drawCount}, #{invoiceInfo}, #{invoiceInfoEmail})")
+	@Insert("INSERT INTO `user` (username, password, email, nickname, phone_number, address, city, area, address_name, line_id, created_at, balance, bonus, sliver_coin, provider, role_id, user_uid, status, draw_count, invoice_info, invoice_info_email,zip_code) "
+			+ "VALUES (#{username}, #{password}, #{email}, #{nickname}, #{phoneNumber}, #{address}, #{city}, #{area}, #{addressName}, #{lineId}, #{createdAt}, #{balance}, #{bonus}, #{sliverCoin}, #{provider}, #{roleId}, #{userUid}, #{status}, #{drawCount}, #{invoiceInfo}, #{invoiceInfoEmail},#{zipCode})")
 	void createUser(User user);
 
 	@Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, "

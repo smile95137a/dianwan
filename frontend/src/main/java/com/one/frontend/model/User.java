@@ -118,5 +118,7 @@ public class User{
 	private String invoiceInfo;
     @Column(name= "invoice_info_email")
 	private String invoiceInfoEmail;
+    @Column(name="zip_code")
+    private String zipCode;
     
 }

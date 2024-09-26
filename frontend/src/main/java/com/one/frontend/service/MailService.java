@@ -25,7 +25,6 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 
         try {
-            helper.setFrom("abc123@onemorelotery.tw");
             helper.setTo(to);
             helper.setSubject("升級再來一抽認證會員");
             // 将邮件内容设置为 HTML 格式
@@ -45,7 +44,6 @@ public class MailService {
         byte[] receiptRes = response.getBody();
 
         try {
-            helper.setFrom("abc123@onemorelotery.tw");
             helper.setTo(username);
             helper.setSubject("感謝您在再來一抽消費");
 
