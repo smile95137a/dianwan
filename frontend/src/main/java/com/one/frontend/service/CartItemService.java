@@ -102,10 +102,14 @@ public class CartItemService {
 	public Boolean checkQu(CartItemReq quantity , Long userId) throws Exception {
 		StoreProductRes productRes = storeProductService.getStoreProductByProductCode(quantity.getProductCode());
 		CartItemRes cartItemRes = cartItemRepository.findQua(userId , productRes.getStoreProductId());
+		int qua = 0;
 		if (productRes == null) {
 			throw new RuntimeException("Product not found while adding cart item");
 		}
-		int total = quantity.getQuantity() + cartItemRes.getQuantity();
+		if(cartItemRes != null){
+			qua = cartItemRes.getQuantity();
+		}
+		int total = quantity.getQuantity() + qua;
 		if(total > productRes.getStockQuantity()){
 			throw new Exception("已達商品數量上限");
 		}
