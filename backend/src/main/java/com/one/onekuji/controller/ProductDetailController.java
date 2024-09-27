@@ -48,6 +48,15 @@ public class ProductDetailController {
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
         List<DetailReq> detailReqs = objectMapper.readValue(productDetailReqsJson, new TypeReference<List<DetailReq>>() {});
 
+        // 如果有传递图片，清空现有的 imageUrls 列表
+        for(DetailReq req : detailReqs){
+            if (images != null && !images.isEmpty()) {
+                req.setImageUrls(new ArrayList<>()); // 清空列表，确保只保留新图片
+            }
+        }
+
+
+
         Map<Integer, String> imageUrlsMap = new HashMap<>();
         if (images != null && !images.isEmpty()) {
             // 上传图片并获取其 URL
