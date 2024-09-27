@@ -8,7 +8,6 @@ import com.one.frontend.response.UserRes;
 import com.one.frontend.util.Md5;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,15 +122,12 @@ public class InvoiceService {
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String date = String.valueOf(LocalDateTime.parse(LocalDateTime.now().toString()));
+        String date = System.currentTimeMillis()+"";
 //        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
         String md5 = Md5.MD5(date + "Giveme09" + "6F89Gi").toUpperCase();
         InvoicePictureRequest req = InvoicePictureRequest.builder().timeStamp(date).uncode("53418005").idno("Giveme09").sign(md5).code(code).type("2").build();
-        // 创建请求实体
-        HttpEntity<InvoicePictureRequest> entity = new HttpEntity<>(req, headers);
-
         // 发送 POST 请求
-        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, entity, byte[].class);
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(url, req, byte[].class);
         UserRes user = userRepository.getUserById(userId);
 
         mailService.sendRecImg(user.getUsername(),response);
