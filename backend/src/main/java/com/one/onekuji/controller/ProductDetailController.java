@@ -1,7 +1,6 @@
 package com.one.onekuji.controller;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
@@ -86,7 +85,7 @@ public class ProductDetailController {
     public ResponseEntity<ApiResponse<DetailRes>> updateProductDetail(
             @PathVariable Long id,
             @RequestPart("productDetailReq") String productDetailReqJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
         DetailReq productDetailReq = objectMapper.readValue(productDetailReqJson, DetailReq.class);

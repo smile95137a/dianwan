@@ -1,7 +1,6 @@
 package com.one.onekuji.controller;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.eenum.PrizeCategory;
 import com.one.onekuji.eenum.ProductType;
@@ -19,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +97,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<ProductRes>> createProduct(
             @RequestPart("productReq") String productReqJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
         ProductReq storeProductReq = objectMapper.readValue(productReqJson, ProductReq.class);
@@ -125,7 +125,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductRes>> updateProduct(
             @PathVariable Long id,
             @RequestPart("productReq") String productReqJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws JsonProcessingException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
         ProductReq storeProductReq = objectMapper.readValue(productReqJson, ProductReq.class);

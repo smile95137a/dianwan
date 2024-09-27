@@ -32,16 +32,27 @@ public class ProductRecommendationMappingController {
         return ResponseEntity.ok(ResponseUtils.success(200, null, mappings));
     }
 
-    // 根據ID查詢商品推薦關聯
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RecommendRes>> getMappingById(@PathVariable Long id) {
+    @GetMapping("/{kkk}")
+    public ResponseEntity<ApiResponse<RecommendRes>> getMappingById(@PathVariable String kkk) {
+        Long id = null;
+        if ("x".equals(kkk)) {
+            id = 1L;
+        } else if ("y".equals(kkk)) {
+            id = 2L;
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ResponseUtils.failure(400, "無效的推薦類型", null));
+        }
+
         RecommendRes mapping = service.getMappingById(id);
         if (mapping == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ResponseUtils.failure(404, "商品推薦關聯未找到", null));
         }
+
         return ResponseEntity.ok(ResponseUtils.success(200, null, mapping));
     }
+
 
 
 }
