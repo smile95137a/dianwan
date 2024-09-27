@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -88,7 +90,6 @@ public class InvoiceService {
         System.out.println(fakeReceipt);
         ResponseEntity<ReceiptRes> receiptResResponseEntity = service.addB2CInvoice(fakeReceipt);
         System.out.println(receiptResResponseEntity.getBody());
-
     }
 
     public ResponseEntity<ReceiptRes> addB2CInvoice(ReceiptReq invoiceRequest) {
@@ -98,10 +99,15 @@ public class InvoiceService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String date = System.currentTimeMillis()+"";
+        // 创建一个 DateTimeFormatter，指定日期格式为 "yyyy-MM-dd"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate currentDate = LocalDate.now();
+        // 将当前日期格式化为字符串
+        String formattedDate = currentDate.format(formatter);
 //        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
         String md5 = Md5.MD5(date + "Giveme09" + "6F89Gi").toUpperCase();
         ReceiptReq req = ReceiptReq.builder().timeStamp(date).uncode("53418005").idno("Giveme09")
-                .sign(md5).customerName(null).phone(null).orderCode(invoiceRequest.getOrderCode()).datetime(date).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).taxType(null).companyCode(null).freeAmount(null).zeroAmount(null).sales(null).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
+                .sign(md5).customerName(null).phone(null).orderCode(invoiceRequest.getOrderCode()).datetime(formattedDate).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).taxType(null).companyCode(null).freeAmount(null).zeroAmount(null).sales(null).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
 
         // 发送 POST 请求
         try {
