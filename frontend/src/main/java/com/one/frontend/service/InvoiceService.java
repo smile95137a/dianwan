@@ -5,6 +5,7 @@ import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.ReceiptReq;
 import com.one.frontend.response.ReceiptRes;
 import com.one.frontend.response.UserRes;
+import com.one.frontend.util.Md5;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,8 @@ public class InvoiceService {
         ReceiptReq fakeReceipt = generateFakeReceipt();
         InvoiceService service = new InvoiceService();
         System.out.println(fakeReceipt);
-        service.addB2CInvoice(fakeReceipt);
+        ResponseEntity<ReceiptRes> receiptResResponseEntity = service.addB2CInvoice(fakeReceipt);
+        System.out.println(receiptResResponseEntity.getBody());
 
     }
 
@@ -97,9 +97,9 @@ public class InvoiceService {
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String date = String.valueOf(LocalDateTime.parse(LocalDateTime.now().toString()));
+        String date = System.currentTimeMillis()+"";
 //        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
-        String md5 = InvoiceService.md5(date+"Giveme09"+"6F89Gi");
+        String md5 = Md5.MD5(date + "Giveme09" + "6F89Gi").toUpperCase();
         ReceiptReq req = ReceiptReq.builder().timeStamp(date).uncode("53418005").idno("Giveme09")
                 .sign(md5).customerName(null).phone(null).orderCode(invoiceRequest.getOrderCode()).datetime(date).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).taxType(null).companyCode(null).freeAmount(null).zeroAmount(null).sales(null).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
 
@@ -113,37 +113,14 @@ public class InvoiceService {
         }
     }
 
-    private static String md5(String input) {
-        try {
-            // 创建 MD5 消息摘要实例
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // 计算哈希值
-            byte[] messageDigest = md.digest(input.getBytes());
-
-            // 将哈希值转换为十六进制字符串
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : messageDigest) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-
-            // 返回大写形式的哈希值
-            return hexString.toString().toUpperCase();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public ResponseEntity<byte[]> getInvoicePicture(String code , Long userId) throws MessagingException {
         String url = "https://www.giveme.com.tw/invoice.do?action=picture";
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String date = String.valueOf(LocalDateTime.parse(LocalDateTime.now().toString()));
-        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
+//        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
+        String md5 = Md5.MD5(date + "Giveme09" + "6F89Gi").toUpperCase();
         InvoicePictureRequest req = InvoicePictureRequest.builder().timeStamp(date).uncode("47075614").idno(md5).code(code).type("2").build();
         // 创建请求实体
         HttpEntity<InvoicePictureRequest> entity = new HttpEntity<>(req, headers);
