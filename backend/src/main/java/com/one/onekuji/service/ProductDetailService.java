@@ -155,12 +155,17 @@ public class ProductDetailService {
 
     private String escapeTextForHtml(String text) {
         if (text == null) return "";
-        return text.replace("&", "&amp;")
+        // 先保留換行符的處理
+        String escapedText = text.replace("\n", "<br/>").replace("\r", "");
+
+        // 再進行其他字符轉義
+        return escapedText.replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;")
-                .replace("\n", "<br/>")
-                .replace("\r", "");
+                // 恢復 <br/> 原來的形式，避免被轉義
+                .replace("&lt;br/&gt;", "<br/>");
     }
+
 }

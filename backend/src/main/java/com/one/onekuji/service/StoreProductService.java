@@ -156,12 +156,17 @@ public class StoreProductService {
 
     private String formatTextToHtml(String text) {
         if (text == null) return "";
+        // 先保留換行符的處理
+        String escapedText = text.replace("\n", "<br/>").replace("\r", "");
 
-        // Example formatting rules
-        text = text.replaceAll("\\[p\\]", "<p>").replaceAll("\\[/p\\]", "</p>");
-        text = text.replaceAll("\\[br\\]", "<br>");
-
-        return text;
+        // 再進行其他字符轉義
+        return escapedText.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;")
+                // 恢復 <br/> 原來的形式，避免被轉義
+                .replace("&lt;br/&gt;", "<br/>");
     }
 
     public StoreProduct getProductById(Long id) {

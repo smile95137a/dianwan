@@ -86,39 +86,44 @@ public class ProductDetailController {
             @PathVariable Long id,
             @RequestPart("productDetailReq") String productDetailReqJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
-        DetailReq productDetailReq = objectMapper.readValue(productDetailReqJson, DetailReq.class);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+            DetailReq productDetailReq = objectMapper.readValue(productDetailReqJson, DetailReq.class);
 
-        if (productDetailReq == null) {
-            ApiResponse<DetailRes> response = ResponseUtils.failure(404, "未找到該商品", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+            if (productDetailReq == null) {
+                ApiResponse<DetailRes> response = ResponseUtils.failure(404, "未找到該商品", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
 
-        // 如果有传递图片，清空现有的 imageUrls 列表
-        if (images != null && !images.isEmpty()) {
-            productDetailReq.setImageUrls(new ArrayList<>()); // 清空列表，确保只保留新图片
-        }
+            // 如果有传递图片，清空现有的 imageUrls 列表
+            if (images != null && !images.isEmpty()) {
+                productDetailReq.setImageUrls(new ArrayList<>()); // 清空列表，确保只保留新图片
+            }
 
-        List<String> fileUrls = new ArrayList<>();
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                if (!image.isEmpty()) {
-                    String fileUrl = ImageUtil.upload(image);
-                    if (fileUrl != null && !fileUrl.trim().isEmpty()) {
-                        fileUrls.add(fileUrl);
+            List<String> fileUrls = new ArrayList<>();
+            if (images != null && !images.isEmpty()) {
+                for (MultipartFile image : images) {
+                    if (!image.isEmpty()) {
+                        String fileUrl = ImageUtil.upload(image);
+                        if (fileUrl != null && !fileUrl.trim().isEmpty()) {
+                            fileUrls.add(fileUrl);
+                        }
                     }
                 }
             }
-        }
 
-        if (!fileUrls.isEmpty()) {
-            productDetailReq.getImageUrls().addAll(fileUrls); // 只添加新上传的图片 URL
-        }
+            if (!fileUrls.isEmpty()) {
+                productDetailReq.getImageUrls().addAll(fileUrls); // 只添加新上传的图片 URL
+            }
 
-        DetailRes productDetailRes = productDetailService.updateProductDetail(id, productDetailReq);
-        ApiResponse<DetailRes> response = ResponseUtils.success(200, "商品已成功更新", productDetailRes);
-        return ResponseEntity.ok(response);
+            DetailRes productDetailRes = productDetailService.updateProductDetail(id, productDetailReq);
+            ApiResponse<DetailRes> response = ResponseUtils.success(200, "商品已成功更新", productDetailRes);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
