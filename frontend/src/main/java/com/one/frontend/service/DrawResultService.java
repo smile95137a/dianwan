@@ -245,6 +245,8 @@ public class DrawResultService {
 				drawResult.setTotalDrawCount((long) prizeNumbers.size());
 				drawResult.setCreateDate(LocalDateTime.now());
 				drawResult.setUpdateDate(LocalDateTime.now());
+				drawResult.setImageUrls(selectedPrizeDetail.getImageUrls().get(0));
+				drawResult.setProductName(selectedPrizeDetail.getProductName());
 				drawResults.add(drawResult);
 
 
@@ -331,13 +333,16 @@ public class DrawResultService {
 			}
 
 // 扣除SP赏的数量
-			if (spPrize.getQuantity() > 0) { // 检查数量是否大于0
-				spPrize.setQuantity(spPrize.getQuantity() - 1);
-				productDetailRepository.updateProductDetailQuantity(spPrize);
-				productRepository.updateStatus(productId);
-			} else {
-				System.out.println("SP prize quantity is already 0, skipping update.");
+			if(spPrize != null){
+				if (spPrize.getQuantity() > 0) { // 检查数量是否大于0
+					spPrize.setQuantity(spPrize.getQuantity() - 1);
+					productDetailRepository.updateProductDetailQuantity(spPrize);
+					productRepository.updateStatus(productId);
+				} else {
+					System.out.println("SP prize quantity is already 0, skipping update.");
+				}
 			}
+
 
 
 			// 处理用户抽奖次数和红利

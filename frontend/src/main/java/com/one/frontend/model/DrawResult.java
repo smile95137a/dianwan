@@ -66,4 +66,8 @@ public class DrawResult{
     private Long totalDrawCount;
 
     private Long remainingTime;
+
+    private String imageUrls;
+
+    private String productName;
 }
