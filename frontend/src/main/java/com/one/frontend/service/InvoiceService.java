@@ -17,6 +17,9 @@ import org.springframework.web.client.RestTemplate;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class InvoiceService {
@@ -29,6 +32,49 @@ public class InvoiceService {
 
     @Autowired
     private UserRepository userRepository;
+    // 如果你没有使用 Spring 的依赖注入，也可以手动初始化
+    public InvoiceService() {
+        this.restTemplate = new RestTemplate();
+    }
+    public static ReceiptReq generateFakeReceipt() {
+        Random random = new Random();
+
+        // 建立一個 ReceiptReq 物件
+        ReceiptReq receipt = ReceiptReq.builder()
+                .timeStamp(String.valueOf(System.currentTimeMillis()))
+                .datetime("2024-09-27 12:34:56")
+                .state(0)
+                .totalFee(String.valueOf(random.nextInt(10000)))
+                .items(generateFakeItems(3))  // 建立一個帶有3個假項目的Item列表
+                .build();
+
+        return receipt;
+    }
+
+    private static List<ReceiptReq.Item> generateFakeItems(int count) {
+        List<ReceiptReq.Item> items = new ArrayList<>();
+        Random random = new Random();
+
+        for (int i = 1; i <= count; i++) {
+            ReceiptReq.Item item = ReceiptReq.Item.builder()
+                    .name("Item " + i)
+                    .money(random.nextInt(1000))
+                    .number(random.nextInt(10) + 1)
+                    .build();
+
+            items.add(item);
+        }
+
+        return items;
+    }
+
+    public static void main(String[] args) {
+        ReceiptReq fakeReceipt = generateFakeReceipt();
+        InvoiceService service = new InvoiceService();
+        System.out.println(fakeReceipt);
+        service.addB2CInvoice(fakeReceipt);
+
+    }
 
     public ResponseEntity<ReceiptRes> addB2CInvoice(ReceiptReq invoiceRequest) {
         String url = "https://www.giveme.com.tw/invoice.do?action=addB2C";
@@ -37,9 +83,9 @@ public class InvoiceService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String date = String.valueOf(LocalDateTime.parse(LocalDateTime.now().toString()));
-        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
-
-        ReceiptReq req = ReceiptReq.builder().timeStamp(date).uncode("47075614").idno("eason")
+//        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
+        String md5 = InvoiceService.md5(date+"Giveme09"+"6F89Gi");
+        ReceiptReq req = ReceiptReq.builder().timeStamp(date).uncode("53418005").idno("Giveme09")
                 .sign(md5).orderCode(invoiceRequest.getOrderCode()).datetime(date).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
 
         // 创建请求实体

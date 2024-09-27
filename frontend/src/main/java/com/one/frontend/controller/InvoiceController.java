@@ -25,7 +25,7 @@ public class InvoiceController {
         CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
         Long userId = userDetails.getId();
         ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
-        ReceiptRes receiptRes = res.getBody();
-        invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
+//        ReceiptRes receiptRes = res.getBody();
+//        invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
     }
 }
