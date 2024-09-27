@@ -45,9 +45,7 @@ public class ImageUtil {
 
         // Read the image and validate its size
         BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
-        if (bufferedImage == null) {
-            throw new IllegalArgumentException("Invalid image file");
-        }
+        
 
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
