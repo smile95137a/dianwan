@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.MessageDigest;
@@ -42,9 +43,21 @@ public class InvoiceService {
         // 建立一個 ReceiptReq 物件
         ReceiptReq receipt = ReceiptReq.builder()
                 .timeStamp(String.valueOf(System.currentTimeMillis()))
+                .customerName(null)
+                .phone(null)
+                .orderCode(null)
                 .datetime("2024-09-27 12:34:56")
+                .email(null)
                 .state(0)
+                .donationCode(null)
+                .taxType(null)
+                .companyCode(null)
+                .freeAmount(null)
+                .zeroAmount(null)
+                .sales(null)
+                .amount(null)
                 .totalFee(String.valueOf(random.nextInt(10000)))
+                .content(null)
                 .items(generateFakeItems(3))  // 建立一個帶有3個假項目的Item列表
                 .build();
 
@@ -60,6 +73,8 @@ public class InvoiceService {
                     .name("Item " + i)
                     .money(random.nextInt(1000))
                     .number(random.nextInt(10) + 1)
+                    .taxType(null)
+                    .remark(null)
                     .build();
 
             items.add(item);
@@ -86,14 +101,16 @@ public class InvoiceService {
 //        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
         String md5 = InvoiceService.md5(date+"Giveme09"+"6F89Gi");
         ReceiptReq req = ReceiptReq.builder().timeStamp(date).uncode("53418005").idno("Giveme09")
-                .sign(md5).orderCode(invoiceRequest.getOrderCode()).datetime(date).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
-
-        // 创建请求实体
-        HttpEntity<ReceiptReq> requestEntity = new HttpEntity<>(req, headers);
+                .sign(md5).customerName(null).phone(null).orderCode(invoiceRequest.getOrderCode()).datetime(date).email(invoiceRequest.getEmail()).state(invoiceRequest.getState()).donationCode(invoiceRequest.getDonationCode()).taxType(null).companyCode(null).freeAmount(null).zeroAmount(null).sales(null).totalFee(invoiceRequest.getTotalFee()).content("再來一抽備註").items(invoiceRequest.getItems()).build();
 
         // 发送 POST 请求
-
-        return restTemplate.postForEntity(url, requestEntity, ReceiptRes.class);
+        try {
+            // 直接发送 JSON 对象
+            return restTemplate.postForEntity(url, req, ReceiptRes.class); // 处理响应
+        } catch (HttpClientErrorException e) {
+            System.err.println("HTTP error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            throw e; // 重新抛出异常
+        }
     }
 
     private static String md5(String input) {
