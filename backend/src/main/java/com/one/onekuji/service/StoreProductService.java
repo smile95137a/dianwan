@@ -138,6 +138,9 @@ public class StoreProductService {
         BigDecimal size = height.multiply(width).multiply(length);
         StoreProduct storeProduct = new StoreProduct();
         storeProduct.setProductCode(UUID.randomUUID().toString());
+        storeProduct.setHeight(height);
+        storeProduct.setWidth(width);
+        storeProduct.setLength(length);
         storeProduct.setProductName(storeProductReq.getProductName());
         storeProduct.setDescription(description);
         storeProduct.setPrice(storeProductReq.getPrice());
