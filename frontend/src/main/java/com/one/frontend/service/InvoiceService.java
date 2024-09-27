@@ -127,7 +127,7 @@ public class InvoiceService {
         String date = String.valueOf(LocalDateTime.parse(LocalDateTime.now().toString()));
 //        String md5 = InvoiceService.md5(date+"eason"+"Jj47075614");
         String md5 = Md5.MD5(date + "Giveme09" + "6F89Gi").toUpperCase();
-        InvoicePictureRequest req = InvoicePictureRequest.builder().timeStamp(date).uncode("47075614").idno(md5).code(code).type("2").build();
+        InvoicePictureRequest req = InvoicePictureRequest.builder().timeStamp(date).uncode("53418005").idno("Giveme09").sign(md5).code(code).type("2").build();
         // 创建请求实体
         HttpEntity<InvoicePictureRequest> entity = new HttpEntity<>(req, headers);
 
