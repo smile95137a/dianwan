@@ -69,7 +69,7 @@ public class StoreProductController {
     @PutMapping(value = "/update/{id}")
     public ResponseEntity<ApiResponse<StoreProductRes>> updateStoreProduct(
             @PathVariable Long id,
-            @RequestPart("storeProductReq") String storeProductReqJson,
+            @RequestPart("productReq") String storeProductReqJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
