@@ -22,7 +22,7 @@ public class BannerController {
     public ResponseEntity<ApiResponse<List<Banner>>> getAllBanners() {
         try {
             List<Banner> banners = bannerService.findAll();
-            ApiResponse<List<Banner>> response = new ApiResponse<>(200, "Banners found", true, banners);
+            ApiResponse<List<Banner>> response = new ApiResponse<>(200, "找不到banner", true, banners);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<List<Banner>> response = new ApiResponse<>(400, "No banners found", false, null);

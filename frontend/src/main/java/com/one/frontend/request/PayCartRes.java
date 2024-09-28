@@ -35,6 +35,13 @@ public class PayCartRes {
     private List<Long> cartItemIds;
 
     private List<Long> prizeCartItemIds;
+
+
+    private String cardNo;
+
+    private String expireDate;
+    private String cvv;
+    private String payMethod;
 }
 
 

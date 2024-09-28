@@ -123,7 +123,7 @@ public class DrawResultService {
 		String prizeNumber = number.get(randomIndex).toString();
 		List<String> prizeNumbers = new ArrayList<>();
 		prizeNumbers.add(prizeNumber);
-        return handleDraw2(userId , productId , prizeNumbers);
+        return handleDraw2(userId , productId , prizeNumbers , "1");
 	}
 
 	public DrawResponse getAllPrizes(Long productId, Long userId) {
@@ -169,7 +169,7 @@ public class DrawResultService {
 	}
 
 
-	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers) throws Exception {
+	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers , String payMethod) throws Exception {
 		try {
 			// 验证用戶
 			Long prizeCart = prizeCartRepository.getCartIdByUserId(userId);
@@ -193,15 +193,15 @@ public class DrawResultService {
 			List<PrizeNumber> drawnPrizeNumbers = drawPrizesForNumbersWithStock(selectedPrizeNumbers, productDetails);
 			// 获取商品价格
 			ProductRes product = productRepository.getProductById(productId);
-			BigDecimal amount = product.getPrice();
 
-			// 计算抽奖总金额
-			BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
 
 			// 扣除会员内储值金或红利
 			PrizeCategory category = product.getPrizeCategory();
 			BigDecimal balance = new BigDecimal(userRepository.getBalance(userId));
 			if (category == PrizeCategory.BONUS) {
+				BigDecimal amount = product.getBonusPrice();
+				// 计算抽奖总金额
+				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
 				BigDecimal bonusPoints = new BigDecimal(userRepository.getBonusPoints(userId));
 				if (bonusPoints.compareTo(totalAmount) >= 0) {
 					BigDecimal newBonusPoints = bonusPoints.subtract(totalAmount);
@@ -209,8 +209,21 @@ public class DrawResultService {
 				} else {
 					throw new Exception("红利不足，請加值");
 				}
-			} else {
+			} else if("1".equals(payMethod)){ //1是金幣抽獎
+				BigDecimal amount = product.getPrice();
+				// 计算抽奖总金额
+				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
 				if (balance.compareTo(totalAmount) >= 0) {
+					BigDecimal newBalance = balance.subtract(totalAmount);
+					userRepository.deductUserBalance(userId, newBalance);
+				} else {
+					throw new Exception("餘額不足，請加值");
+				}
+			} else if("2".equals(payMethod)){
+				BigDecimal amount = product.getSliverPrice();
+				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
+				BigDecimal sliver = new BigDecimal(String.valueOf(userRepository.getSliver(userId)));
+				if (sliver.compareTo(totalAmount) >= 0) {
 					BigDecimal newBalance = balance.subtract(totalAmount);
 					userRepository.deductUserBalance(userId, newBalance);
 				} else {
@@ -237,7 +250,17 @@ public class DrawResultService {
 				drawResult.setProductId(productId);
 				drawResult.setProductDetailId(selectedPrizeDetail.getProductDetailId().longValue());
 				drawResult.setDrawTime(LocalDateTime.now());
-				drawResult.setAmount(amount);
+				if (category == PrizeCategory.BONUS) {
+					BigDecimal amount = product.getBonusPrice();
+					drawResult.setAmount(amount);
+				}else if("1".equals(payMethod)){
+					BigDecimal amount = product.getPrice();
+					drawResult.setAmount(amount);
+				}else if("2".equals(payMethod)){
+					BigDecimal amount = product.getSliverPrice();
+					drawResult.setAmount(amount);
+				}
+
 				drawResult.setDrawCount(1);
 				drawResult.setRemainingDrawCount(remainingDrawCount);
 				drawResult.setPrizeNumber(selectedPrizeNumber.getNumber());

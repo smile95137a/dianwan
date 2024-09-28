@@ -4,7 +4,7 @@ public enum ProductType {
     PRIZE("一番賞"),
     GACHA("扭蛋"),
     BLIND_BOX("盲盒"),
-    CUSTMER_PRIZE("自製一番賞");
+    CUSTMER_PRIZE("客製一番賞");
 
     private final String description;
 

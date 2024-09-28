@@ -67,6 +67,10 @@ public interface UserRepository {
 	@Select("select bonus from `user` where id = #{userId}")
 	Integer getBonusPoints(Long userId);
 
+	@Select("select sliver_coin from `user` where id = #{userId}")
+	BigDecimal getSliver(Long userId);
+
+
 	void deductUserBonusPoints(Long userId, BigDecimal newBonusPoints);
 
 	@Update("update `user` set balance = balance + tradeAmt where id = #{userId}")
