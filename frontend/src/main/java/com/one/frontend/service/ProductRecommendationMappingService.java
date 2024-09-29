@@ -17,7 +17,7 @@ public class ProductRecommendationMappingService {
         return mapper.getAllMappings();
     }
 
-    public RecommendRes getMappingById(Long id) {
+    public List<RecommendRes> getMappingById(Long id) {
         return mapper.getMappingById(id);
     }
 }

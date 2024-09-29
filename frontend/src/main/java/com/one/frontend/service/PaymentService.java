@@ -9,8 +9,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+@Service
 public class PaymentService {
 
     private final RestTemplate restTemplate = new RestTemplate();

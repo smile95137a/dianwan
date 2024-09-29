@@ -13,6 +13,6 @@ public interface ProductRecommendationMappingMapper {
     List<RecommendRes> getAllMappings();
 
     @Select("SELECT c.id , c.recommendation_name , b.store_product_id , b.image_urls , b.product_name FROM product_recommendation_mapping a left join store_product b on a.store_product_id = b.store_product_id left join store_product_recommendation c on a.store_product_recommendation_id = c.id where c.id = #{id}")
-    RecommendRes getMappingById(Long id);
+    List<RecommendRes> getMappingById(Long id);
 
 }

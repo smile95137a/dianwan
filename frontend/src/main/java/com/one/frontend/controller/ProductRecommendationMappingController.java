@@ -33,8 +33,8 @@ public class ProductRecommendationMappingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RecommendRes>> getMappingById(@PathVariable Long id) {
-        RecommendRes mapping = service.getMappingById(id);
+    public ResponseEntity<ApiResponse<List<RecommendRes>>> getMappingById(@PathVariable Long id) {
+        List<RecommendRes> mapping = service.getMappingById(id);
         if (mapping == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ResponseUtils.failure(400, "無效的推薦類型", null));
