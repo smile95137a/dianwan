@@ -445,13 +445,15 @@ public class DrawResultService {
 				double normalizedProbability = detail.getProbability() / totalProbability;
 				cumulativeProbability += normalizedProbability;
 
-
 				if (randomNumber <= cumulativeProbability) {
 					// 检查库存
 					if (detail.getQuantity() > 0) {
-						// 更新 PrizeNumber
+						// 更新 PrizeNumber，确保 product_detail_id 和奖品一致
 						selectedPrizeNumber.setLevel(detail.getGrade());
 						selectedPrizeNumber.setIsDrawn(true);
+						selectedPrizeNumber.setProductDetailId(detail.getProductDetailId()); // 设置正确的 product_detail_id
+
+						// 更新 PrizeNumber 数据库
 						prizeNumberMapper.updatePrizeNumber(selectedPrizeNumber);
 
 						// 更新库存，确保库存不为负
