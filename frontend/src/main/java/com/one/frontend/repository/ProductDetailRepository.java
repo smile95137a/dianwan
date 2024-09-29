@@ -62,4 +62,26 @@ public interface ProductDetailRepository {
 
     @Select("select * from product_detail WHERE product_id = #{productId} and grade = 'SP'")
     ProductDetailRes getProductDetailSpPrizeByProductId(Long productId);
+    @Update({
+            "<script>",
+            "UPDATE product_detail",
+            "SET quantity = CASE product_detail_id",
+            "<foreach collection='list' item='detail' index='index'>",
+            "WHEN #{detail.productDetailId} THEN #{detail.quantity} ",
+            "</foreach>",
+            "ELSE quantity END,",
+            "drawn_numbers = CASE product_detail_id",
+            "<foreach collection='list' item='detail' index='index'>",
+            "WHEN #{detail.productDetailId} THEN #{detail.drawnNumbers} ",
+            "</foreach>",
+            "ELSE drawn_numbers END",
+            "WHERE product_detail_id IN",
+            "<foreach collection='list' item='detail' index='index' open='(' separator=',' close=')'>",
+            "#{detail.productDetailId}",
+            "</foreach>",
+            "</script>"
+    })
+    void updateProductDetailQuantityAndDrawnNumbersBatch(@Param("list") List<ProductDetail> productDetails);
+
+
 }

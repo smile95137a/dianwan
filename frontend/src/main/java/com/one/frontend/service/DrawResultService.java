@@ -421,12 +421,13 @@ public class DrawResultService {
 
 	public PrizeNumber drawPrizeForNumber(PrizeNumber selectedPrizeNumber, List<ProductDetailRes> productDetails) {
 		Random random = new Random();
+		List<ProductDetail> toUpdateProductDetails = new ArrayList<>();
+		List<PrizeNumber> toUpdatePrizeNumbers = new ArrayList<>();
 
 		while (true) {
 			List<ProductDetailRes> availableProductDetails = productDetails.stream()
 					.filter(detail -> detail.getQuantity() > 0)
 					.collect(Collectors.toList());
-
 
 			if (availableProductDetails.isEmpty()) {
 				return null; // 所有奖品都已抽完
@@ -448,29 +449,44 @@ public class DrawResultService {
 				if (randomNumber <= cumulativeProbability) {
 					// 检查库存
 					if (detail.getQuantity() > 0) {
-						// 更新 PrizeNumber，确保 product_detail_id 和奖品一致
+						// 更新 PrizeNumber
 						selectedPrizeNumber.setLevel(detail.getGrade());
 						selectedPrizeNumber.setIsDrawn(true);
-						selectedPrizeNumber.setProductDetailId(detail.getProductDetailId()); // 设置正确的 product_detail_id
+						selectedPrizeNumber.setProductDetailId(detail.getProductDetailId());
 
-						// 更新 PrizeNumber 数据库
-						prizeNumberMapper.updatePrizeNumber(selectedPrizeNumber);
-
-						// 更新库存，确保库存不为负
+						// 更新库存
 						int newQuantity = detail.getQuantity() - 1;
 						if (newQuantity >= 0) {
 							detail.setQuantity(newQuantity);
-							productDetailRepository.updateProductDetailQuantity(detail); // 立即更新数据库
+							toUpdateProductDetails.add(new ProductDetail(detail.getProductDetailId(), newQuantity, detail.getDrawnNumbers()));
 
-							return selectedPrizeNumber; // 返回更新后的 selectedPrizeNumber 对象
-						} else {
-							break; // 库存不足，退出 for 循环，继续 while
+							// 使用原始的 selectedPrizeNumber 对象
+							toUpdatePrizeNumbers.add(selectedPrizeNumber);
+							break;
 						}
 					}
 				}
 			}
+
+			// 批量更新数据
+			if (!toUpdatePrizeNumbers.isEmpty()) {
+				// 批量更新 PrizeNumber
+				prizeNumberMapper.updatePrizeNumberBatch(toUpdatePrizeNumbers, selectedPrizeNumber.getProductId());
+
+				// 批量更新 ProductDetail
+				if (!toUpdateProductDetails.isEmpty()) {
+					productDetailRepository.updateProductDetailQuantityAndDrawnNumbersBatch(toUpdateProductDetails);
+				}
+
+				return selectedPrizeNumber;
+			}
 		}
 	}
+
+
+
+
+
 
 
 

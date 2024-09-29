@@ -39,6 +39,28 @@ public interface PrizeNumberMapper {
             @Param("productId") Long productId,
             @Param("numbers") List<String> numbers
     );
-    @Update("UPDATE prize_number SET is_drawn = TRUE , level = #{level} WHERE number = #{number} and product_id = #{productId} and product_detail_id = #{productDetailId}")
+    @Update("UPDATE prize_number SET is_drawn = #{isDrawn} , level = #{level} WHERE number = #{number} and product_id = #{productId} and product_detail_id = #{productDetailId}")
     void updatePrizeNumber(PrizeNumber prizeNumber);
+    @Update({
+            "<script>",
+            "UPDATE prize_number",
+            "SET is_drawn = 1,",  // 直接设置为 true (1)
+            "level = CASE number",
+            "<foreach collection='list' item='prizeNumber' index='index'>",
+            "WHEN #{prizeNumber.number} THEN #{prizeNumber.level} ",
+            "</foreach>",
+            "ELSE level END,",
+            "product_detail_id = CASE number",
+            "<foreach collection='list' item='prizeNumber' index='index'>",
+            "WHEN #{prizeNumber.number} THEN #{prizeNumber.productDetailId} ",
+            "</foreach>",
+            "ELSE product_detail_id END",
+            "WHERE number IN",
+            "<foreach collection='list' item='prizeNumber' index='index' open='(' separator=',' close=')'>",
+            "#{prizeNumber.number}",
+            "</foreach>",
+            "AND product_id = #{productId}",
+            "</script>"
+    })
+    void updatePrizeNumberBatch(@Param("list") List<PrizeNumber> prizeNumbers, @Param("productId") Long productId);
 }

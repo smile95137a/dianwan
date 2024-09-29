@@ -3,7 +3,9 @@ package com.one.frontend.model;
 import com.one.frontend.util.StringListConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,16 +15,18 @@ import java.util.List;
 @Schema(description = "產品詳細模型")
 @Table(name = "product_detail")
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDetail {
 
     @Schema(description = "產品詳細唯一識別碼", example = "1")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer productDetailId;
+    private Long productDetailId;
 
     @Schema(description = "產品 ID", example = "1")
     @Column(name = "product_id")
-    private Integer productId;
+    private Long productId;
 
     @Schema(description = "描述", example = "This is a detailed description.")
     @Column(name = "description", length = 255)
@@ -101,5 +105,9 @@ public class ProductDetail {
     private BigDecimal height;
 
 
-
+    public ProductDetail(Long productDetailId, int newQuantity, String drawnNumbers) {
+        this.productDetailId = productDetailId;
+        this.quantity = newQuantity;
+        this.drawnNumbers = drawnNumbers;
+    }
 }
