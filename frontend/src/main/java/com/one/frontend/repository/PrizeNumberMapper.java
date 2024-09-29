@@ -12,7 +12,8 @@ import java.util.List;
 public interface PrizeNumberMapper {
 
     @Select("select a.product_id ,  a.product_detail_id , a.prize_number_id , a.number , a.is_drawn , a.level from prize_number a join product_detail b on a.product_detail_id = b.product_detail_id\n" +
-            "where a.product_detail_id = #{productDetailId}")
+            "where a.product_detail_id = #{productDetailId} " +
+            "order by  CAST(a.number AS UNSIGNED)")
     List<PrizeNumber> getAllPrizeNumbersByProductDetailId(Long productDetailId);
 
     @Select("SELECT * FROM prize_number WHERE product_id = #{productId} AND is_drawn = FALSE")
