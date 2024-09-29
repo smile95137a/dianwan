@@ -238,7 +238,7 @@ public class DrawResultService {
 			int remainingDrawCount = prizeNumbers.size();
 			UserRes user = userRepository.getUserById(userId);
 			// 处理每个抽中的奖品
-			for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
+			for (PrizeNumber selectedPrizeNumber : drawnPrizeNumbers) {
 				prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(), selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
 
 				// 更新奖品数量
