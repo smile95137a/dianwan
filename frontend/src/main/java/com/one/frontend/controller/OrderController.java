@@ -7,7 +7,6 @@ import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
 import com.one.frontend.service.*;
 import com.one.frontend.util.ResponseUtils;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +76,7 @@ public class OrderController {
 	}
 
 	@PostMapping("/storeProduct/pay")
-	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) throws MessagingException {
+	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) throws Exception {
 		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
 		var userId = userDetails.getId();
 		Long cartId = cartService.getCartIdByUserId(userId);
