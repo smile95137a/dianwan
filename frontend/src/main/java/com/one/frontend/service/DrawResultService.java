@@ -236,9 +236,9 @@ public class DrawResultService {
 				BigDecimal sliver = new BigDecimal(String.valueOf(userRepository.getSliver(userId)));
 				if (sliver.compareTo(totalAmount) >= 0) {
 					BigDecimal newBalance = balance.subtract(totalAmount);
-					userRepository.deductUserBalance(userId, newBalance);
+					userRepository.deductUserSliver(userId, newBalance);
 				} else {
-					throw new Exception("餘額不足，請加值");
+					throw new Exception("銀幣不足");
 				}
 			}
 			LocalDateTime endTimes = null;

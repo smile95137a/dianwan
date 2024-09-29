@@ -56,6 +56,9 @@ public interface UserRepository {
 	@Update("UPDATE user SET balance = #{amount} WHERE id = #{userId}")
 	void deductUserBalance(@Param("userId") Long userId, @Param("amount") BigDecimal amount);
 
+	@Update("UPDATE user SET sliver_coin = #{amount} WHERE id = #{userId}")
+	void deductUserSliver(@Param("userId") Long userId, @Param("amount") BigDecimal amount);
+
 	void insertBatch(List<DrawResult> drawResults);
 
 	@Select("select balance from user where id = #{userId}")
@@ -70,8 +73,8 @@ public interface UserRepository {
 	@Select("select sliver_coin from `user` where id = #{userId}")
 	BigDecimal getSliver(Long userId);
 
-
-	void deductUserBonusPoints(Long userId, BigDecimal newBonusPoints);
+	@Update("UPDATE user SET bonus = #{amount} WHERE id = #{userId}")
+	void deductUserBonusPoints(@Param("userId") Long userId, @Param("amount") BigDecimal amount);
 
 	@Update("update `user` set balance = balance + tradeAmt where id = #{userId}")
 	void updateAccoutnt(String tradeAmt, String userId);
