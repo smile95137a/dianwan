@@ -24,4 +24,5 @@ public class UserReq {
 	private String invoiceInfoEmail;
 
 	private String zipCode;
+	private String vehicle;
 }

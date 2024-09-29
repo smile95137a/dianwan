@@ -7,16 +7,17 @@ import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.OrderDetailRepository;
 import com.one.frontend.repository.OrderRepository;
+import com.one.frontend.repository.StoreProductRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
-import com.one.frontend.response.OrderDetailRes;
-import com.one.frontend.response.OrderRes;
-import com.one.frontend.response.PaymentResponse;
-import com.one.frontend.response.UserRes;
+import com.one.frontend.request.ReceiptReq;
+import com.one.frontend.response.*;
 import com.one.frontend.util.RandomUtils;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,10 @@ public class OrderService {
 	@Autowired
 	private PrizeCartItemService prizeCartItemService;
 
+	@Autowired
+	private InvoiceService invoiceService;
+	@Autowired
+	private StoreProductRepository storeProductRepository;
 	public String ecpayCheckout(Integer userId) {
 
 		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
@@ -77,10 +82,27 @@ public class OrderService {
 
 		params.put("startDate", startDate);
 		params.put("endDate", endDate);
-
-		return orderRepository.findOrdersByDateRange(params).stream().peek(
-				order -> order.setOrderDetails(orderDetailRepository.findOrderDetailsByOrderId(order.getId())))
+		List<OrderRes> list = orderRepository.findOrdersByDateRange(params).stream()
+				.peek(order -> order.setOrderDetails(orderDetailRepository.findOrderDetailsByOrderId(order.getId())))
 				.toList();
+
+		List<OrderRes> orderStatusDescriptions = list.stream()
+				.map(order -> {
+					String statusDescription;
+					if (order.getResultStatus().equals("PREPARING_SHIPMENT")) {
+						statusDescription = "訂單準備中"; // 处理 PREPARING_SHIPMENT
+					} else if (order.getResultStatus().equals("SHIPPED")) {
+						statusDescription = "已發貨"; // 处理 SHIPPED
+					} else {
+						statusDescription = "未知狀態"; // 处理其他状态
+					}
+					// 这里可以将状态描述设置到订单对象中，假设你有一个 setStatusDescription 方法
+					order.setResultStatus(statusDescription);
+					return order; // 返回更新后的订单对象
+				})
+				.collect(Collectors.toList());
+
+		return orderStatusDescriptions;
 	}
 	
 	private LocalDateTime convertToLocalDateTime(Date dateToConvert) {
@@ -88,7 +110,7 @@ public class OrderService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) {
+	public String createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) throws MessagingException {
 
 		// 生成訂單號
 		String orderNumber = genOrderNumber();
@@ -108,18 +130,21 @@ public class OrderService {
 		UserRes userRes = userRepository.getUserById(userId);
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPayMethod())){
+		if("1".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();
-			paymentRequest.setAmount(String.valueOf(totalAmount));
+			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(totalAmount)); // 假设你的 totalAmount 是 BigDecimal
+			int amountToSend = totalAmount.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+			paymentRequest.setAmount(String.valueOf(amountToSend));
 			paymentRequest.setBuyerName(userRes.getNickname());
 			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-			paymentRequest.setBuyerMail(userRes.getEmail());
-			paymentRequest.setBuyerMemo("   ");
+			paymentRequest.setBuyerMail(userRes.getUsername());
+			paymentRequest.setBuyerMemo("再來一抽備註");
 			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpireDate());
+			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
 			paymentRequest.setCvv(payCartRes.getCvv());
+			System.out.println(paymentRequest);
 			paymentResponse = paymentService.creditCard(paymentRequest);
-		}else if("2".equals(payCartRes.getPayMethod())){
+		}else if("2".equals(payCartRes.getPaymentMethod())){
 //			paymentResponse = paymentResponse.webAtm(p)
 		}
 
@@ -170,6 +195,36 @@ public class OrderService {
 		}
 
 
+		//訂單成立開立發票並且傳送至email
+		ReceiptReq invoiceRequest = new ReceiptReq();
+		if(payCartRes.getVehicle() != null){
+			invoiceRequest.setOrderCode(payCartRes.getVehicle());
+		}
+		invoiceRequest.setEmail(userRes.getUsername());
+		if(payCartRes.getState() != null){
+			invoiceRequest.setState(1);
+			invoiceRequest.setDonationCode(payCartRes.getDonationCode());
+		}else{
+			invoiceRequest.setState(0);
+		}
+		invoiceRequest.setTotalFee(String.valueOf(totalAmount));
+		List<ReceiptReq.Item> items = new ArrayList<>();
+		for(CartItem cartItem : cartItemList){
+			ReceiptReq.Item item = new ReceiptReq.Item();
+			StoreProduct byId = storeProductRepository.findById(cartItem.getStoreProductId());
+			item.setName(byId.getProductName());
+			item.setNumber(cartItem.getQuantity());
+			item.setMoney(cartItem.getUnitPrice().intValue());
+			items.add(item);
+		}
+		invoiceRequest.setItems(items);
+
+
+
+		ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
+		System.out.println(res.getBody());
+		ReceiptRes receiptRes = res.getBody();
+		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
 
 
 		return orderNumber; // 返回訂單號
@@ -189,18 +244,19 @@ public class OrderService {
 
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPayMethod())){
+		if("1".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();
 			paymentRequest.setAmount(String.valueOf(shippingCost));
 			paymentRequest.setBuyerName(userRes.getNickname());
 			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-			paymentRequest.setBuyerMail(userRes.getEmail());
-			paymentRequest.setBuyerMemo("   ");
+			paymentRequest.setBuyerMail(userRes.getUsername());
+			paymentRequest.setBuyerMemo("再來一抽備註");
 			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpireDate());
+			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
 			paymentRequest.setCvv(payCartRes.getCvv());
+			System.out.println(paymentRequest);
 			paymentResponse = paymentService.creditCard(paymentRequest);
-		}else if("2".equals(payCartRes.getPayMethod())){
+		}else if("2".equals(payCartRes.getPaymentMethod())){
 //			paymentResponse = paymentResponse.webAtm(p)
 		}
 

@@ -82,6 +82,7 @@ public class UserService {
 					.drawCount(0L)
 					.provider("local")
 					.invoiceInfoEmail(userDto.getEmail())
+					.vehicle(userDto.getVehicle())
 					.build();
 			userRepository.createUser(user);
 
@@ -124,7 +125,7 @@ public class UserService {
 	public boolean updateUser(UserReq req, Long userId) throws Exception {
 		try {
 			User user = userRepository.getById(userId);
-
+			user.setVehicle(req.getVehicle());
 			user.setNickname(req.getNickname());
 			user.setAddressName(req.getAddressName());
 			user.setCity(req.getCity());

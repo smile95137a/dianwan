@@ -72,6 +72,8 @@ public class PaymentService {
                     .append("&Str_Check=").append(req.getStrCheck());
 
             post.setEntity(new StringEntity(requestBody.toString()));
+
+            System.out.println(requestBody);
             // 发送请求并接收响应
             HttpResponse response = httpClient.execute(post);
             System.out.println("Response Code: " + response.getStatusLine().getStatusCode());

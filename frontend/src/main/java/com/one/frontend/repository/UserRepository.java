@@ -29,13 +29,13 @@ public interface UserRepository {
 	@Select("SELECT * FROM user")
 	List<User> getAllUser();
 
-	@Insert("INSERT INTO `user` (username, password, email, nickname, phone_number, address, city, area, address_name, line_id, created_at, balance, bonus, sliver_coin, provider, role_id, user_uid, status, draw_count, invoice_info, invoice_info_email,zip_code) "
-			+ "VALUES (#{username}, #{password}, #{email}, #{nickname}, #{phoneNumber}, #{address}, #{city}, #{area}, #{addressName}, #{lineId}, #{createdAt}, #{balance}, #{bonus}, #{sliverCoin}, #{provider}, #{roleId}, #{userUid}, #{status}, #{drawCount}, #{invoiceInfo}, #{invoiceInfoEmail},#{zipCode})")
+	@Insert("INSERT INTO `user` (username, password, email, nickname, phone_number, address, city, area, address_name, line_id, created_at, balance, bonus, sliver_coin, provider, role_id, user_uid, status, draw_count, invoice_info, invoice_info_email,zip_code,vehicle) "
+			+ "VALUES (#{username}, #{password}, #{email}, #{nickname}, #{phoneNumber}, #{address}, #{city}, #{area}, #{addressName}, #{lineId}, #{createdAt}, #{balance}, #{bonus}, #{sliverCoin}, #{provider}, #{roleId}, #{userUid}, #{status}, #{drawCount}, #{invoiceInfo}, #{invoiceInfoEmail},#{zipCode} , #{vehicle})")
 	void createUser(User user);
 
 	@Update("UPDATE `user` SET password = #{password}, nickname = #{nickname}, "
 			+ "email = #{email}, phone_number = #{phoneNumber}, address = #{address}, city = #{city}, area = #{area}, address_name = #{addressName}, line_id = #{lineId}, updated_at = #{updatedAt}, status = #{status}, balance = #{balance}, bonus = #{bonus}, sliver_coin = #{sliverCoin}, draw_count = #{drawCount}, "
-			+ "invoice_info = #{invoiceInfo}, invoice_info_email = #{invoiceInfoEmail} " + "WHERE id = #{id}")
+			+ "invoice_info = #{invoiceInfo}, invoice_info_email = #{invoiceInfoEmail} , vehicle = #{vehicle} " + "WHERE id = #{id}")
 	void update(User user);
 
 	@Delete("DELETE FROM user WHERE id = #{userId}")

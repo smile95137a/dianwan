@@ -218,7 +218,7 @@ public class DrawResultService {
 					BigDecimal newBonusPoints = bonusPoints.subtract(totalAmount);
 					userRepository.deductUserBonusPoints(userId, newBonusPoints);
 				} else {
-					throw new Exception("红利不足，請加值");
+					throw new Exception("红利不足");
 				}
 			} else if("1".equals(payMethod)){ //1是金幣抽獎
 				BigDecimal amount = product.getPrice();

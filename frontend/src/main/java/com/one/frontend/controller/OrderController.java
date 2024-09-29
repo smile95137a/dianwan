@@ -7,6 +7,7 @@ import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
 import com.one.frontend.service.*;
 import com.one.frontend.util.ResponseUtils;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,7 @@ public class OrderController {
 	}
 
 	@PostMapping("/storeProduct/pay")
-	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) {
+	public ResponseEntity<?> payCartItem(@RequestBody PayCartRes payCartRes) throws MessagingException {
 		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
 		var userId = userDetails.getId();
 		Long cartId = cartService.getCartIdByUserId(userId);
@@ -94,19 +95,24 @@ public class OrderController {
 
 	@PostMapping("/product/pay")
 	public ResponseEntity<?> payPrizeCartItem(@RequestBody PayCartRes payCartRes) {
-		CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-		var userId = userDetails.getId();
-		Long cartId = prizeCartService.getCartIdByUserId(userId);
+		try{
+			CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+			var userId = userDetails.getId();
+			Long cartId = prizeCartService.getCartIdByUserId(userId);
 
-		if (cartId == null) {
-			var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
-			return ResponseEntity.ok(response);
+			if (cartId == null) {
+				var response = ResponseUtils.failure(999, "無法找到購物車，請稍後重試", false);
+				return ResponseEntity.ok(response);
+			}
+
+			var prizeCartItemList = prizeCartItemService.findByCartIdAndCartItemList(cartId, payCartRes.getPrizeCartItemIds());
+			var orderNumber = orderService.createPrizeOrder(payCartRes, prizeCartItemList, userId);
+
+			return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
+		}catch (Exception e){
+			e.printStackTrace();
 		}
-
-		var prizeCartItemList = prizeCartItemService.findByCartIdAndCartItemList(cartId, payCartRes.getPrizeCartItemIds());
-		var orderNumber = orderService.createPrizeOrder(payCartRes, prizeCartItemList, userId);
-
-		return ResponseEntity.ok(ResponseUtils.success(200, "支付成功，订单已创建", orderNumber));
+		return ResponseEntity.ok(ResponseUtils.success(500, "失敗", null));
 	}
 
 	@GetMapping("/storeProduct/{orderNumber}")

@@ -1,5 +1,7 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.config.security.CustomUserDetails;
+import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.request.ReceiptReq;
 import com.one.frontend.response.ReceiptRes;
 import com.one.frontend.service.InvoiceService;
@@ -20,13 +22,13 @@ public class InvoiceController {
 
     @PostMapping("/add")
     public void addInvoice(@RequestBody ReceiptReq invoiceRequest) throws MessagingException {
-//        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-//        Long userId = userDetails.getId();
+        CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+        Long userId = userDetails.getId();
         try {
             ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
             System.out.println(res.getBody());
             ReceiptRes receiptRes = res.getBody();
-            invoiceService.getInvoicePicture(receiptRes.getCode() , 8L);
+            invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
         }catch (Exception e){
             e.printStackTrace();
         }

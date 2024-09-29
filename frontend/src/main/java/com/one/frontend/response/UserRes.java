@@ -63,4 +63,5 @@ public class UserRes {
 	private String invoiceInfo;
 	private String invoiceInfoEmail;
 	private String zipCode;
+	private String vehicle;
 }
