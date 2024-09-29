@@ -14,7 +14,6 @@ import com.one.frontend.request.PayCartRes;
 import com.one.frontend.request.ReceiptReq;
 import com.one.frontend.response.*;
 import com.one.frontend.util.RandomUtils;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -110,7 +109,7 @@ public class OrderService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) throws MessagingException {
+	public String createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) throws Exception {
 
 		// 生成訂單號
 		String orderNumber = genOrderNumber();
@@ -192,6 +191,8 @@ public class OrderService {
 
 			// 移除購物車項
 			cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+		}else{
+			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
 
 
@@ -207,7 +208,8 @@ public class OrderService {
 		}else{
 			invoiceRequest.setState(0);
 		}
-		invoiceRequest.setTotalFee(String.valueOf(totalAmount));
+		int amountToSend = totalAmount.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+		invoiceRequest.setTotalFee(String.valueOf(amountToSend));
 		List<ReceiptReq.Item> items = new ArrayList<>();
 		for(CartItem cartItem : cartItemList){
 			ReceiptReq.Item item = new ReceiptReq.Item();
@@ -218,8 +220,8 @@ public class OrderService {
 			items.add(item);
 		}
 		invoiceRequest.setItems(items);
-
-
+		System.out.println("有到這");
+		System.out.println(invoiceRequest);
 
 		ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
 		System.out.println(res.getBody());
