@@ -12,5 +12,5 @@ public class DrawDto {
    private Long productId;
    private  List<String> prizeNumbers;
 
-   private String payMethod;
+   private String exchangeType;
 }
