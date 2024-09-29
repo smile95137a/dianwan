@@ -143,30 +143,41 @@ public class DrawResultService {
 			allPrizeNumbers.addAll(prizeNumbers);
 		}
 
-		// 3. 获取当前时间
+		// 3. 对 allPrizeNumbers 按照 number 排序
+		allPrizeNumbers.sort(Comparator.comparing(PrizeNumber::getNumber)); // 假设 PrizeNumber 有 getNumber() 方法
+
+		// 4. 获取当前时间
 		LocalDateTime now = LocalDateTime.now();
 
-		// 4. 获取当前产品的抽奖保护状态
+		// 5. 获取当前产品的抽奖保护状态
 		DrawProtection protection = productDrawProtectionMap.get(productId);
 		LocalDateTime endTimes = null; // 初始化 endTimes 为 null
 
-		// 5. 如果有保护状态且与当前用户无关，计算保护时间
+		// 6. 如果有保护状态且与当前用户无关，计算保护时间
 		if (protection != null) {
 			long secondsSinceLastDraw = Duration.between(protection.lastDrawTime, now).getSeconds();
-			// 获取已抽奖次数
 			int drawCount = (int) allPrizeNumbers.stream().filter(PrizeNumber::getIsDrawn).count();
 			long protectionTime = getDrawProtectionTime(drawCount);
 
 			// 判断是否在保护期内
 			if (secondsSinceLastDraw < protectionTime) {
-				// 设置保护期的结束时间
 				endTimes = protection.lastDrawTime.plusSeconds(protectionTime);
 			}
 		}
 
-		// 6. 返回结果，包括奖品列表和保护结束时间
+		allPrizeNumbers.sort(Comparator.comparing(prize -> {
+			try {
+				return Long.parseLong(prize.getNumber()); // 假设 number 是可以转换为 Long 类型的字符串
+			} catch (NumberFormatException e) {
+				// 如果 number 无法转换为 Long，则返回一个非常大的值，避免影响排序
+				return Long.MAX_VALUE;
+			}
+		}));
+
+		// 7. 返回结果，包括排序后的奖品列表和保护结束时间
 		return new DrawResponse(allPrizeNumbers, endTimes);
 	}
+
 
 
 	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers , String payMethod) throws Exception {
