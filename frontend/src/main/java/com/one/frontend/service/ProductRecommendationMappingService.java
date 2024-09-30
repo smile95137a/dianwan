@@ -5,6 +5,7 @@ import com.one.frontend.response.RecommendRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +19,12 @@ public class ProductRecommendationMappingService {
     }
 
     public List<RecommendRes> getMappingById(Long id) {
-        return mapper.getMappingById(id);
+        List<RecommendRes> res = new ArrayList<>();
+        if(id == 1 || id == 2 || id == 3){
+            res = mapper.getMappingById(id);
+        }else{
+            res = mapper.getMappingById2(id);
+        }
+        return res;
     }
 }

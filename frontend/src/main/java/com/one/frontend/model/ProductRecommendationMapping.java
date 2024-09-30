@@ -26,6 +26,9 @@ public class ProductRecommendationMapping {
     @Column(name = "store_product_recommendation_id")
     private Long storeProductRecommendationId;
 
+    @Column(name = "product_detail_id")
+    private String productDetailId;
+
     @Schema(description = "創建時間", example = "2024-08-22T15:30:00")
     @Column(name = "created_date")
     private LocalDateTime createdDate;

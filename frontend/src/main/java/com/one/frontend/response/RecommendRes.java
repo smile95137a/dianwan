@@ -9,8 +9,12 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class RecommendRes {
-
+    private Long id;
     private List<String> imageUrls;
-
+    private String recommendation_name;
     private String productName;
+    private Long storeProductId;
+    private Long productId;
+    private String price;
+    private String sliverPrice;
 }

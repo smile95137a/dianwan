@@ -27,7 +27,7 @@ public interface PrizeCartItemRepository {
             "<script>",
             "DELETE FROM prize_cart_item",
             "WHERE cart_id = #{cartId}",
-            "AND cart_item_id IN",
+            "AND prize_cart_item_id IN",
             "<foreach item='item' collection='prizeCartItemIds' open='(' separator=',' close=')'>",
             "#{item}",
             "</foreach>",

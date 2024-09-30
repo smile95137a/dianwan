@@ -233,7 +233,7 @@ public class OrderService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String createPrizeOrder(PayCartRes payCartRes, List<PrizeCartItem> prizeCartItemList, Long userId) {
+	public String createPrizeOrder(PayCartRes payCartRes, List<PrizeCartItem> prizeCartItemList, Long userId) throws Exception {
 
 		// 生成訂單號
 		String orderNumber = genOrderNumber();
@@ -244,27 +244,28 @@ public class OrderService {
 		//取得用戶資訊
 		UserRes userRes = userRepository.getUserById(userId);
 
+//		PaymentResponse paymentResponse = new PaymentResponse();
+//		if("1".equals(payCartRes.getPaymentMethod())){
+//			PaymentRequest paymentRequest = new PaymentRequest();
+//			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
+//			int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+//			paymentRequest.setAmount(String.valueOf(amountToSend));
+//			paymentRequest.setBuyerName(userRes.getNickname());
+//			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
+//			paymentRequest.setBuyerMail(userRes.getUsername());
+//			paymentRequest.setBuyerMemo("再來一抽備註");
+//			paymentRequest.setCardNo(payCartRes.getCardNo());
+//			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
+//			paymentRequest.setCvv(payCartRes.getCvv());
+//			System.out.println(paymentRequest);
+//			paymentResponse = paymentService.creditCard(paymentRequest);
+//		}else if("2".equals(payCartRes.getPaymentMethod())){
+////			paymentResponse = paymentResponse.webAtm(p)
+//		}
 
-		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPaymentMethod())){
-			PaymentRequest paymentRequest = new PaymentRequest();
-			paymentRequest.setAmount(String.valueOf(shippingCost));
-			paymentRequest.setBuyerName(userRes.getNickname());
-			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-			paymentRequest.setBuyerMail(userRes.getUsername());
-			paymentRequest.setBuyerMemo("再來一抽備註");
-			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
-			paymentRequest.setCvv(payCartRes.getCvv());
-			System.out.println(paymentRequest);
-			paymentResponse = paymentService.creditCard(paymentRequest);
-		}else if("2".equals(payCartRes.getPaymentMethod())){
-//			paymentResponse = paymentResponse.webAtm(p)
-		}
 
-
-
-		if("1".equals(paymentResponse.getResult())){
+		//paymentResponse result = 1 等於成功
+//		if("1".equals(paymentResponse.getResult())){
 			// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
 			Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(shippingCost) // 總金額 =
 					// 商品價格
@@ -298,21 +299,86 @@ public class OrderService {
 			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
 			// 轉換購物車項目到訂單詳情並保存
-			prizeCartItemList.stream().map(prizeCartItem -> mapPrizeCartItemToOrderDetail(prizeCartItem, orderId , shippingCost)) // 映射購物車項目為訂單詳情
-					.forEach(orderDetailRepository::savePrizeOrderDetail); // 保存訂單詳情
+			prizeCartItemList.stream().map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId , shippingCost)) // 映射購物車項目為訂單詳情
+					.forEach(orderDetail -> {
+						System.out.println(orderDetail);
+						orderDetailRepository.savePrizeOrderDetail(orderDetail);
+					}); // 保存訂單詳情
 
 			// 獲取所有購物車項的ID並移除
-			List<Long> prizeCartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+			List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
 
 			// 移除購物車項
-			prizeCartItemService.removeCartItems(prizeCartItemIds, prizeCartItemList.get(0).getCartId());
-		}
+			cartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+//		}else{
+//			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
+//		}
+
+
+		//訂單成立開立發票並且傳送至email
+//		ReceiptReq invoiceRequest = new ReceiptReq();
+//		if(payCartRes.getVehicle() != null){
+//			invoiceRequest.setOrderCode(payCartRes.getVehicle());
+//		}
+//		invoiceRequest.setEmail(userRes.getUsername());
+//		if(payCartRes.getState() != null){
+//			invoiceRequest.setState(1);
+//			invoiceRequest.setDonationCode(payCartRes.getDonationCode());
+//		}else{
+//			invoiceRequest.setState(0);
+//		}
+//		int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+//		invoiceRequest.setTotalFee(String.valueOf(amountToSend));
+//		List<ReceiptReq.Item> items = new ArrayList<>();
+//		for(PrizeCartItem cartItem : prizeCartItemList){
+//			ReceiptReq.Item item = new ReceiptReq.Item();
+//			StoreProduct byId = storeProductRepository.findById(cartItem.getProductDetailId());
+//			item.setName(byId.getProductName());
+//			item.setNumber(cartItem.getQuantity());
+//			item.setMoney(cartItem.getUnitPrice().intValue());
+//			items.add(item);
+//		}
+//		invoiceRequest.setItems(items);
+//		System.out.println("有到這");
+//		System.out.println(invoiceRequest);
+//
+//		ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
+//		System.out.println(res.getBody());
+//		ReceiptRes receiptRes = res.getBody();
+//		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
+
 
 		return orderNumber; // 返回訂單號
 	}
 
+	private Order createOrderEntity(PayCartRes payCartRes, Long userId, String orderNumber, BigDecimal shippingCost) {
+		return Order.builder()
+				.userId(userId)
+				.orderNumber(orderNumber)
+				.totalAmount(shippingCost)
+				.paymentMethod(payCartRes.getPaymentMethod())
+				.shippingCost(shippingCost)
+				.shippingMethod(payCartRes.getShippingMethod())
+				.shippingName(payCartRes.getShippingName())
+				// ... 其他字段 ...
+				.createdAt(LocalDateTime.now())
+				.resultStatus(OrderStatus.PREPARING_SHIPMENT)
+				.paidAt(LocalDateTime.now())
+				.build();
+	}
+
+
+
+	private void removeCartItems(List<PrizeCartItem> prizeCartItemList) {
+		List<Long> prizeCartItemIds = prizeCartItemList.stream()
+				.map(PrizeCartItem::getPrizeCartItemId)
+				.collect(Collectors.toList());
+
+		prizeCartItemService.removeCartItems(prizeCartItemIds, prizeCartItemList.get(0).getCartId());
+	}
+
 	// 根據不同的運送方式計算運費
-	private BigDecimal calculateShippingCost(String shippingMethodValue) {
+	private BigDecimal 	calculateShippingCost(String shippingMethodValue) {
 		switch (shippingMethodValue) {
 		case "homeDelivery":
 			return new BigDecimal("160"); // 宅配運費
@@ -344,11 +410,10 @@ public class OrderService {
 				.build();
 	}
 
-	public OrderDetail mapPrizeCartItemToOrderDetail(PrizeCartItem prizeCartItem, Long orderId , BigDecimal shippingCost) {
+	public OrderDetail mapCartItemToPrizeOrderDetail(PrizeCartItem cartItem, Long orderId , BigDecimal shippingCost) {
 
-
-		return OrderDetail.builder().orderId(orderId).productDetailId(prizeCartItem.getProductDetailId())
-				.quantity(prizeCartItem.getQuantity()).totalPrice(shippingCost)
+		return OrderDetail.builder().orderId(orderId).productDetailId(cartItem.getProductDetailId())
+				.quantity(cartItem.getQuantity()).unitPrice(cartItem.getSliverPrice()).totalPrice(shippingCost) // 新增
 				.build();
 	}
 

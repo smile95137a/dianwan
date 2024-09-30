@@ -37,4 +37,6 @@ public class StoreProductRecommendation {
     @Schema(description = "更新用戶 ID", example = "1")
     @Column(name = "update_user")
     private String updateUser;
+
+
 }

@@ -87,6 +87,14 @@ public interface OrderDetailRepository {
     List<OrderDetailRes> findPrizeOrderDetailsByOrderId(Long orderId);
 
 
-
+    @Insert({
+            "<script>",
+            "INSERT INTO order_detail (order_id, product_detail_id, quantity, total_price) VALUES ",
+            "<foreach collection='orderDetails' item='orderDetail' separator=','>",
+            "(#{orderDetail.orderId}, #{orderDetail.productDetailId}, #{orderDetail.quantity}, #{orderDetail.totalPrice})",
+            "</foreach>",
+            "</script>"
+    })
+    void savePrizeOrderDetailBatch(@Param("orderDetails") List<OrderDetail> orderDetails);
 }
 
