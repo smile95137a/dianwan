@@ -2,6 +2,8 @@ package com.one.frontend.service;
 
 import com.google.gson.Gson;
 import com.one.frontend.model.PaymentRequest;
+import com.one.frontend.repository.UserRepository;
+import com.one.frontend.repository.UserTransactionRepository;
 import com.one.frontend.response.PaymentResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -9,11 +11,21 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Service
 public class PaymentService {
 
+    @Autowired
+    private UserTransactionRepository userTransactionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String CUSTOMERID = "B82FD0DF7DE03FC702DEC35A2446E469";
     private final String STRCHECK = "d0q2mo1729enisehzolmhdwhkac38itb";
@@ -160,4 +172,62 @@ return null;
         return null;
     }
 
+    public PaymentResponse topOp(PaymentRequest paymentRequest, String payMethod , Long userId) {
+        PaymentResponse response = null;
+        if("1".equals(payMethod)){
+            response = this.creditCard(paymentRequest);
+        }else if("2".equals(payMethod)){
+            response = this.webATM(paymentRequest);
+        }
+        int amount = Integer.parseInt(response.getAmount());
+        if("1".equals(response.getResult())){
+           //1為成功 幫我記錄到消費紀錄的table
+        }
+
+
+        return response;
+    }
+
+    /**
+     * 计算奖励金额
+     */
+    public int calculateReward(BigDecimal totalAmount) {
+        if (totalAmount.compareTo(BigDecimal.valueOf(100000)) >= 0) {
+            return 10000;
+        } else if (totalAmount.compareTo(BigDecimal.valueOf(50000)) >= 0) {
+            return 4000;
+        } else if (totalAmount.compareTo(BigDecimal.valueOf(30000)) >= 0) {
+            return 2000;
+        } else if (totalAmount.compareTo(BigDecimal.valueOf(10000)) >= 0) {
+            return 500;
+        } else if (totalAmount.compareTo(BigDecimal.valueOf(5000)) >= 0) {
+            return 200;
+        } else if (totalAmount.compareTo(BigDecimal.valueOf(1000)) >= 0) {
+            return 30;
+        }
+        return 0; // 没有达标
+    }
+
+    /**
+     * 获取用户当月的累积消费金额
+     */
+    public BigDecimal getTotalConsumeAmountForCurrentMonth(Long userId) {
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        return userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
+    }
+
+    /**
+     * 记录储值交易
+     */
+    public void recordDeposit(Long userId, BigDecimal amount) {
+        userTransactionRepository.insertTransaction(userId, "DEPOSIT", amount);
+    }
+
+    /**
+     * 记录消费交易
+     */
+    public void recordConsume(Long userId, BigDecimal amount) {
+        userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
+    }
 }
