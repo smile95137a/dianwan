@@ -133,6 +133,9 @@ public class UserService {
 			user.setAddress(req.getAddress());
 			user.setLineId(req.getLineId());
 			user.setPhoneNumber(req.getPhoneNumber());
+			user.setVehicle(req.getVehicle());
+			user.setInvoiceInfo(req.getInvoiceInfo());
+			user.setInvoiceInfoEmail(req.getEmail());
 			user.setUpdatedAt(LocalDateTime.now());
 
 			userRepository.update(user);
