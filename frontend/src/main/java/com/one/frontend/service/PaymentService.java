@@ -179,11 +179,6 @@ return null;
         }else if("2".equals(payMethod)){
             response = this.webATM(paymentRequest);
         }
-        int amount = Integer.parseInt(response.getAmount());
-        if("1".equals(response.getResult())){
-           //1為成功 幫我記錄到消費紀錄的table
-        }
-
 
         return response;
     }

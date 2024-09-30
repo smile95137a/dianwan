@@ -44,6 +44,7 @@ public class PayCartRes {
     private String vehicle; //載具
     private String state; //發票捐贈
     private String donationCode; //捐贈馬
+    private String cardHolderName;
 }
 
 

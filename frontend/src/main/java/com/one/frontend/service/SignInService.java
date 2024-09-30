@@ -1,18 +1,19 @@
 package com.one.frontend.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.one.frontend.model.DailySignInRecord;
 import com.one.frontend.model.SignIn;
 import com.one.frontend.repository.DailySignInRepository;
 import com.one.frontend.repository.SignInMapper;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.repository.UserTransactionRepository;
 import com.one.frontend.response.SignInRes;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,8 @@ public class SignInService {
 
     private final SignInMapper signInMapper;
     private final DailySignInRepository dailySignInRepository;
-
+    @Autowired
+    private UserTransactionRepository userTransactionRepository;
     private final UserRepository userRepository;
 
     public List<SignIn> getAllSignIns() {
@@ -28,17 +30,32 @@ public class SignInService {
     }
 
     public SignInRes spinWheel(Long userId) throws Exception {
+        // 获取当月的开始和结束日期
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+
+        // 查询用户当月的储值总金额
+        BigDecimal totalDepositAmount = userTransactionRepository.getTotalAmountForUserAndMonth(
+                userId, "DEPOSIT", startOfMonth, endOfMonth);
+
+        // 检查是否达到 500 元
+        if (totalDepositAmount.compareTo(BigDecimal.valueOf(500)) < 0) {
+            throw new Exception("當月儲值金額未滿 500 元，無法簽到");
+        }
+
+        // 如果儲值滿 500，則繼續處理簽到邏輯
         List<SignInRes> signIns = signInMapper.findAllByRes();
-        double randomValue = Math.random(); // 0.0 到 1.0 之间的隨機數
+        double randomValue = Math.random(); // 0.0 到 1.0 之間的隨機數
 
         double cumulativeProbability = 0.0;
         for (SignInRes signIn : signIns) {
             cumulativeProbability += signIn.getProbability();
             if (randomValue <= cumulativeProbability) {
-
+                // 檢查當天是否已簽到
                 DailySignInRecord todayRecord = dailySignInRepository.getRecordByUserIdAndDate(userId, LocalDate.now());
-                
+
                 if (todayRecord == null) {
+                    // 插入新的簽到記錄
                     DailySignInRecord newRecord = DailySignInRecord.builder()
                             .userId(userId)
                             .signInDate(LocalDate.now())
@@ -57,4 +74,5 @@ public class SignInService {
 
         return null;
     }
+
 }

@@ -134,7 +134,7 @@ public class OrderService {
 			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(totalAmount)); // 假设你的 totalAmount 是 BigDecimal
 			int amountToSend = totalAmount.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
 			paymentRequest.setAmount(String.valueOf(amountToSend));
-			paymentRequest.setBuyerName(userRes.getNickname());
+			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
 			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
 			paymentRequest.setBuyerMail(userRes.getUsername());
 			paymentRequest.setBuyerMemo("再來一抽備註");
@@ -250,7 +250,7 @@ public class OrderService {
 //			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
 //			int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
 //			paymentRequest.setAmount(String.valueOf(amountToSend));
-//			paymentRequest.setBuyerName(userRes.getNickname());
+//			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
 //			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
 //			paymentRequest.setBuyerMail(userRes.getUsername());
 //			paymentRequest.setBuyerMemo("再來一抽備註");
