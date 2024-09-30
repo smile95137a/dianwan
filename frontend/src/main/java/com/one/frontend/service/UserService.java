@@ -137,7 +137,7 @@ public class UserService {
 			user.setInvoiceInfo(req.getInvoiceInfo());
 			user.setInvoiceInfoEmail(req.getEmail());
 			user.setUpdatedAt(LocalDateTime.now());
-
+			System.out.println(user);
 			userRepository.update(user);
 			return true;
 		} catch (Exception e) {
@@ -149,6 +149,7 @@ public class UserService {
 	public boolean updateUserInvoice(UserReq req, Long userId) throws Exception {
 		try {
 			User user = userRepository.getById(userId);
+			user.setVehicle(req.getVehicle());
 			user.setInvoiceInfo(req.getInvoiceInfo());
 			user.setInvoiceInfoEmail(req.getInvoiceInfoEmail());
 			user.setUpdatedAt(LocalDateTime.now());
