@@ -34,10 +34,10 @@ public class PaymentController {
 
 
     @PostMapping("/topOp") //儲值
-    public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest , String payMethod) {
+    public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
-        PaymentResponse response = paymentService.topOp(paymentRequest , payMethod , userId);
+        PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPayMethod() , userId);
         int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
         if ("1".equals(result)) {
