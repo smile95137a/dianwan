@@ -98,4 +98,5 @@ public class Product{
     @Column(name= "specification")
     private String specification;
 
+
 }
