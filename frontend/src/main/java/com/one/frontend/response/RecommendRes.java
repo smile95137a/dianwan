@@ -17,4 +17,5 @@ public class RecommendRes {
     private Long productId;
     private String price;
     private String sliverPrice;
+    private String productCode;
 }
