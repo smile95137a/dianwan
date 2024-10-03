@@ -96,7 +96,7 @@ public class PaymentService {
 
             Gson gson = new Gson();
             PaymentResponse paymentResponse = gson.fromJson(jsonResponse, PaymentResponse.class);
-
+            System.out.println(paymentResponse);
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();
@@ -172,12 +172,17 @@ return null;
         return null;
     }
 
-    public PaymentResponse topOp(PaymentRequest paymentRequest, String payMethod , Long userId) {
+    public PaymentResponse topOp(PaymentRequest paymentRequest, String payMethod , Long userId) throws Exception {
         PaymentResponse response = null;
         if("1".equals(payMethod)){
             response = this.creditCard(paymentRequest);
         }else if("2".equals(payMethod)){
             response = this.webATM(paymentRequest);
+        }
+        if("1".equals(response.getResult())){
+            userRepository.updateBalance(userId , Integer.parseInt(response.getAmount()));
+        }else{
+            throw new Exception("儲值失敗，原因 :" + response.getRetMsg());
         }
 
         return response;

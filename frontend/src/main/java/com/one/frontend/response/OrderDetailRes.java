@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,12 +17,14 @@ public class OrderDetailRes {
 
 	private Long orderDetailId;
 	private Long productId;
-	private String productDetailName;
+	private String productName;
 	private Integer quantity;
+	private String productDetailName; // 對應 "product_detail_name"，需要新增
 	private BigDecimal unitPrice;
 	private Integer totalPrice;
 	private StoreProductRes storeProduct;
 	private ProductDetailRes productDetailRes;
+	private List<String> imageUrls;
 
 
 }

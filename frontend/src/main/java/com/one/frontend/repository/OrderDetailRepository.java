@@ -44,27 +44,47 @@ public interface OrderDetailRepository {
             "VALUES (#{orderDetail.orderId}, #{orderDetail.productDetailId}, #{orderDetail.quantity}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned})")
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void savePrizeOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
-    
-    
-    @Select("SELECT od.*, sp.store_product_id, sp.product_name, sp.description, sp.price, sp.stock_quantity, sp.image_urls " +
-            "FROM order_detail od " +
-            "LEFT JOIN store_product sp ON od.store_product_id = sp.store_product_id " +
-            "WHERE od.order_id = #{orderId}")
+
+
+    @Select({
+            "<script>",
+            "SELECT",
+            "    od.*,",
+            "    COALESCE(sp.product_name, pd.product_name) AS productName,",
+            "    COALESCE(sp.image_urls, pd.image_urls) AS imageUrls,",
+            "    sp.store_product_id, sp.description, sp.price, sp.stock_quantity,",
+            "    pd.product_detail_id",
+            "FROM order_detail od",
+            "LEFT JOIN store_product sp ON od.store_product_id = sp.store_product_id",
+            "LEFT JOIN product_detail pd ON od.product_detail_id = pd.product_detail_id",
+            "WHERE od.order_id = #{orderId}",
+            "</script>"
+    })
     @Results({
-        @Result(property = "orderDetailId", column = "id"),
-        @Result(property = "productId", column = "product_id"),
-        @Result(property = "productDetailName", column = "product_detail_name"),
-        @Result(property = "quantity", column = "quantity"),
-        @Result(property = "unitPrice", column = "unit_price"),
-        @Result(property = "totalPrice", column = "total_price"),
-        @Result(property = "storeProduct.storeProductId", column = "store_product_id"),
-        @Result(property = "storeProduct.productName", column = "product_name"),
-        @Result(property = "storeProduct.description", column = "description"),
-        @Result(property = "storeProduct.price", column = "price"),
-        @Result(property = "storeProduct.stockQuantity", column = "stock_quantity"),
-        @Result(property = "storeProduct.imageUrls", column = "image_urls"),
+            @Result(property = "orderDetailId", column = "id"),
+            @Result(property = "productId", column = "product_id"),
+            @Result(property = "productName", column = "productName"),
+            @Result(property = "imageUrls", column = "imageUrls"),
+            @Result(property = "quantity", column = "quantity"),
+            @Result(property = "unitPrice", column = "unit_price"),
+            @Result(property = "totalPrice", column = "total_price"),
+
+            // Store product mapping
+            @Result(property = "storeProduct.storeProductId", column = "store_product_id"),
+            @Result(property = "storeProduct.productName", column = "productName"),
+            @Result(property = "storeProduct.description", column = "description"),
+            @Result(property = "storeProduct.price", column = "price"),
+            @Result(property = "storeProduct.stockQuantity", column = "stock_quantity"),
+            @Result(property = "storeProduct.imageUrls", column = "imageUrls"),
+
+            // Product detail mapping
+            @Result(property = "productDetailRes.productDetailId", column = "product_detail_id"),
+            @Result(property = "productDetailRes.productName", column = "productName"),
+            @Result(property = "productDetailRes.imageUrls", column = "imageUrls")
     })
     List<OrderDetailRes> findOrderDetailsByOrderId(Long orderId);
+
+
 
 
     @Select("SELECT od.* , sp.product_detail_id , sp.product_name , sp.description , sp.sliver_price , sp.image_urls" +

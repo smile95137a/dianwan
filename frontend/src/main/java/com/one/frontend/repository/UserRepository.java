@@ -86,8 +86,8 @@ public interface UserRepository {
 			+ "VALUES (#{username}, #{password}, #{email}, #{phoneNumber}, #{address}, #{createdAt}, #{balance}, #{bonus}, #{googleId})")
 	void createGoogleUser(User user);
 
-	@Update("update `user` set bonus = bonus + 1 , draw_count = 0 where id = #{userId}")
-	void updateBonus(Long userId);
+	@Update("update `user` set bonus = bonus + #{bonus} where id = #{userId}")
+	void updateBonus(@Param("userId") Long userId, @Param("bonus") BigDecimal bonus);
 
 	@Update("update `user` set  draw_count = draw_count + 1 where id = #{userId} ")
 	void addDrawCount(Long userId);
@@ -99,4 +99,6 @@ public interface UserRepository {
 	void updateSliverCoin(@Param("userId") Long userId, @Param("sliverCoin") BigDecimal sliverCoin);
 	@Update("update `user` set role_id = #{roleId} where id = #{id}")
 	void updateUserRoleId(User user);
+	@Update("update `user` set balance = balance + #{balance} where id = #{userId}")
+	void updateBalance(@Param("userId") Long userId, @Param("balance") int balance);
 }

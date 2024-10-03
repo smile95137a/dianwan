@@ -34,10 +34,10 @@ public class PaymentController {
 
 
     @PostMapping("/topOp") //儲值
-    public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) {
+    public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) throws Exception {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
-        PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPayMethod() , userId);
+        PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
         int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
         if ("1".equals(result)) {
@@ -55,7 +55,9 @@ public class PaymentController {
      * 领取消费奖励
      */
     @GetMapping("/claim")
-    public ResponseEntity<?> claimReward(@RequestParam Long userId) {
+    public ResponseEntity<?> claimReward() {
+        var userDetails = SecurityUtils.getCurrentUserPrinciple();
+        var userId = userDetails.getId();
         BigDecimal totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
         int rewardAmount = paymentService.calculateReward(totalConsumeAmount);
 
@@ -67,4 +69,24 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No rewards available for this user.");
         }
     }
+
+    @GetMapping("/getTotal")
+    public ResponseEntity<ApiResponse<BigDecimal>> getTotal() {
+        var userDetails = SecurityUtils.getCurrentUserPrinciple();
+        var userId = userDetails.getId();
+        // 调用 service 获取该用户当前月的消费总额
+        BigDecimal totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
+
+        // 创建一个成功的 ApiResponse 对象，包含消费总额数据
+        ApiResponse<BigDecimal> resultTotal = ApiResponse.<BigDecimal>builder()
+                .code(200) // 成功状态码
+                .message("Successfully retrieved total consume amount")
+                .success(true)
+                .data(totalConsumeAmount)
+                .build();
+
+        // 返回响应实体，包含 ApiResponse 对象
+        return ResponseEntity.ok(resultTotal);
+    }
+
 }

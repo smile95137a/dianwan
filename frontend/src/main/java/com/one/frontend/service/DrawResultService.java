@@ -355,13 +355,8 @@ public class DrawResultService {
 				cartItemArr.add(cartItem);
 			}
 
-// 将新创建的 cartItem 添加到 cartItemList 中
 			if (!cartItemArr.isEmpty()) {
-				cartItemList.addAll(cartItemArr); // 将 cartItemArr 添加到 cartItemList
-			}
-
-			if (!cartItemList.isEmpty()) {
-				prizeCartItemRepository.insertBatch(cartItemList);
+				prizeCartItemRepository.insertBatch(cartItemArr);
 			} else {
 				System.out.println("cartItemList is empty, skipping insertBatch.");
 			}
@@ -377,22 +372,51 @@ public class DrawResultService {
 				}
 			}
 
+			int count = prizeNumbers.size(); // 抽奖次数
+			BigDecimal bonusPercentage = BigDecimal.ZERO; // 红利百分比
 
-
-			// 处理用户抽奖次数和红利
-
-			Long drawCount = user.getDrawCount();
-			if (drawCount < 3L) {
-				userRepository.addDrawCount(userId);
-			} else {
-				userRepository.updateBonus(userId);
+// 获取金币或银币的金额
+			BigDecimal totalPrice = BigDecimal.ZERO; // 初始化总金额
+			if ("1".equals(payMethod)) {
+				for (String prize : prizeNumbers) {
+					totalPrice = totalPrice.add(product.getPrice()); // 获取每次抽奖的金币金额并累加
+				}
+			} else if ("2".equals(payMethod)) {
+				for (
+				String prize : prizeNumbers) {
+					totalPrice = totalPrice.add(product.getSliverPrice()); // 获取每次抽奖的银币金额并累加
+				}
 			}
 
+// 计算红利百分比和金额
+			if (count > 3) {
+				if (count >= 10) {
+					bonusPercentage = new BigDecimal("0.10"); // 10% 红利
+				} else if (count >= 5) {
+					bonusPercentage = new BigDecimal("0.04"); // 4% 红利
+				} else {
+					bonusPercentage = new BigDecimal("0.02"); // 2% 红利
+				}
+			} else {
+				bonusPercentage = BigDecimal.ZERO; // 小于等于3次不计算红利
+			}
+
+// 计算红利金额
+			BigDecimal bonusAmount = totalPrice.multiply(bonusPercentage);
+			userRepository.updateBonus(userId, bonusAmount);
+
+// 输出红利金额（可根据需要进一步处理）
+			if (bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
+				System.out.println((payMethod.equals("1") ? "金币" : "银币") + "支付方式的红利金额: " + bonusAmount);
+			}
+
+// 处理用户抽奖次数和红利
 			ProductRes res = productRepository.getProductById(productId);
-			if(res.getStockQuantity() <= 0){
+			if (res.getStockQuantity() <= 0) {
 				res.setStatus(ProductStatus.UNAVAILABLE);
 				productRepository.updateProductQuantity(res);
 			}
+
 
 
 			return drawResults;

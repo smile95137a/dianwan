@@ -51,15 +51,20 @@ public class OrderController {
 //	
 	@PostMapping("/queryOrder")
 	public ResponseEntity<?> queryOrder(@RequestBody OrderQueryReq req) {
-	    CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-	    if (userDetails == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-	    }
+		try {
+			CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+			if (userDetails == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			}
 
-        var userId = userDetails.getId();
-        var list = orderService.queryOrders(userId,req);
-        var res = ResponseUtils.success(200, null, list);
-		return ResponseEntity.ok(res);
+			var userId = userDetails.getId();
+			var list = orderService.queryOrders(userId,req);
+			var res = ResponseUtils.success(200, null, list);
+			return ResponseEntity.ok(res);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	return null;
 	}
 
 	@PostMapping("/queryDrawOrder")

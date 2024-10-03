@@ -74,7 +74,7 @@ public interface OrderRepository {
 	List<OrderRes> findOrdersByDateRange(Map<String, Object> params);
 
 	@Select("<script>"
-			+ "SELECT a.* , b.product_name , b.image_urls "
+			+ "SELECT a.*, b.product_name as productName , b.image_urls as imageUrls "
 			+ "FROM draw_result a "
 			+ "LEFT JOIN product_detail b ON a.product_detail_id = b.product_detail_id "
 			+ "WHERE 1=1 "

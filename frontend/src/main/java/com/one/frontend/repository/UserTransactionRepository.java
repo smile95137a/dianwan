@@ -12,11 +12,12 @@ import java.time.LocalDate;
 public interface UserTransactionRepository {
 
     // 插入新的交易记录
-    @Insert("INSERT INTO user_transaction (user_id, transaction_type, amount, transaction_date) " +
-            "VALUES (#{userId}, #{transactionType}, #{amount}, CURRENT_TIMESTAMP)")
+    @Insert("INSERT INTO user_transaction (user_id, transaction_type, amount, transaction_date, created_at) " +
+            "VALUES (#{userId}, #{transactionType}, #{amount}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
     void insertTransaction(@Param("userId") Long userId,
                            @Param("transactionType") String transactionType,
                            @Param("amount") BigDecimal amount);
+
 
     // 获取某个用户在指定时间段内的交易金额（消费或储值）
     @Select("SELECT COALESCE(SUM(amount), 0) FROM user_transaction " +

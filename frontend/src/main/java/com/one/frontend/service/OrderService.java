@@ -65,45 +65,61 @@ public class OrderService {
 	}
 
 	public List<OrderRes> queryOrders(Long userId, OrderQueryReq req) {
+		// 初始化查询参数
 		Map<String, Object> params = new HashMap<>();
 		params.put("userId", userId);
 
+		// 处理开始日期和结束日期
 		LocalDateTime startDate = convertToLocalDateTime(req.getStartDate());
 		LocalDateTime endDate = convertToLocalDateTime(req.getEndDate());
 
-		// 调整 startDate 和 endDate 的时间部分
 		if (startDate != null) {
-			startDate = startDate.with(LocalTime.MIN); 
+			startDate = startDate.with(LocalTime.MIN);
 		}
 		if (endDate != null) {
-			endDate = endDate.with(LocalTime.MAX); 
+			endDate = endDate.with(LocalTime.MAX);
 		}
 
 		params.put("startDate", startDate);
 		params.put("endDate", endDate);
-		List<OrderRes> list = orderRepository.findOrdersByDateRange(params).stream()
-				.peek(order -> order.setOrderDetails(orderDetailRepository.findOrderDetailsByOrderId(order.getId())))
-				.toList();
 
+		// 查询订单
+		List<OrderRes> ordersByDateRange = orderRepository.findOrdersByDateRange(params);
+
+		// 为每个订单填充订单详情
+		List<OrderRes> list = ordersByDateRange.stream()
+				.map(order -> {
+					System.out.println(order);
+					order.setOrderDetails(orderDetailRepository.findOrderDetailsByOrderId(order.getId()));
+					return order;
+				})
+				.collect(Collectors.toList());
+
+		// 处理订单状态描述
 		List<OrderRes> orderStatusDescriptions = list.stream()
 				.map(order -> {
 					String statusDescription;
-					if (order.getResultStatus().equals("PREPARING_SHIPMENT")) {
-						statusDescription = "訂單準備中"; // 处理 PREPARING_SHIPMENT
-					} else if (order.getResultStatus().equals("SHIPPED")) {
-						statusDescription = "已發貨"; // 处理 SHIPPED
-					} else {
-						statusDescription = "未知狀態"; // 处理其他状态
+					switch (order.getResultStatus()) {
+						case "PREPARING_SHIPMENT":
+							statusDescription = "訂單準備中";
+							break;
+						case "SHIPPED":
+							statusDescription = "已發貨";
+							break;
+						default:
+							statusDescription = "未知狀態";
+							break;
 					}
-					// 这里可以将状态描述设置到订单对象中，假设你有一个 setStatusDescription 方法
+					// 设置状态描述
 					order.setResultStatus(statusDescription);
-					return order; // 返回更新后的订单对象
+					return order;
 				})
 				.collect(Collectors.toList());
 
 		return orderStatusDescriptions;
 	}
-	
+
+
 	private LocalDateTime convertToLocalDateTime(Date dateToConvert) {
 	    return dateToConvert == null ? null : LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneId.systemDefault());
 	}
@@ -297,19 +313,24 @@ public class OrderService {
 
 			// 根據訂單號查詢訂單ID
 			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
-
+		System.out.println(prizeCartItemList);
 			// 轉換購物車項目到訂單詳情並保存
-			prizeCartItemList.stream().map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId , shippingCost)) // 映射購物車項目為訂單詳情
-					.forEach(orderDetail -> {
-						System.out.println(orderDetail);
-						orderDetailRepository.savePrizeOrderDetail(orderDetail);
-					}); // 保存訂單詳情
+		List<OrderDetail> orderDetails = prizeCartItemList.stream()
+				.filter(Objects::nonNull)  // 過濾掉 null 元素
+				.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
+				.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
+				.collect(Collectors.toList());
+
+		// 批量保存訂單詳情
+		if (!orderDetails.isEmpty()) {
+			orderDetailRepository.savePrizeOrderDetailBatch(orderDetails);
+		}
 
 			// 獲取所有購物車項的ID並移除
 			List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
 
 			// 移除購物車項
-			cartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+			prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
 //		}else{
 //			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 //		}
@@ -458,24 +479,32 @@ public class OrderService {
 		LocalDateTime startDate = convertToLocalDateTime(req.getStartDate());
 		LocalDateTime endDate = convertToLocalDateTime(req.getEndDate());
 
-		// 如果 startDate 存在，则将时间设为当天的最早时间
 		if (startDate != null) {
 			startDate = startDate.with(LocalTime.MIN);
 		}
 
-		// 如果 endDate 存在，则将时间设为当天的最后时间
 		if (endDate != null) {
 			endDate = endDate.with(LocalTime.MAX);
 		}
 
-		// 将参数放入 params Map 中
 		params.put("startDate", startDate);
 		params.put("endDate", endDate);
 
-		// 调用 Mapper 查询
-		return orderRepository.queryDrawOrder(params.get("userId"),
+		List<DrawResultDto> results = orderRepository.queryDrawOrder(params.get("userId"),
 				params.get("startDate"),
 				params.get("endDate"));
+
+		// 过滤掉 productName 和 imageUrls 为 null 的项
+		if (results != null) {
+			results = results.stream()
+					.filter(result -> result.getProductName() != null && result.getImageUrls() != null)
+					.collect(Collectors.toList());
+		} else {
+			results = new ArrayList<>();
+		}
+
+		return results;
 	}
+
 
 }
