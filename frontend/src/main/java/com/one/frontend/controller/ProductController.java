@@ -47,4 +47,17 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "獲取產品詳情", description = "通過產品 ID 獲取產品的詳細信息")
+    @GetMapping("/category/{uuid}")
+    public ResponseEntity<ApiResponse<ProductRes>> getProductByCategoryId(@PathVariable String uuid) {
+        ProductRes productRes = productService.getProductByCategoryId(uuid);
+        if (productRes == null) {
+            ApiResponse<ProductRes> response = ResponseUtils.failure(404, "產品不存在", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        ApiResponse<ProductRes> response = ResponseUtils.success(200, null, productRes);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -33,4 +33,5 @@ public class ProductRes {
     
     private Integer detailQuantity;
     private Integer detailStockQuantity;
+    private String categoryUUid;
 }

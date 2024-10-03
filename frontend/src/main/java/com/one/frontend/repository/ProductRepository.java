@@ -60,4 +60,8 @@ public interface ProductRepository {
     void updateProductQuantity(ProductRes product);
     @Update("update product set status = 'UNAVAILABLE' where product_id = #{productId}")
     void updateStatus(Long productId);
+    @Select("select category_id from product_category where category_uuid = #{uuid}")
+    Long getProductByCategoryId(String uuid);
+    @Select("SELECT * FROM product WHERE category_id = #{categoryId}")
+    ProductRes getProductByCId(Long categoryId);
 }

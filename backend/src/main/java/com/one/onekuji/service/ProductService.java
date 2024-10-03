@@ -95,6 +95,7 @@ public class ProductService {
         product.setStatus(req.getStatus());
         product.setBonusPrice(req.getBonusPrice());
         product.setSpecification(escapeTextForHtml(req.getSpecification()));
+        product.setCategoryId(req.getCategoryId());
     }
 
 
@@ -111,7 +112,8 @@ public class ProductService {
                 product.getPrizeCategory(),
                 product.getStatus(),
                 product.getBonusPrice(),
-                product.getSpecification()
+                product.getSpecification(),
+                product.getCategoryId()
         );
     }
 

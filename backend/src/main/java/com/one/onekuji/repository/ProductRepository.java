@@ -12,10 +12,10 @@ import java.util.List;
 public interface ProductRepository {
     @Insert("INSERT INTO product (" +
             "product_name, description, price, sliver_price, stock_quantity, image_urls, " +
-            "product_type, prize_category, status, bonus_price, specification) " +
+            "product_type, prize_category, status, bonus_price, specification , category_id) " +
             "VALUES (" +
             "#{productName}, #{description}, #{price}, #{sliverPrice}, #{stockQuantity}, #{imageUrls}, " +
-            "#{productType}, #{prizeCategory}, #{status}, #{bonusPrice}, #{specification})")
+            "#{productType}, #{prizeCategory}, #{status}, #{bonusPrice}, #{specification} , #{categoryId})")
     @Options(useGeneratedKeys = true, keyProperty = "productId")
     int insertProduct(Product product);
 
@@ -41,7 +41,8 @@ public interface ProductRepository {
             "prize_category = #{prizeCategory}, " +
             "status = #{status}, " +
             "bonus_price = #{bonusPrice}, " +
-            "specification = #{specification} " +
+            "specification = #{specification}, " +
+            "category_id = #{categoryId} " +
             "WHERE product_id = #{productId}")
     void updateProduct(Product product);
 
@@ -67,5 +68,7 @@ public interface ProductRepository {
 
     @Update("update `product` set stock_quantity = #{totalQuantity} where product_id = #{id}")
     void updateTotalQua(int totalQuantity , Integer id);
+    @Select("select * from product where category_id = #{categoryId}")
+    ProductRes getProductByCategoryId(Long categoryId);
     //ENUM('FIGURE', 'BONUS', 'C3')
 }

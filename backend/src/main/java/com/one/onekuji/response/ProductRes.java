@@ -27,4 +27,5 @@ public class ProductRes {
     private ProductStatus status;
     private BigDecimal bonusPrice;
     private String specification;
+    private Long categoryId;
 }

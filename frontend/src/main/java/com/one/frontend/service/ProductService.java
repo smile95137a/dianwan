@@ -31,4 +31,11 @@ public class ProductService {
     }
 
 
+    public ProductRes getProductByCategoryId(String uuid) {
+        Long categoryId = productRepository.getProductByCategoryId(uuid);
+
+        ProductRes res = productRepository.getProductByCId(categoryId);
+
+        return res;
+    }
 }
