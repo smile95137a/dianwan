@@ -1,9 +1,9 @@
 package com.one.onekuji.util;
 
+import com.one.onekuji.config.security.CustomUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.one.onekuji.service.CustomUserDetails;
 
 public class SecurityUtils {
 

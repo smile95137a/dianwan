@@ -38,30 +38,11 @@ public class SpringSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http , CorsConfigurationSource corsConfigurationSource) throws Exception {
-//        http
-//                .csrf(csrf -> csrf.disable())
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-////                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
-//                .authorizeRequests()
-////                .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-////                .requestMatchers("/api/user/**").hasRole("ADMIN")
-////                .requestMatchers("/api/**").authenticated()
-//                .requestMatchers("/img/**").permitAll()
-//                .requestMatchers("/api/**").permitAll()
-//                .anyRequest().permitAll()
-//                .and()
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(Arrays.asList("https://onemorelottery.tw"));
+                    configuration.setAllowedOrigins(Arrays.asList("https://onemorelottery.tw" , "http://localhost:5173"));
                     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     configuration.setAllowedHeaders(Arrays.asList("*"));
                     configuration.setAllowCredentials(true);
