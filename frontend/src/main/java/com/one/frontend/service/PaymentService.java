@@ -3,7 +3,10 @@ package com.one.frontend.service;
 import com.google.gson.Gson;
 import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
+import com.one.frontend.model.RewardStatus;
+import com.one.frontend.model.UserReward;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.repository.UserRewardRepository;
 import com.one.frontend.repository.UserTransactionRepository;
 import com.one.frontend.response.PaymentResponse;
 import org.apache.http.HttpResponse;
@@ -19,7 +22,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -29,6 +34,9 @@ public class PaymentService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserRewardRepository userRewardRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String CUSTOMERID = "B82FD0DF7DE03FC702DEC35A2446E469";
     private final String STRCHECK = "d0q2mo1729enisehzolmhdwhkac38itb";
@@ -219,6 +227,13 @@ return null;
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
+        // 檢查該用戶當月是否已經發放過獎勵
+        boolean hasReceivedReward = userRewardRepository.hasReceivedRewardForMonth(userId, startOfMonth, endOfMonth);
+        if (hasReceivedReward) {
+            // 如果該用戶當月已領取過獎勵，直接返回結果，不再發放獎勵
+            return new Award(BigDecimal.ZERO, new ArrayList<>());
+        }
+
         // 獲取該用戶當月的消費總金額
         BigDecimal deposit = userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
 
@@ -230,36 +245,43 @@ return null;
         int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
         int[] tokens = {30, 200, 500, 2000, 4000, 10000};
 
-        // 两个 List 分别用于存储每个达标金额和对应的银币数
-        List<BigDecimal> thresholdList = new ArrayList<>();
-        List<Integer> tokenList = new ArrayList<>();
-        List<Integer> rewardsAchieved = new ArrayList<>();  // 存储用户已经达到的奖励列表
+        // 创建 rewardStatusList 列表用于存储每个达标金额、对应银币和是否达标
+        List<RewardStatus> rewardStatusList = new ArrayList<>();
 
         // 遍歷閾值和獎勵代幣
         for (int i = 0; i < thresholds.length; i++) {
-            thresholdList.add(BigDecimal.valueOf(thresholds[i]));
-            tokenList.add(tokens[i]);
+            BigDecimal threshold = BigDecimal.valueOf(thresholds[i]);
+            int tokenAmount = tokens[i];
+            boolean achieved = deposit.compareTo(threshold) >= 0;
 
-            // 如果達標某個條件，記錄達到的奖励到 rewardsAchieved 列表
-            if (deposit.compareTo(BigDecimal.valueOf(thresholds[i])) >= 0) {
-                rewardsAchieved.add(tokens[i]);  // 添加到达标的奖励
-            }
+            // 创建 RewardStatus 对象并添加到列表
+            rewardStatusList.add(new RewardStatus(threshold, tokenAmount, achieved));
         }
 
-        // 更新用户的银币（如果满足其中某个达标条件）
-        if (!rewardsAchieved.isEmpty()) {
-            int totalReward = rewardsAchieved.stream().mapToInt(Integer::intValue).sum(); // 计算总奖励
-            userRepository.updateSliverCoin(userId, BigDecimal.valueOf(totalReward));
-        }
+        // 更新用户的银币（只更新最高达标奖励）
+        Optional<RewardStatus> highestAchieved = rewardStatusList.stream()
+                .filter(RewardStatus::isAchieved)
+                .max(Comparator.comparing(RewardStatus::getThreshold));
+
+        highestAchieved.ifPresent(rewardStatus -> {
+            userRepository.updateSliverCoin(userId, BigDecimal.valueOf(rewardStatus.getSliver()));
+
+            // 将奖励发放记录保存到 user_reward 表
+            UserReward userReward = new UserReward();
+            userReward.setUserId(userId);
+            userReward.setRewardAmount(BigDecimal.valueOf(rewardStatus.getSliver()));
+            userReward.setRewardDate(LocalDate.now());
+            userRewardRepository.save(userReward);
+        });
 
         // 將結果設置到 Award 物件
-        award.setThresholdList(thresholdList);
-        award.setTokenList(tokenList);
-        award.setRewardsAchieved(rewardsAchieved);  // 返回用户已達標的所有奖励
+        award.setRewardStatusList(rewardStatusList);
 
         // 回傳 Award 物件
         return award;
     }
+
+
 
 
 

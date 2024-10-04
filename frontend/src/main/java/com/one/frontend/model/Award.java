@@ -11,9 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Award {
-
     private BigDecimal cumulative; // 累计消费金额
-    private List<BigDecimal> thresholdList; // 每个达标金额
-    private List<Integer> tokenList; // 对应的银币数量
-    private List<Integer> rewardsAchieved; // 当前可以领取的所有银币奖励
+    private List<RewardStatus> rewardStatusList; // 每个达标金额、对应的银币数量和是否达标
+
 }
+
