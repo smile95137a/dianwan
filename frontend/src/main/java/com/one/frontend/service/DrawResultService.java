@@ -331,7 +331,7 @@ public class DrawResultService {
 			prizeCartItemRepository.insertBatch(cartItemList);
 
 
-			// 如果抽完数量变1 1代表剩SP赏的时候要送SP赏
+			// 如果抽完数量变1 1代表剩LAST赏的时候要送LAST赏
 			List<PrizeCartItem> cartItemArr = new ArrayList<>();
 			Long prizeCartId2 = prizeCartRepository.getCartIdByUserId(userId);
 			List<ProductDetailRes> productDetail = productDetailRepository.getProductDetailByProductId(productId);

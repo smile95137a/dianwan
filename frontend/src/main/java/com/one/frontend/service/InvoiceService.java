@@ -130,7 +130,7 @@ public class InvoiceService {
         ResponseEntity<byte[]> response = restTemplate.postForEntity(url, req, byte[].class);
         UserRes user = userRepository.getUserById(userId);
 
-        mailService.sendRecImg(user.getUsername(),response);
+        mailService.sendRecImg(user.getInvoiceInfoEmail(),response);
 
         return response;
     }

@@ -33,7 +33,7 @@ public class ProductDetailService {
         List<PrizeNumber> allPrizeNumbers = new ArrayList<>();
         int totalQuantity = 0;
 
-        // 计算总数量，排除 grade 为 "SP" 的项
+        // 计算总数量，排除 grade 为 "LAST" 的项
         for (DetailReq detailReq : detailReqs) {
             if (shouldIncludeInPrizeNumbers(detailReq)) {
                 totalQuantity += detailReq.getQuantity();
@@ -102,7 +102,7 @@ public class ProductDetailService {
 
     // 判断是否应将该项包括在奖品编号中
     private boolean shouldIncludeInPrizeNumbers(DetailReq detailReq) {
-        return !"SP".equals(detailReq.getGrade());
+        return !"LAST".equals(detailReq.getGrade());
     }
 
 

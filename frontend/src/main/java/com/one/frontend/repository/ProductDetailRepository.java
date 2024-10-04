@@ -60,7 +60,7 @@ public interface ProductDetailRepository {
     @Select("SELECT * FROM product_detail WHERE product_id = #{productId} AND prize_type = #{prizeType} LIMIT 1")
     ProductDetailRes findFirstByProductIdAndPrizeType(@Param("productId") Long productId, @Param("prizeType") String prizeType);
 
-    @Select("select * from product_detail WHERE product_id = #{productId} and grade = 'SP'")
+    @Select("select * from product_detail WHERE product_id = #{productId} and grade = 'LAST'")
     ProductDetailRes getProductDetailSpPrizeByProductId(Long productId);
     @Update({
             "<script>",

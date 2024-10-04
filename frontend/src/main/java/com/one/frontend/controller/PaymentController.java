@@ -76,7 +76,7 @@ public class PaymentController {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
         // 调用 service 获取该用户当前月的消费总额
-        Award totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(6L);
+        Award totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
 
         // 创建一个成功的 ApiResponse 对象，包含消费总额数据
         ApiResponse<Award> resultTotal = ResponseUtils.success(200, null, totalConsumeAmount);
