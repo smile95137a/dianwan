@@ -9,13 +9,14 @@ import java.util.List;
 @Mapper
 public interface ProductRepository {
 
-	@Select("SELECT p.*, " +
+	@Select("SELECT p.*, pc.category_uuid , " +
 	        "SUM(pd.quantity) as detailQuantity, " +
 	        "SUM(pd.stock_quantity) as detailStockQuantity " +
 	        "FROM product p " +
 	        "LEFT JOIN product_detail pd ON p.product_id = pd.product_id " +
-	        "GROUP BY p.product_id " 
-//	        "LIMIT #{size} OFFSET #{offset}"
+            "LEFT JOIN product_category pc ON p.category_id = pc.category_id " +
+	        "GROUP BY p.product_id " +
+	        "LIMIT #{size} OFFSET #{offset}"
 	        )
 	List<ProductRes> getAllProduct(@Param("offset") int offset, @Param("size") int size);
 

@@ -75,7 +75,8 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<Award>> getTotal() {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
-        // 调用 service 获取该用户当前月的消费总额
+
+        // 调用 service 获取该用户当前月的消费总额和奖励信息
         Award totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
 
         // 创建一个成功的 ApiResponse 对象，包含消费总额数据
@@ -84,5 +85,7 @@ public class PaymentController {
         // 返回响应实体，包含 ApiResponse 对象
         return ResponseEntity.ok(resultTotal);
     }
+
+
 
 }

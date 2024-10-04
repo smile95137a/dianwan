@@ -226,27 +226,42 @@ return null;
         Award award = new Award();
         award.setCumulative(deposit);
 
-        // 設置對應的條件和回報代幣
-        List<String> content = new ArrayList<>();
-
         // 累計滿額條件和對應代幣數量
         int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
         int[] tokens = {30, 200, 500, 2000, 4000, 10000};
 
-        // 生成硬編碼內容
+        // 两个 List 分别用于存储每个达标金额和对应的银币数
+        List<BigDecimal> thresholdList = new ArrayList<>();
+        List<Integer> tokenList = new ArrayList<>();
+        List<Integer> rewardsAchieved = new ArrayList<>();  // 存储用户已经达到的奖励列表
+
+        // 遍歷閾值和獎勵代幣
         for (int i = 0; i < thresholds.length; i++) {
+            thresholdList.add(BigDecimal.valueOf(thresholds[i]));
+            tokenList.add(tokens[i]);
+
+            // 如果達標某個條件，記錄達到的奖励到 rewardsAchieved 列表
             if (deposit.compareTo(BigDecimal.valueOf(thresholds[i])) >= 0) {
-                String message = String.format("累計滿 %d元\n領取 %d代幣", thresholds[i], tokens[i]);
-                content.add(message);
+                rewardsAchieved.add(tokens[i]);  // 添加到达标的奖励
             }
         }
 
-        // 將生成的內容設置到 Award 物件中
-        award.setContent(content);
+        // 更新用户的银币（如果满足其中某个达标条件）
+        if (!rewardsAchieved.isEmpty()) {
+            int totalReward = rewardsAchieved.stream().mapToInt(Integer::intValue).sum(); // 计算总奖励
+            userRepository.updateSliverCoin(userId, BigDecimal.valueOf(totalReward));
+        }
+
+        // 將結果設置到 Award 物件
+        award.setThresholdList(thresholdList);
+        award.setTokenList(tokenList);
+        award.setRewardsAchieved(rewardsAchieved);  // 返回用户已達標的所有奖励
 
         // 回傳 Award 物件
         return award;
     }
+
+
 
     /**
      * 记录储值交易
