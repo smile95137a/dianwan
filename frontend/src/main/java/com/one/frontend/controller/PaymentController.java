@@ -2,6 +2,7 @@ package com.one.frontend.controller;
 
 import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
+import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.response.PaymentResponse;
@@ -58,7 +59,7 @@ public class PaymentController {
     public ResponseEntity<?> claimReward() {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
-        BigDecimal totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
+        BigDecimal totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId).getCumulative();
         int rewardAmount = paymentService.calculateReward(totalConsumeAmount);
 
         if (rewardAmount > 0) {
@@ -71,19 +72,14 @@ public class PaymentController {
     }
 
     @GetMapping("/getTotal")
-    public ResponseEntity<ApiResponse<BigDecimal>> getTotal() {
+    public ResponseEntity<ApiResponse<Award>> getTotal() {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
         // 调用 service 获取该用户当前月的消费总额
-        BigDecimal totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(userId);
+        Award totalConsumeAmount = paymentService.getTotalConsumeAmountForCurrentMonth(6L);
 
         // 创建一个成功的 ApiResponse 对象，包含消费总额数据
-        ApiResponse<BigDecimal> resultTotal = ApiResponse.<BigDecimal>builder()
-                .code(200) // 成功状态码
-                .message("Successfully retrieved total consume amount")
-                .success(true)
-                .data(totalConsumeAmount)
-                .build();
+        ApiResponse<Award> resultTotal = ResponseUtils.success(200, null, totalConsumeAmount);
 
         // 返回响应实体，包含 ApiResponse 对象
         return ResponseEntity.ok(resultTotal);

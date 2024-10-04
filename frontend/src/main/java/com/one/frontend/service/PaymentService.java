@@ -1,6 +1,7 @@
 package com.one.frontend.service;
 
 import com.google.gson.Gson;
+import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.repository.UserTransactionRepository;
@@ -17,6 +18,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -211,10 +214,38 @@ return null;
     /**
      * 获取用户当月的累积消费金额
      */
-    public BigDecimal getTotalConsumeAmountForCurrentMonth(Long userId) {
+    public Award getTotalConsumeAmountForCurrentMonth(Long userId) {
+        // 計算本月的起始與結束日期
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
-        return userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
+
+        // 獲取該用戶當月的消費總金額
+        BigDecimal deposit = userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
+
+        // 初始化 Award 物件
+        Award award = new Award();
+        award.setCumulative(deposit);
+
+        // 設置對應的條件和回報代幣
+        List<String> content = new ArrayList<>();
+
+        // 累計滿額條件和對應代幣數量
+        int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
+        int[] tokens = {30, 200, 500, 2000, 4000, 10000};
+
+        // 生成硬編碼內容
+        for (int i = 0; i < thresholds.length; i++) {
+            if (deposit.compareTo(BigDecimal.valueOf(thresholds[i])) >= 0) {
+                String message = String.format("累計滿 %d元\n領取 %d代幣", thresholds[i], tokens[i]);
+                content.add(message);
+            }
+        }
+
+        // 將生成的內容設置到 Award 物件中
+        award.setContent(content);
+
+        // 回傳 Award 物件
+        return award;
     }
 
     /**
