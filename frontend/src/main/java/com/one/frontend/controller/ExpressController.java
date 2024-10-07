@@ -3,7 +3,6 @@ package com.one.frontend.controller;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +25,7 @@ public class ExpressController {
     }
 
 
-    @GetMapping("/test")
+    @PostMapping("/test")
     public ResponseEntity<String> logisticsCallback() {
         String url = "https://logistics.gomypay.asia/Logisticstm.aspx";
 
