@@ -58,31 +58,33 @@
             try {
                 Files.createDirectories(Paths.get(staticPicturePath));
 
+                BufferedImage originalImage = ImageIO.read(file.getInputStream());
+                int width = originalImage.getWidth();
+                int height = originalImage.getHeight();
+
                 if (isForCKEditor) {
-                    // CKEditor 的图片上传逻辑，不需要修改尺寸
-                    file.transferTo(dest);  // 直接保存原图
+                    // CKEditor 的图片上传逻辑，不调整尺寸
+                    Thumbnails.of(originalImage)
+                            .scale(1)
+                            .toFile(dest);
                 } else {
-                    // 普通图片上传逻辑，进行尺寸处理
-                    BufferedImage originalImage = ImageIO.read(file.getInputStream());
-
-                    int width = originalImage.getWidth();
-                    int height = originalImage.getHeight();
-
-                    // 图片超过 400x400 尺寸时，进行裁剪和压缩
-                    if (width > 400 || height > 400) {
-                        // 确保裁剪到 400x400 的正方形
+                    // 普通图片上传逻辑，调整为 400x400
+                    if (width != height) {
+                        // 如果不是正方形，先裁剪为正方形
+                        int size = Math.min(width, height);
                         Thumbnails.of(originalImage)
-                                .sourceRegion(Positions.CENTER, 400, 400)  // 从中心裁剪出 400x400
-                                .size(400, 400)  // 强制大小为 400x400
-                                .keepAspectRatio(false)  // 禁止保持原始比例，强制为正方形
+                                .sourceRegion(Positions.CENTER, size, size)
+                                .size(400, 400)
+                                .outputQuality(0.85)
                                 .toFile(dest);
                     } else {
-                        // 保持原始图片尺寸
-                        file.transferTo(dest);
+                        // 如果已经是正方形，直接调整大小
+                        Thumbnails.of(originalImage)
+                                .size(400, 400)
+                                .outputQuality(0.85)
+                                .toFile(dest);
                     }
-
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException("File upload failed", e);
