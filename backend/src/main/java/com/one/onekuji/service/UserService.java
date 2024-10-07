@@ -3,6 +3,7 @@ package com.one.onekuji.service;
 import com.one.onekuji.model.User;
 import com.one.onekuji.repository.RoleRepository;
 import com.one.onekuji.repository.UserRepository;
+import com.one.onekuji.request.SliverUpdate;
 import com.one.onekuji.request.UserReq;
 import com.one.onekuji.response.UserRes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,4 +68,19 @@ public class UserService {
     public void deleteUser(Long userId) {
         userRepository.delete(userId);
     }
+
+    public void updateSliver(SliverUpdate sliverUpdate) {
+        if (sliverUpdate != null && sliverUpdate.getUserId() != null && !sliverUpdate.getUserId().isEmpty()) {
+            // 调用批量更新银币的方法
+            userRepository.updateSliverCoinBatch(
+                    sliverUpdate.getUserId(),
+                    sliverUpdate.getSliverCoin(),
+                    sliverUpdate.getBonus()
+            );
+        } else {
+            // 如果用户ID列表为空，抛出异常或处理其他逻辑
+            throw new IllegalArgumentException("User ID list cannot be null or empty");
+        }
+    }
+
 }

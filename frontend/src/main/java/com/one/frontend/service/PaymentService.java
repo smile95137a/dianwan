@@ -121,7 +121,7 @@ return null;
         String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
-                .sendType("3")            // 傳送型態
+                .sendType("4")            // 傳送型態
                 .payModeNo("2")           // 付款模式
                 .customerId(CUSTOMERID) // 商店代號
                 .orderNo(paymentRequest.getOrderNo())    // 交易單號
@@ -147,16 +147,10 @@ return null;
                     .append("&CustomerId=").append(req.getCustomerId())
                     .append("&Order_No=")
                     .append("&Amount=").append(req.getAmount())
-                    .append("&TransCode=").append(req.getTransCode())
                     .append("&Buyer_Name=").append(req.getBuyerName())
                     .append("&Buyer_Telm=").append(req.getBuyerTelm())
                     .append("&Buyer_Mail=").append(req.getBuyerMail())
                     .append("&Buyer_Memo=").append(req.getBuyerMemo())
-                    .append("&CardNo=").append(req.getCardNo())
-                    .append("&ExpireDate=").append(req.getExpireDate())
-                    .append("&CVV=").append(req.getCvv())
-                    .append("&TransMode=").append(req.getTransMode())
-                    .append("&Installment=").append(req.getInstallment())
                     .append("&Return_url=")
                     .append("&Callback_Url=")
                     .append("&e_return=").append(req.getEReturn())

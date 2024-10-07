@@ -55,10 +55,13 @@ public class ProductCategoryService {
     public boolean deleteCategory(Long categoryId) {
         ProductCategory existingCategory = productCategoryMapper.getCategoryById(categoryId);
         ProductRes res =  productRepository.getProductByCategoryId(categoryId);
-        if (existingCategory != null && res != null) {
+        if(res != null){
             productService.deleteProduct(Long.valueOf(res.getProductId()));
+        }
+        if (existingCategory != null) {
+
             productCategoryMapper.deleteCategory(categoryId);
-            return true;
+                return true;
         }
         return false;
     }

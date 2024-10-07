@@ -59,23 +59,31 @@ public class NewsController {
     public ResponseEntity<ApiResponse<Void>> createNews(@RequestPart("newsReq") String news,
                                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
-//            // 获取当前用户ID
-//            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
-//            Long id = userDetails.getId();
-
+            // 将传入的 newsReq 转换为 News 对象
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
             News newsReq = objectMapper.readValue(news, News.class);
+
+            // 上传图片，并替换 newsReq 中的 blob 图片路径
             List<String> fileUrls = new ArrayList<>();
             if (images != null && !images.isEmpty()) {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
-                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        // 上传图片并获取 URL
+                        String fileUrl = ImageUtil.uploadForCKEditor(image); // 确保上传后生成完整的 URL
                         fileUrls.add(fileUrl);
                     }
                 }
             }
+
+            // 替换 newsReq 中的 blob URL 为上传后的 URL
+            String contentWithUpdatedUrls = replaceBlobUrlsWithFileUrls(newsReq.getContent(), fileUrls);
+            newsReq.setContent(contentWithUpdatedUrls);
+
+            // 将图片 URL 设置到 News 对象中
             newsReq.setImageUrls(fileUrls);
+
+            // 保存新闻数据
             int result = newsService.insertNews(newsReq);
             if (result > 0) {
                 ApiResponse<Void> response = ResponseUtils.success(201, "新闻创建成功", null);
@@ -91,34 +99,62 @@ public class NewsController {
         }
     }
 
+    private String replaceBlobUrlsWithFileUrls(String content, List<String> fileUrls) {
+        // 假设 images 是按照顺序上传并生成 URL 的，你可以遍历所有 blob 并替换为实际的图片 URL
+        for (String fileUrl : fileUrls) {
+            // 替换匹配的 blob URL
+            content = content.replaceFirst("blob:[^\\s\"]+", fileUrl);
+        }
+        return content;
+    }
+
     @PutMapping("/{newsUid}")
-    public ResponseEntity<ApiResponse<Void>> updateNews(@PathVariable String newsUid , @RequestPart("newsReq") String news,
+    public ResponseEntity<ApiResponse<Void>> updateNews(@PathVariable String newsUid,
+                                                        @RequestPart("newsReq") String news,
                                                         @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
-            // 获取当前用户ID
-//            CustomUserDetails userDetails = SecurityUtils.getCurrentUserPrinciple();
+            // 将传入的 newsReq 转换为 News 对象
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS , true);
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
             News newsReq = objectMapper.readValue(news, News.class);
+
+            // 上传图片，并获取对应的文件 URL 列表
             List<String> fileUrls = new ArrayList<>();
             if (images != null && !images.isEmpty()) {
                 for (MultipartFile image : images) {
                     if (!image.isEmpty()) {
-                        String fileUrl = ImageUtil.upload(image); // 使用 ImageUtil 上传文件
+                        // 上传图片并获取 URL
+                        String fileUrl = ImageUtil.uploadForCKEditor(image);  // 适用于 CKEditor 的上传方法
                         fileUrls.add(fileUrl);
                     }
                 }
             }
+
+            // 替换内容中的 Blob URL 为实际上传的图片 URL
+            String updatedContent = replaceBlobUrlsWithFileUrls(newsReq.getContent(), fileUrls);
+            newsReq.setContent(updatedContent);
+
+            // 更新图片 URL 列表到 News 对象中（如果有此字段）
             newsReq.setImageUrls(fileUrls);
-            int result = newsService.updateNews(newsUid , newsReq);
+
+            // 调用 service 层更新新闻
+            int result = newsService.updateNews(newsUid, newsReq);
+
+            // 返回成功响应
+            if (result > 0) {
                 ApiResponse<Void> response = ResponseUtils.success(200, "新闻更新成功", null);
                 return ResponseEntity.ok(response);
+            } else {
+                ApiResponse<Void> response = ResponseUtils.failure(400, "新闻更新失败", null);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             ApiResponse<Void> response = ResponseUtils.failure(500, "更新新闻时发生错误", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     @DeleteMapping("/{newsUid}")
     public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable String newsUid) {

@@ -4,6 +4,7 @@ import com.one.onekuji.model.User;
 import com.one.onekuji.response.UserRes;
 import org.apache.ibatis.annotations.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -36,4 +37,19 @@ public interface UserRepository {
 
     @Select("SELECT * FROM user WHERE id = #{id}")
     User findById2(Long id);
+
+
+    @Update({
+            "<script>",
+            "UPDATE `user`",
+            "SET sliver_coin = sliver_coin + #{sliverCoin},",
+            "bonus = bonus + #{bonus}",  // 新增对 bonus 字段的更新
+            "WHERE id IN",
+            "<foreach item='userId' collection='userIdList' open='(' separator=',' close=')'>",
+            "#{userId}",
+            "</foreach>",
+            "</script>"
+    })
+    void updateSliverCoinBatch(@Param("userIdList") List<Long> userIdList, @Param("sliverCoin") BigDecimal sliverCoin, @Param("bonus") BigDecimal bonus);
+
 }

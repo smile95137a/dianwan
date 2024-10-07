@@ -343,6 +343,10 @@ public class DrawResultService {
 				totalQue += res.getQuantity();
 			}
 
+			if(totalQue == 0){
+				productRepository.updateStatus(spPrize.getProductId());
+			}
+
 // 检查总数量是否为1
 			if (totalQue == 1 && spPrize != null) {
 				PrizeCartItem cartItem = new PrizeCartItem();

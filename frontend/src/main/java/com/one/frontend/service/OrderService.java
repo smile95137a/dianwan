@@ -5,10 +5,7 @@ import com.one.frontend.ecpay.payment.integration.AllInOne;
 import com.one.frontend.ecpay.payment.integration.domain.AioCheckOutALL;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.model.*;
-import com.one.frontend.repository.OrderDetailRepository;
-import com.one.frontend.repository.OrderRepository;
-import com.one.frontend.repository.StoreProductRepository;
-import com.one.frontend.repository.UserRepository;
+import com.one.frontend.repository.*;
 import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
 import com.one.frontend.request.ReceiptReq;
@@ -44,6 +41,8 @@ public class OrderService {
 	private InvoiceService invoiceService;
 	@Autowired
 	private StoreProductRepository storeProductRepository;
+	@Autowired
+	private ProductDetailRepository productDetailRepository;
 	public String ecpayCheckout(Integer userId) {
 
 		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
@@ -160,7 +159,15 @@ public class OrderService {
 			System.out.println(paymentRequest);
 			paymentResponse = paymentService.creditCard(paymentRequest);
 		}else if("2".equals(payCartRes.getPaymentMethod())){
-//			paymentResponse = paymentResponse.webAtm(p)
+			PaymentRequest paymentRequest = new PaymentRequest();
+			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(totalAmount)); // 假设你的 totalAmount 是 BigDecimal
+			int amountToSend = totalAmount2.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+			paymentRequest.setAmount(String.valueOf(amountToSend));
+			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
+			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
+			paymentRequest.setBuyerMail(userRes.getUsername());
+			paymentRequest.setBuyerMemo("再來一抽備註");
+			paymentResponse = paymentService.webATM(paymentRequest);
 		}
 
 
@@ -260,28 +267,36 @@ public class OrderService {
 		//取得用戶資訊
 		UserRes userRes = userRepository.getUserById(userId);
 
-//		PaymentResponse paymentResponse = new PaymentResponse();
-//		if("1".equals(payCartRes.getPaymentMethod())){
-//			PaymentRequest paymentRequest = new PaymentRequest();
-//			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
-//			int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
-//			paymentRequest.setAmount(String.valueOf(amountToSend));
-//			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
-//			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-//			paymentRequest.setBuyerMail(userRes.getUsername());
-//			paymentRequest.setBuyerMemo("再來一抽備註");
-//			paymentRequest.setCardNo(payCartRes.getCardNo());
-//			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
-//			paymentRequest.setCvv(payCartRes.getCvv());
-//			System.out.println(paymentRequest);
-//			paymentResponse = paymentService.creditCard(paymentRequest);
-//		}else if("2".equals(payCartRes.getPaymentMethod())){
-////			paymentResponse = paymentResponse.webAtm(p)
-//		}
+		PaymentResponse paymentResponse = new PaymentResponse();
+		if("1".equals(payCartRes.getPaymentMethod())){
+			PaymentRequest paymentRequest = new PaymentRequest();
+			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
+			int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+			paymentRequest.setAmount(String.valueOf(amountToSend));
+			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
+			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
+			paymentRequest.setBuyerMail(userRes.getUsername());
+			paymentRequest.setBuyerMemo("再來一抽備註");
+			paymentRequest.setCardNo(payCartRes.getCardNo());
+			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
+			paymentRequest.setCvv(payCartRes.getCvv());
+			System.out.println(paymentRequest);
+			paymentResponse = paymentService.creditCard(paymentRequest);
+		}else if("2".equals(payCartRes.getPaymentMethod())){
+			PaymentRequest paymentRequest = new PaymentRequest();
+			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
+			int amountToSend = totalAmount2.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+			paymentRequest.setAmount(String.valueOf(amountToSend));
+			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
+			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
+			paymentRequest.setBuyerMail(userRes.getUsername());
+			paymentRequest.setBuyerMemo("再來一抽備註");
+			paymentResponse = paymentService.webATM(paymentRequest);
+		}
 
 
 		//paymentResponse result = 1 等於成功
-//		if("1".equals(paymentResponse.getResult())){
+		if("1".equals(paymentResponse.getResult())){
 			// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
 			Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(shippingCost) // 總金額 =
 					// 商品價格
@@ -331,42 +346,42 @@ public class OrderService {
 
 			// 移除購物車項
 			prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
-//		}else{
-//			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
-//		}
+		}else{
+			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
+		}
 
 
 		//訂單成立開立發票並且傳送至email
-//		ReceiptReq invoiceRequest = new ReceiptReq();
-//		if(payCartRes.getVehicle() != null){
-//			invoiceRequest.setOrderCode(payCartRes.getVehicle());
-//		}
-//		invoiceRequest.setEmail(userRes.getUsername());
-//		if(payCartRes.getState() != null){
-//			invoiceRequest.setState(1);
-//			invoiceRequest.setDonationCode(payCartRes.getDonationCode());
-//		}else{
-//			invoiceRequest.setState(0);
-//		}
-//		int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
-//		invoiceRequest.setTotalFee(String.valueOf(amountToSend));
-//		List<ReceiptReq.Item> items = new ArrayList<>();
-//		for(PrizeCartItem cartItem : prizeCartItemList){
-//			ReceiptReq.Item item = new ReceiptReq.Item();
-//			StoreProduct byId = storeProductRepository.findById(cartItem.getProductDetailId());
-//			item.setName(byId.getProductName());
-//			item.setNumber(cartItem.getQuantity());
-//			item.setMoney(cartItem.getUnitPrice().intValue());
-//			items.add(item);
-//		}
-//		invoiceRequest.setItems(items);
-//		System.out.println("有到這");
-//		System.out.println(invoiceRequest);
-//
-//		ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
-//		System.out.println(res.getBody());
-//		ReceiptRes receiptRes = res.getBody();
-//		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
+		ReceiptReq invoiceRequest = new ReceiptReq();
+		if(payCartRes.getVehicle() != null){
+			invoiceRequest.setOrderCode(payCartRes.getVehicle());
+		}
+		invoiceRequest.setEmail(userRes.getUsername());
+		if(payCartRes.getState() != null){
+			invoiceRequest.setState(1);
+			invoiceRequest.setDonationCode(payCartRes.getDonationCode());
+		}else{
+			invoiceRequest.setState(0);
+		}
+		int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
+		invoiceRequest.setTotalFee(String.valueOf(amountToSend));
+		List<ReceiptReq.Item> items = new ArrayList<>();
+		for(PrizeCartItem cartItem : prizeCartItemList){
+			ReceiptReq.Item item = new ReceiptReq.Item();
+			ProductDetailRes byId = productDetailRepository.getProductDetailById(cartItem.getProductDetailId());
+			item.setName(byId.getProductName());
+			item.setNumber(cartItem.getQuantity());
+			item.setMoney(shippingCost.intValue());
+			items.add(item);
+		}
+		invoiceRequest.setItems(items);
+		System.out.println("有到這");
+		System.out.println(invoiceRequest);
+
+		ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
+		System.out.println(res.getBody());
+		ReceiptRes receiptRes = res.getBody();
+		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
 
 
 		return orderNumber; // 返回訂單號

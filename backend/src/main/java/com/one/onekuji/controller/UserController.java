@@ -2,6 +2,7 @@ package com.one.onekuji.controller;
 
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.model.User;
+import com.one.onekuji.request.SliverUpdate;
 import com.one.onekuji.request.UserReq;
 import com.one.onekuji.response.UserRes;
 import com.one.onekuji.service.UserService;
@@ -73,4 +74,12 @@ public class UserController {
         ApiResponse<Void> response = ResponseUtils.success(200, "用戶刪除成功", null);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/updateSliver")
+    public ResponseEntity<ApiResponse<Void>> updateSliver(@RequestBody SliverUpdate sliverUpdate) {
+        userService.updateSliver(sliverUpdate);
+        ApiResponse<Void> response = ResponseUtils.success(200, "新增銀幣成功", null);
+        return ResponseEntity.ok(response);
+    }
+
 }
