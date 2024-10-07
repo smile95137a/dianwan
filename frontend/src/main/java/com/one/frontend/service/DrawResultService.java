@@ -411,7 +411,7 @@ public class DrawResultService {
 
 // 输出红利金额（可根据需要进一步处理）
 			if (bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
-				System.out.println((payMethod.equals("1") ? "金币" : "银币") + "支付方式的红利金额: " + bonusAmount);
+				System.out.println((payMethod.equals("1") ? "金幣" : "銀幣") + "支付方式的红利金额: " + bonusAmount);
 			}
 
 // 处理用户抽奖次数和红利
@@ -426,7 +426,7 @@ public class DrawResultService {
 			return drawResults;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new Exception("抽奖过程中出现错误: " + e.getMessage());
+			throw new Exception("抽獎過程中出現錯誤: " + e.getMessage());
 		}
 	}
 
@@ -440,7 +440,7 @@ public class DrawResultService {
 				drawnPrizeNumbers.add(drawnPrizeNumber);
 			} else {
 				// 处理所有奖品都抽完的情况，可以抛出异常或返回空列表
-				throw new RuntimeException("所有奖品都已抽完");
+				throw new RuntimeException("所有獎品都已抽完");
 			}
 		}
 
