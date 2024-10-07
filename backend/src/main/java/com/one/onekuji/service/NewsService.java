@@ -28,8 +28,7 @@ public class NewsService {
     // 新增新闻
     public int insertNews(News news) {
 
-        String content = formatTextToHtml(news.getContent());
-        news.setContent(content);
+        news.setContent(news.getContent());
         news.setNewsUid(UUID.randomUUID().toString());
         news.setCreatedDate(LocalDateTime.now());
         news.setUpdatedDate(LocalDateTime.now());
@@ -39,9 +38,8 @@ public class NewsService {
     // 更新新闻
     public int updateNews(String newsUid , News news) {
         News the_news = newsRepository.getNewsById(newsUid);
-        String content = formatTextToHtml(news.getContent());
         the_news.setNewsUid(newsUid);
-        the_news.setContent(content);
+        the_news.setContent(news.getContent());
         the_news.setImageUrls(news.getImageUrls());
         the_news.setTitle(news.getTitle());
         the_news.setPreview(news.getPreview());
@@ -55,19 +53,19 @@ public class NewsService {
         return newsRepository.deleteNews(newsUid);
     }
 
-    private String formatTextToHtml(String text) {
-        if (text == null) return "";
-        // 先保留換行符的處理
-        String escapedText = text.replace("\n", "<br/>").replace("\r", "");
-
-        // 再進行其他字符轉義
-        return escapedText.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;")
-                // 恢復 <br/> 原來的形式，避免被轉義
-                .replace("&lt;br/&gt;", "<br/>");
-    }
+//    private String formatTextToHtml(String text) {
+//        if (text == null) return "";
+//        // 先保留換行符的處理
+//        String escapedText = text.replace("\n", "<br/>").replace("\r", "");
+//
+//        // 再進行其他字符轉義
+//        return escapedText.replace("&", "&amp;")
+//                .replace("<", "&lt;")
+//                .replace(">", "&gt;")
+//                .replace("\"", "&quot;")
+//                .replace("'", "&#39;")
+//                // 恢復 <br/> 原來的形式，避免被轉義
+//                .replace("&lt;br/&gt;", "<br/>");
+//    }
 
 }
