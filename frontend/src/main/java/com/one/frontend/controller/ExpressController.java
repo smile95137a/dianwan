@@ -20,7 +20,7 @@ public class ExpressController {
         // 處理回傳的店名和店號
         System.out.println("Store Name: " + storename);
         System.out.println("Store ID: " + storied);
-
+        System.out.println(123);
         // 根據業務邏輯處理
         return ResponseEntity.ok("Received logistics info successfully");
     }
