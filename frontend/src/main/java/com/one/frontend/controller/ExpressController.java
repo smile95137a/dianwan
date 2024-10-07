@@ -1,4 +1,4 @@
-package com.one.onekuji.controller;
+package com.one.frontend.controller;
 
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -32,7 +32,8 @@ public class ExpressController {
 
         // 設定 POST 的參數
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("Url", "https://onemorelottery.tw/logistics/callback");
+        params.add("Url", "http://localhost:8081/logistics/callback");
+//        params.add("Url", "https://onemorelottery.tw/logistics/callback");
         params.add("Opmode", "3");
 
         // 設定 Headers
