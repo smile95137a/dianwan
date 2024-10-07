@@ -13,16 +13,18 @@ public class ExpressController {
 
     @PostMapping("/logistics/callback")
     public ResponseEntity<String> logisticsCallback(
-            @RequestParam String storename,
-            @RequestParam String storied
+            @RequestParam(required = false) String storename,
+            @RequestParam(required = false) String storied
     ) {
-        // 處理回傳的店名和店號
+        if (storename == null || storied == null) {
+            return ResponseEntity.badRequest().body("Missing parameters");
+        }
+
         System.out.println("Store Name: " + storename);
         System.out.println("Store ID: " + storied);
-        System.out.println(123);
-        // 根據業務邏輯處理
         return ResponseEntity.ok("Received logistics info successfully");
     }
+
 
 
     @PostMapping("/test")
