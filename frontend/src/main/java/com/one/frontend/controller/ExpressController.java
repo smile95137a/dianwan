@@ -3,6 +3,7 @@ package com.one.frontend.controller;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,20 +12,21 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 public class ExpressController {
 
-    @PostMapping("/logistics/callback")
+    @GetMapping("/logistics/callback")
     public ResponseEntity<String> logisticsCallback(
-            @RequestParam(required = false) String storename,
-            @RequestParam(required = false) String storied
+            @RequestParam String storename,
+            @RequestParam String storeid,
+            @RequestParam(required = false) String storeaddress,
+            @RequestParam(required = false) String storeph
     ) {
-        if (storename == null || storied == null) {
-            return ResponseEntity.badRequest().body("Missing parameters");
-        }
-
+        // 處理回傳的店名和店號
         System.out.println("Store Name: " + storename);
-        System.out.println("Store ID: " + storied);
+        System.out.println("Store ID: " + storeid);
+        System.out.println("Store Address: " + storeaddress);
+        System.out.println("Store Phone: " + storeph);
+
         return ResponseEntity.ok("Received logistics info successfully");
     }
-
 
 
     @PostMapping("/test")
