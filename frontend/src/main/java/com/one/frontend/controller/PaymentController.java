@@ -83,8 +83,8 @@ public class PaymentController {
                     .append("&Pay_Mode_No=2")
                     .append("&CustomerId=B82FD0DF7DE03FC702DEC35A2446E469")
                     .append("&Order_No=")
-                    .append("&Amount=10000") // 示例金额
-                    .append("&TransCode=")
+                    .append("&Amount=100") // 示例金额
+//                       .append("&TransCode=")
                     .append("&Buyer_Name=jimmy")
                     .append("&Buyer_Telm=0970124936")
                     .append("&Buyer_Mail=smile3541a@gmail.com")
@@ -94,8 +94,8 @@ public class PaymentController {
 //                       .append("&CVV=615")
 //                       .append("&TransMode=1")
 //                       .append("&Installment=0")
-                    .append("&Return_url=https://api.onemorelottery.tw:8081/payment/paymentCallback")
-                    .append("&Callback_Url=")
+//                       .append("&Return_url=")
+                    .append("&Callback_Url=https://api.onemorelottery.tw:8081/payment/paymentCallback")
 //                       .append("&e_return=1")
                     .append("&e_return=1")
                     .append("&Str_Check=d0q2mo1729enisehzolmhdwhkac38itb");
