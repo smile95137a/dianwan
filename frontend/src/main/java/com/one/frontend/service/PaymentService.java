@@ -152,7 +152,7 @@ return null;
                     .append("&Buyer_Mail=").append(req.getBuyerMail())
                     .append("&Buyer_Memo=").append(req.getBuyerMemo())
                     .append("&Return_url=")
-                    .append("&Callback_Url=")
+                    .append("&Callback_Url=").append(req.getCallbackUrl())
                     .append("&e_return=").append(req.getEReturn())
                     .append("&Str_Check=").append(req.getStrCheck());
 

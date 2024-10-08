@@ -33,6 +33,39 @@ public class PaymentController {
         return paymentService.webATM(paymentRequest);
     }
 
+    @PostMapping("/paymentCallback")
+    public ResponseEntity<String> paymentCallback(
+            @RequestParam String Send_Type,
+            @RequestParam String result,
+            @RequestParam String ret_msg,
+            @RequestParam String OrderID,
+            @RequestParam String e_money,
+            @RequestParam String PayAmount,
+            @RequestParam String e_date,
+            @RequestParam String e_time,
+            @RequestParam String e_orderno,
+            @RequestParam String e_payaccount,
+            @RequestParam String e_PayInfo,
+            @RequestParam String str_check
+    ) {
+        // 打印接收到的参数
+        System.out.println("Send_Type: " + Send_Type);
+        System.out.println("Result: " + result);
+        System.out.println("Return Message: " + ret_msg);
+        System.out.println("Order ID: " + OrderID);
+        System.out.println("e_money: " + e_money);
+        System.out.println("Pay Amount: " + PayAmount);
+        System.out.println("e_date: " + e_date);
+        System.out.println("e_time: " + e_time);
+        System.out.println("e_orderno: " + e_orderno);
+        System.out.println("e_payaccount: " + e_payaccount);
+        System.out.println("e_PayInfo: " + e_PayInfo);
+        System.out.println("str_check: " + str_check);
+
+        return ResponseEntity.ok("Received payment callback successfully");
+    }
+
+
 
     @PostMapping("/topOp") //儲值
     public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) throws Exception {
