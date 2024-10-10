@@ -235,7 +235,7 @@ public class DrawResultService {
 				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
 				BigDecimal sliver = new BigDecimal(String.valueOf(userRepository.getSliver(userId)));
 				if (sliver.compareTo(totalAmount) >= 0) {
-					BigDecimal newBalance = balance.subtract(totalAmount);
+					BigDecimal newBalance = sliver.subtract(totalAmount);
 					userRepository.deductUserSliver(userId, newBalance);
 				} else {
 					throw new Exception("銀幣不足");

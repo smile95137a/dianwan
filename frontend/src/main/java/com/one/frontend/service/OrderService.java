@@ -10,14 +10,19 @@ import com.one.frontend.request.OrderQueryReq;
 import com.one.frontend.request.PayCartRes;
 import com.one.frontend.request.ReceiptReq;
 import com.one.frontend.response.*;
+import com.one.frontend.util.Md5;
 import com.one.frontend.util.RandomUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -214,6 +219,7 @@ public class OrderService {
 
 			// 移除購物車項
 			cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
@@ -346,6 +352,7 @@ public class OrderService {
 
 			// 移除購物車項
 			prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
@@ -521,5 +528,47 @@ public class OrderService {
 		return results;
 	}
 
+
+	private String express(String orderNumber , BigDecimal amount , PayCartRes payCartRes){
+		String url = "https://logistics.gomypay.asia/LogisticsAPI.aspx";
+		String md5 = "5E11B0983580ABDE" + orderNumber;
+		String s = Md5.MD5(md5.toLowerCase());
+		s = s.toUpperCase();
+		// 获取当前日期
+		LocalDate currentDate = LocalDate.now();
+		// 定义日期格式
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		// 格式化日期
+		String formattedDate = currentDate.format(formatter);
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("Vendororder", orderNumber); // 客戶訂單編號
+		params.add("mode", "C2C"); // 物流方式
+		params.add("EshopId", "0038"); // 客戶代號
+		params.add("StoreId", payCartRes.getStoreId()); // 門市代號
+		params.add("Amount", String.valueOf(amount)); // 交易金額
+		params.add("ServiceType", "3"); // 服務型態代碼 //通路代號 1:全家 2:萊爾富3: 統一超商 4.OK 超商
+		params.add("OrderAmount", String.valueOf(amount)); // 商品價值
+		params.add("SenderName", "張三"); // 寄件人姓名
+		params.add("SendMobilePhone", "0912345678"); // 寄件人手機電話
+		params.add("ReceiverName", payCartRes.getShippingName()); // 取貨人姓名
+		params.add("ReceiverMobilePhone", payCartRes.getShippingPhone()); // 取貨人手機電話
+		params.add("OPMode", "3"); // 通路代號
+		params.add("Internetsite", "https://api.onemorelottery.tw:8081/logistics/callback"); // 接收狀態的網址
+		params.add("ShipDate", formattedDate); // 出貨日期
+		params.add("CHKMAC", s); // 檢查碼
+
+		// 設定 Headers
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // 設定為表單格式
+
+		// 封裝請求
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+		// 發送 POST 請求
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+		return response.getBody();
+	}
 
 }

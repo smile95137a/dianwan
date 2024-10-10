@@ -221,25 +221,18 @@ return null;
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
-        // 檢查該用戶當月是否已經發放過獎勵
-        boolean hasReceivedReward = userRewardRepository.hasReceivedRewardForMonth(userId, startOfMonth, endOfMonth);
-        if (hasReceivedReward) {
-            // 如果該用戶當月已領取過獎勵，直接返回結果，不再發放獎勵
-            return new Award(BigDecimal.ZERO, new ArrayList<>());
-        }
-
         // 獲取該用戶當月的消費總金額
         BigDecimal deposit = userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
 
         // 初始化 Award 物件
         Award award = new Award();
-        award.setCumulative(deposit);
+        award.setCumulative(deposit);  // 設置累計消費金額
 
         // 累計滿額條件和對應代幣數量
         int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
         int[] tokens = {30, 200, 500, 2000, 4000, 10000};
 
-        // 创建 rewardStatusList 列表用于存储每个达标金额、对应银币和是否达标
+        // 創建 rewardStatusList 列表
         List<RewardStatus> rewardStatusList = new ArrayList<>();
 
         // 遍歷閾值和獎勵代幣
@@ -248,32 +241,55 @@ return null;
             int tokenAmount = tokens[i];
             boolean achieved = deposit.compareTo(threshold) >= 0;
 
-            // 创建 RewardStatus 对象并添加到列表
+            // 無論是否達標，都要返回 RewardStatus
             rewardStatusList.add(new RewardStatus(threshold, tokenAmount, achieved));
         }
 
-        // 更新用户的银币（只更新最高达标奖励）
-        Optional<RewardStatus> highestAchieved = rewardStatusList.stream()
-                .filter(RewardStatus::isAchieved)
-                .max(Comparator.comparing(RewardStatus::getThreshold));
-
-        highestAchieved.ifPresent(rewardStatus -> {
-            userRepository.updateSliverCoin(userId, BigDecimal.valueOf(rewardStatus.getSliver()));
-
-            // 将奖励发放记录保存到 user_reward 表
-            UserReward userReward = new UserReward();
-            userReward.setUserId(userId);
-            userReward.setRewardAmount(BigDecimal.valueOf(rewardStatus.getSliver()));
-            userReward.setRewardDate(LocalDate.now());
-            userRewardRepository.save(userReward);
-        });
-
-        // 將結果設置到 Award 物件
+        // 設置結果到 Award 物件
         award.setRewardStatusList(rewardStatusList);
 
-        // 回傳 Award 物件
+        // 檢查該用戶當月是否已經發放過獎勵
+        boolean hasReceivedReward = userRewardRepository.hasReceivedRewardForMonth(userId, startOfMonth, endOfMonth);
+        if (!hasReceivedReward) {
+            // 如果用戶當月未領取過獎勵，則發放獎勵
+            Optional<RewardStatus> highestAchieved = rewardStatusList.stream()
+                    .filter(RewardStatus::isAchieved)
+                    .max(Comparator.comparing(RewardStatus::getThreshold));
+
+            highestAchieved.ifPresent(rewardStatus -> {
+                userRepository.updateSliverCoin(userId, BigDecimal.valueOf(rewardStatus.getSliver()));
+
+                // 將獎勵發放記錄保存到 user_reward 表
+                UserReward userReward = new UserReward();
+                userReward.setUserId(userId);
+                userReward.setRewardAmount(BigDecimal.valueOf(rewardStatus.getSliver()));
+                userReward.setRewardDate(LocalDate.now());
+                userRewardRepository.save(userReward);
+            });
+        }
+
+        // 返回 Award 物件，無論是否已經領取過獎勵
         return award;
     }
+
+
+    // Method to create default RewardStatus list when no rewards have been given
+    private List<RewardStatus> createDefaultRewardStatusList() {
+        int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
+        int[] tokens = {30, 200, 500, 2000, 4000, 10000};
+        List<RewardStatus> defaultRewardStatusList = new ArrayList<>();
+
+        for (int i = 0; i < thresholds.length; i++) {
+            BigDecimal threshold = BigDecimal.valueOf(thresholds[i]);
+            int tokenAmount = tokens[i];
+            // 添加默認未達標的 RewardStatus
+            defaultRewardStatusList.add(new RewardStatus(threshold, tokenAmount, false));
+        }
+
+        return defaultRewardStatusList;
+    }
+
+
 
 
 
