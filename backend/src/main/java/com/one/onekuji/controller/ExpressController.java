@@ -17,15 +17,25 @@ public class ExpressController {
 
     @PostMapping("/convenience")
     public ResponseEntity<String> convenience(@RequestBody LogisticsRequest logisticsRequest) {
-        String convenience = expressService.convenience(logisticsRequest);
-        return ResponseEntity.ok(convenience);
+        try {
+            String convenience = expressService.convenience(logisticsRequest);
+            return ResponseEntity.ok(convenience);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
     @PostMapping("/homeAndOffice")
     public ResponseEntity<String> home(@RequestBody HomeReq homeReq) {
+        try {
         String home = expressService.home(homeReq);
         return ResponseEntity.ok(home);
+    }catch (Exception e){
+        e.printStackTrace();
+    }
+        return null;
     }
 
     @PostMapping("/getAddress")

@@ -25,7 +25,7 @@ public class HomeReq {
     @Min(1)
     @Max(4)
     private int spec; // 規格(代碼) 0001:60cm, 0002:90cm, 0003:120cm, 0004:150cm
-
+    private String orderAmount; // 商品價值
     @Min(1)
     @Max(3)
     private int serviceType; // 服務型態代碼 3-取貨不付款
@@ -72,4 +72,6 @@ public class HomeReq {
 
     @Size(max = 32)
     private String chkMac; // 檢查碼
+
+    private String deliveryTime;
 }
