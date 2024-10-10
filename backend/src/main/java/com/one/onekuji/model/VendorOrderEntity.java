@@ -25,5 +25,8 @@ public class VendorOrderEntity {
     @Column(name = "error_message", length = 255)
     private String errorMessage;   // 訊息內容
 
+    @Column(name = "express")
+    private String express;
+
     // Getters and Setters
 }

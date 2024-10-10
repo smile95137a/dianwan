@@ -124,5 +124,13 @@ public class Order {
 
     @Column( name = "cart_item_id")
     private String cartItemIds;
+    @Column(name = "express")
+    private String express;
+
+    @Column(name = "shop_id")
+    private String shopId;
+
+    @Column(name = "OPMode")
+    private String OPMode;
 
 }

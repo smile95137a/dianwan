@@ -70,7 +70,7 @@ public class ExpressController {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 //        params.add("Url", "http://localhost:8081/logistics/callback");
         params.add("Url", "https://api.onemorelottery.tw:8081/logistics/callback");
-        params.add("Opmode", "3");
+        params.add("Opmode", "1");
 
         // 設定 Headers
         HttpHeaders headers = new HttpHeaders();

@@ -202,6 +202,8 @@ public class OrderService {
 					.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
 					.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
 					.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
+					.express(payCartRes.getExpress())
+					.shopId(payCartRes.getShopId())
 					.build();
 
 			// 插入訂單到資料庫
@@ -544,7 +546,7 @@ public class OrderService {
 		params.add("Vendororder", orderNumber); // 客戶訂單編號
 		params.add("mode", "C2C"); // 物流方式
 		params.add("EshopId", "0038"); // 客戶代號
-		params.add("StoreId", payCartRes.getStoreId()); // 門市代號
+		params.add("StoreId", payCartRes.getShopId()); // 門市代號
 		params.add("Amount", String.valueOf(amount)); // 交易金額
 		params.add("ServiceType", "3"); // 服務型態代碼 //通路代號 1:全家 2:萊爾富3: 統一超商 4.OK 超商
 		params.add("OrderAmount", String.valueOf(amount)); // 商品價值
@@ -552,7 +554,7 @@ public class OrderService {
 		params.add("SendMobilePhone", "0912345678"); // 寄件人手機電話
 		params.add("ReceiverName", payCartRes.getShippingName()); // 取貨人姓名
 		params.add("ReceiverMobilePhone", payCartRes.getShippingPhone()); // 取貨人手機電話
-		params.add("OPMode", "3"); // 通路代號
+		params.add("OPMode", payCartRes.getOPMode()); // 通路代號
 		params.add("Internetsite", "https://api.onemorelottery.tw:8081/logistics/callback"); // 接收狀態的網址
 		params.add("ShipDate", formattedDate); // 出貨日期
 		params.add("CHKMAC", s); // 檢查碼

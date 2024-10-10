@@ -18,6 +18,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -91,6 +93,7 @@ public class ExpressService {
                     vendorOrderEntity.setOrderNo(orderNo);
                     vendorOrderEntity.setErrorCode(errorCode);
                     vendorOrderEntity.setErrorMessage(errorMessage);
+                    vendorOrderEntity.setExpress("1".equals(logisticsRequest.getOpMode()) ? "全家" : "711");
 
                     // 插入資料庫
                     vendorOrderRepository.insert(vendorOrderEntity);
@@ -105,6 +108,7 @@ public class ExpressService {
             // 如果返回的是 JSON 格式
             Gson gson = new Gson();
             VendorOrderEntity vendorOrderEntity = gson.fromJson(jsonResponse, VendorOrderEntity.class);
+            vendorOrderEntity.setExpress("1".equals(logisticsRequest.getOpMode()) ? "全家" : "711");
             vendorOrderRepository.insert(vendorOrderEntity);
         }
         return jsonResponse;
@@ -139,6 +143,8 @@ public class ExpressService {
         params.add("DeliveryDate", homeReq.getDeliveryDate()); // 希望配達日期
         params.add("DeliveryTime" , homeReq.getDeliveryTime());
         params.add("ProductTypeId", "0015"); // 商品類別(代碼)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        params.add("PrintDateTime", sdf.format(new Date()));
         params.add("ProductName", "景品"); // 商品名稱
         params.add("CHKMAC", s); // 檢查碼
 
@@ -180,7 +186,7 @@ public class ExpressService {
                     vendorOrderEntity.setOrderNo(orderNo);
                     vendorOrderEntity.setErrorCode(errorCode);
                     vendorOrderEntity.setErrorMessage(errorMessage);
-
+                    vendorOrderEntity.setExpress("黑貓");
                     // 插入資料庫
                     vendorOrderRepository.insert(vendorOrderEntity);
                     System.out.println("已插入資料庫");
@@ -194,6 +200,7 @@ public class ExpressService {
             // 如果返回的是 JSON 格式
             Gson gson = new Gson();
             VendorOrderEntity vendorOrderEntity = gson.fromJson(jsonResponse, VendorOrderEntity.class);
+            vendorOrderEntity.setExpress("黑貓");
             vendorOrderRepository.insert(vendorOrderEntity);
         }
         return jsonResponse;

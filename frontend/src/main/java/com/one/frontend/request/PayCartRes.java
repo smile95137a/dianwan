@@ -45,8 +45,9 @@ public class PayCartRes {
     private String state; //發票捐贈
     private String donationCode; //捐贈馬
     private String cardHolderName;
-    private String storeId; //店號
     private String oPMode;  //通路代號 1:全家 2:萊爾富3: 統一超商 4.OK 超商
+    private String express;
+    private String shopId;
 }
 
 
