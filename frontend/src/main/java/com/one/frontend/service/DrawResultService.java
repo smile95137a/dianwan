@@ -343,8 +343,8 @@ public class DrawResultService {
 				totalQue += res.getQuantity();
 			}
 
-			if(totalQue == 0){
-				productRepository.updateStatus(spPrize.getProductId());
+			if(totalQue == 0 ){
+				productRepository.updateStatus(productId);
 			}
 
 // 检查总数量是否为1
