@@ -40,7 +40,7 @@ public class ExpressController {
         params.add("SendMobilePhone", "0912345678"); // 寄件人手機電話
         params.add("ReceiverName", "李四"); // 取貨人姓名
         params.add("ReceiverMobilePhone", "0987654321"); // 取貨人手機電話
-        params.add("OPMode", "3"); // 通路代號
+        params.add("OPMode", "1"); // 通路代號
         params.add("Internetsite", "https://api.onemorelottery.tw:8081/logistics/callback"); // 接收狀態的網址
         params.add("ShipDate", "2024-10-08"); // 出貨日期
         params.add("CHKMAC", "YourCheckMacHere"); // 檢查碼
