@@ -1,12 +1,16 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.model.ApiResponse;
+import com.one.frontend.request.CodeRequest;
 import com.one.frontend.util.ResponseUtils;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 public class ExpressController {
@@ -62,31 +66,65 @@ public class ExpressController {
 
 
     @PostMapping("/express")
-    public ResponseEntity<ApiResponse<String>> logisticsCallback(@RequestBody String code) {
+    public ResponseEntity<ApiResponse<?>> logisticsCallback(@RequestBody CodeRequest codeRequest) {
         String url = "https://logistics.gomypay.asia/Logisticstm.aspx";
+
+        // 提取 code 值
+        String code = codeRequest.getCode();
+        System.out.println("711".equals(code));
 
         // 設定 POST 的參數
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//        params.add("Url", "http://localhost:8081/logistics/callback");
         params.add("Url", "http://localhost:5173/mall-checkout");
-        params.add("Opmode", "711".equals(code) ? "3" : "1");
+        params.add("Opmode", "711".equals(code) ? "3" : ("family".equals(code) ? "1" : "0"));
 
         // 設定 Headers
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // 設定為表單格式
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         // 封裝請求
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        // 發送 POST 請求
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+        try {
+            // 發送 POST 請求
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
-        // 處理回應
-        System.out.println("Response: " + response);
+            // 處理回應
+            String responseBody = response.getBody();
+            System.out.println("Response: " + responseBody);
 
-        // 根據業務邏輯處理
-        return ResponseEntity.ok(ResponseUtils.success(200, "查詢成功", response.getBody()));
+            // 使用正則表達式提取 href 的 URL
+            String extractedUrl = extractHrefUrl(responseBody);
+            System.out.println("提取的 URL: " + extractedUrl);
+
+            // 根據業務邏輯處理
+            return ResponseEntity.ok(ResponseUtils.success(200, "查詢成功", extractedUrl));
+        } catch (Exception e) {
+            // 錯誤處理
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseUtils.error(500, "物流回調失敗"));
+        }
     }
+
+    // 提取 href URL 的方法
+    private String extractHrefUrl(String html) {
+        // 定義正則表達式來匹配 href URL
+        String regex = "href=\"(.*?)\"";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(html);
+
+        if (matcher.find()) {
+            String extractedUrl = matcher.group(1);
+            // 替換掉 &amp; 為 & 符號
+            extractedUrl = extractedUrl.replace("&amp;", "&");
+            return extractedUrl;
+        } else {
+            return "未找到 href URL";
+        }
+    }
+
+
 
 }
