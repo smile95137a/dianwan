@@ -1,9 +1,16 @@
 package com.one.frontend.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "user_transaction")
 public class UserTransaction {
@@ -30,6 +37,8 @@ public class UserTransaction {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // 记录更新时间
+    @Column(name = "user_UUID")
+    private String userUUID;
 
     // 在保存实体时自动生成创建和更新时间
     @PrePersist
