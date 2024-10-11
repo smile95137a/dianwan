@@ -15,10 +15,20 @@ public class TransactionService {
     private UserTransactionRepository transactionRepository;
 
     public List<UserTransaction> getTransactions(Long userId, Date startDate, Date endDate) {
+        List<UserTransaction> transactions;
+
         if (startDate != null && endDate != null) {
-            return transactionRepository.findTransactionsByUserIdAndDateRange(userId, startDate, endDate);
+            transactions = transactionRepository.findTransactionsByUserIdAndDateRange(userId, startDate, endDate);
         } else {
-            return transactionRepository.findAllTransactionsByUserId(userId);
+            transactions = transactionRepository.findAllTransactionsByUserId(userId);
         }
+
+        // 更新交易类型为用户友好的字符串
+        transactions.forEach(transaction -> {
+            transaction.setTransactionType(UserTransaction.TransactionType.valueOf(transaction.getFriendlyTransactionType()));
+        });
+
+        return transactions;
     }
+
 }

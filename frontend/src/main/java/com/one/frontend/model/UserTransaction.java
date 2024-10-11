@@ -57,7 +57,9 @@ public class UserTransaction {
         CONSUME, // 消费
         DEPOSIT  // 储值
     }
-
+    public String getFriendlyTransactionType() {
+        return "DEPOSIT".equals(transactionType) ? "儲值" : "消費";
+    }
     // Getters and Setters
 
     public Long getId() {
