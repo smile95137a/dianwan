@@ -1,14 +1,14 @@
 package com.one.frontend.request;
 
+import lombok.Data;
+
+@Data
 public class CodeRequest {
     private String code;
 
-    // Getter and Setter
-    public String getCode() {
-        return code;
-    }
+    private String x; //1是mall 2是賞品盒
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+
+    // Getter and Setter
+
 }

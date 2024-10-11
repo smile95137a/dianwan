@@ -75,7 +75,12 @@ public class ExpressController {
 
         // 設定 POST 的參數
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("Url", "https://onemorelottery.tw/mall-checkout");
+        if("1".equals(codeRequest.getX())){ //1是mall 2是賞品盒S
+            params.add("Url", "https://onemorelottery.tw/mall-checkout");
+        }else if ("2".equals(codeRequest.getX())){
+            params.add("Url", "https://onemorelottery.tw/prize-checkout");
+        }
+
         params.add("Opmode", "711".equals(code) ? "3" : ("family".equals(code) ? "1" : "0"));
 
         // 設定 Headers
