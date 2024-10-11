@@ -46,4 +46,6 @@ public class ShippingMethod{
     private BigDecimal size;
     @Column(name = "shipping_price")
     private BigDecimal shippingPrice;
+    @Column(name = "code")
+    private String code;
 }

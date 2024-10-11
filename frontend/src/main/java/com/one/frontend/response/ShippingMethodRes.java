@@ -19,4 +19,6 @@ public class ShippingMethodRes {
 
     private BigDecimal shippingPrice;
 
+    private String code;
+
 }
