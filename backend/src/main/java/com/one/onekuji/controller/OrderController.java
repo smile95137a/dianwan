@@ -1,8 +1,10 @@
 package com.one.onekuji.controller;
 
 import com.one.onekuji.model.Order;
+import com.one.onekuji.request.OrderQueryReq;
+import com.one.onekuji.request.OrderStatusUpdateRequest;
+import com.one.onekuji.response.OrderRes;
 import com.one.onekuji.service.OrderService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,15 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/query")
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+    public ResponseEntity<List<OrderRes>> getAllOrders() {
+        try {
+            OrderQueryReq req = new OrderQueryReq();
+            List<OrderRes> orders = orderService.getAllOrders(req);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @GetMapping("/{id}")
@@ -34,10 +42,11 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody @Valid Order order) {
+    public ResponseEntity<String> updateOrder(@PathVariable Long id, @RequestBody OrderStatusUpdateRequest request) {
         try {
-            Order updatedOrder = orderService.updateOrder(id, order);
-            return ResponseEntity.ok(updatedOrder);
+            String resultStatus = request.getResultStatus(); // 从 JSON 中获取 resultStatus
+            String s = orderService.updateOrder(id, resultStatus);
+            return ResponseEntity.ok(s);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

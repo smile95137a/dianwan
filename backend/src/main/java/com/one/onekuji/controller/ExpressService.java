@@ -94,6 +94,7 @@ public class ExpressService {
                     vendorOrderEntity.setErrorCode(errorCode);
                     vendorOrderEntity.setErrorMessage(errorMessage);
                     vendorOrderEntity.setExpress("1".equals(logisticsRequest.getOpMode()) ? "全家" : "711");
+                    vendorOrderEntity.setStatus("未寄出");
 
                     // 插入資料庫
                     vendorOrderRepository.insert(vendorOrderEntity);

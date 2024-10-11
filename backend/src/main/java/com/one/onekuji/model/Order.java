@@ -3,16 +3,22 @@ package com.one.onekuji.model;
 import com.one.onekuji.eenum.OrderStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Schema(description = "訂單模型")
 @Table(name = "`order`")
-public class Order{
+public class Order {
 
     @Schema(description = "訂單唯一識別碼", example = "1")
     @Id
@@ -118,4 +124,13 @@ public class Order{
 
     @Column( name = "cart_item_id")
     private String cartItemIds;
+    @Column(name = "express")
+    private String express;
+
+    @Column(name = "shop_id")
+    private String shopId;
+
+    @Column(name = "OPMode")
+    private String OPMode;
+
 }

@@ -8,8 +8,8 @@ import java.util.List;
 @Mapper
 public interface VendorOrderRepository {
 
-    @Insert("INSERT INTO vendor_order (vendor_order, order_no, error_code, error_message) " +
-            "VALUES (#{vendorOrder}, #{orderNo}, #{errorCode}, #{errorMessage})")
+    @Insert("INSERT INTO vendor_order (vendor_order, order_no, error_code, error_message , express , status) " +
+            "VALUES (#{vendorOrder}, #{orderNo}, #{errorCode}, #{errorMessage} , #{express} , #{status})")
     void insert(VendorOrderEntity vendorOrder);
 
     @Select("SELECT * FROM vendor_order WHERE vendorOrder = #{vendorOrder}")
@@ -18,9 +18,8 @@ public interface VendorOrderRepository {
     @Select("SELECT * FROM vendor_order")
     List<VendorOrderEntity> findAll();
 
-    @Update("UPDATE vendor_order SET orderNo = #{orderNo}, errorCode = #{errorCode}, errorMessage = #{errorMessage} " +
-            "WHERE vendorOrder = #{vendorOrder}")
-    void update(VendorOrderEntity vendorOrder);
+    @Update("UPDATE vendor_order SET status = #{vendorOrder.status} WHERE vendor_order = #{vendorOrder.vendorOrder}")
+    void update(@Param("vendorOrder") VendorOrderEntity vendorOrder);
 
     @Delete("DELETE FROM vendor_order WHERE vendorOrder = #{vendorOrder}")
     void delete(String vendorOrder);

@@ -7,9 +7,7 @@ import com.one.onekuji.util.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
@@ -30,6 +28,16 @@ public class VendorOrderController {
         ApiResponse<List<VendorOrderEntity>> response = ResponseUtils.success(200, null, categories);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    public ApiResponse<VendorOrderEntity> updateOrder(@PathVariable String id, @RequestBody VendorOrderEntity vendorOrder) {
+        // 在此处可以添加一些验证逻辑，比如检查 ID 和订单是否匹配
+        vendorOrder.setVendorOrder(id); // 确保将 ID 设置到 vendorOrder 实体中
+        vendorOrderRepository.update(vendorOrder);
+
+        return ResponseUtils.success(200, "訂單更新成功", vendorOrder);
+    }
+
 
 
 }

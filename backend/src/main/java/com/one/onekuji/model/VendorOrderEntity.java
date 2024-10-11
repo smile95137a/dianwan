@@ -28,5 +28,9 @@ public class VendorOrderEntity {
     @Column(name = "express")
     private String express;
 
+    @Column(name = "status")
+    private String status;
+
+
     // Getters and Setters
 }
