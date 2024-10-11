@@ -1,12 +1,11 @@
 package com.one.frontend.controller;
 
+import com.one.frontend.model.ApiResponse;
+import com.one.frontend.util.ResponseUtils;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -41,7 +40,7 @@ public class ExpressController {
         params.add("ReceiverName", "李四"); // 取貨人姓名
         params.add("ReceiverMobilePhone", "0987654321"); // 取貨人手機電話
         params.add("OPMode", "1"); // 通路代號
-        params.add("Internetsite", "https://api.onemorelottery.tw:8081/logistics/callback"); // 接收狀態的網址
+        params.add("Internetsite", "http://localhost:5173/mall-checkout"); // 接收狀態的網址
         params.add("ShipDate", "2024-10-08"); // 出貨日期
         params.add("CHKMAC", "YourCheckMacHere"); // 檢查碼
 
@@ -62,15 +61,15 @@ public class ExpressController {
     }
 
 
-    @PostMapping("/test")
-    public ResponseEntity<String> logisticsCallback() {
+    @PostMapping("/express")
+    public ResponseEntity<ApiResponse<String>> logisticsCallback(@RequestBody String code) {
         String url = "https://logistics.gomypay.asia/Logisticstm.aspx";
 
         // 設定 POST 的參數
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 //        params.add("Url", "http://localhost:8081/logistics/callback");
-        params.add("Url", "https://api.onemorelottery.tw:8081/logistics/callback");
-        params.add("Opmode", "1");
+        params.add("Url", "http://localhost:5173/mall-checkout");
+        params.add("Opmode", "711".equals(code) ? "3" : "1");
 
         // 設定 Headers
         HttpHeaders headers = new HttpHeaders();
@@ -85,8 +84,9 @@ public class ExpressController {
 
         // 處理回應
         System.out.println("Response: " + response);
+
         // 根據業務邏輯處理
-        return ResponseEntity.ok("Received logistics info successfully");
+        return ResponseEntity.ok(ResponseUtils.success(200, "查詢成功", response.getBody()));
     }
 
 }

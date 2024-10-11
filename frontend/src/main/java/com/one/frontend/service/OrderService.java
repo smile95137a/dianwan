@@ -48,6 +48,9 @@ public class OrderService {
 	private StoreProductRepository storeProductRepository;
 	@Autowired
 	private ProductDetailRepository productDetailRepository;
+
+	@Autowired
+	private ShippingMethodRepository shippingMethodRepository;
 	public String ecpayCheckout(Integer userId) {
 
 		String uuId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
@@ -139,7 +142,7 @@ public class OrderService {
 				BigDecimal::add);
 
 		// 計算運費，根據運輸方式動態設置
-		BigDecimal shippingCost = calculateShippingCost(payCartRes.getShippingMethod());
+		BigDecimal shippingCost = shippingMethodRepository.getShippingPrice(payCartRes.getShippingMethod());
 
 		// 計算總金額，包括商品總價格和運費
 		BigDecimal totalAmount = totalProductAmount.add(shippingCost);
@@ -159,7 +162,7 @@ public class OrderService {
 			paymentRequest.setBuyerMail(userRes.getUsername());
 			paymentRequest.setBuyerMemo("再來一抽備註");
 			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
+			paymentRequest.setExpireDate(payCartRes.getExpiryDate().replace("/", ""));
 			paymentRequest.setCvv(payCartRes.getCvv());
 			System.out.println(paymentRequest);
 			paymentResponse = paymentService.creditCard(paymentRequest);
@@ -202,8 +205,8 @@ public class OrderService {
 					.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
 					.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
 					.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
-					.express(payCartRes.getExpress())
 					.shopId(payCartRes.getShopId())
+					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
 					.build();
 
 			// 插入訂單到資料庫
@@ -270,7 +273,7 @@ public class OrderService {
 		String orderNumber = genOrderNumber();
 
 		// 計算運費，根據運輸方式動態設置
-		BigDecimal shippingCost = calculateShippingCost(payCartRes.getShippingMethod());
+		BigDecimal shippingCost =shippingMethodRepository.getShippingPrice(payCartRes.getShippingMethod());
 
 		//取得用戶資訊
 		UserRes userRes = userRepository.getUserById(userId);
@@ -286,7 +289,7 @@ public class OrderService {
 			paymentRequest.setBuyerMail(userRes.getUsername());
 			paymentRequest.setBuyerMemo("再來一抽備註");
 			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpiryDate());
+			paymentRequest.setExpireDate(payCartRes.getExpiryDate().replace("/", ""));
 			paymentRequest.setCvv(payCartRes.getCvv());
 			System.out.println(paymentRequest);
 			paymentResponse = paymentService.creditCard(paymentRequest);
@@ -329,6 +332,8 @@ public class OrderService {
 					.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
 					.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
 					.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
+					.shopId(payCartRes.getShopId())
+					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
 					.build();
 
 			// 插入訂單到資料庫
@@ -422,21 +427,6 @@ public class OrderService {
 		prizeCartItemService.removeCartItems(prizeCartItemIds, prizeCartItemList.get(0).getCartId());
 	}
 
-	// 根據不同的運送方式計算運費
-	private BigDecimal 	calculateShippingCost(String shippingMethodValue) {
-		switch (shippingMethodValue) {
-		case "homeDelivery":
-			return new BigDecimal("160"); // 宅配運費
-		case "sevenEleven":
-		case "familyMart":
-		case "hilife":
-			return new BigDecimal("60"); // 超商取貨運費
-		case "postOffice":
-			return new BigDecimal("100"); // 郵寄運費
-		default:
-			return BigDecimal.ZERO; // 未知方式，設置為0
-		}
-	}
 
 	public String genOrderNumber() {
 		var orderDate = LocalDateTime.now();
