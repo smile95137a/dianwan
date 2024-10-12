@@ -144,7 +144,7 @@ public class UserService {
 			throw new Exception("Failed to update user with ID: " + userId, e);
 		}
 	}
-	
+
 	@Transactional
 	public boolean updateUserInvoice(UserReq req, Long userId) throws Exception {
 		try {
