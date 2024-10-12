@@ -1,6 +1,8 @@
 package com.one.onekuji.service;
 
+import com.one.onekuji.eenum.ProductStatus;
 import com.one.onekuji.model.PrizeNumber;
+import com.one.onekuji.model.Product;
 import com.one.onekuji.repository.PrizeNumberMapper;
 import com.one.onekuji.repository.ProductDetailRepository;
 import com.one.onekuji.repository.ProductRepository;
@@ -109,8 +111,14 @@ public class ProductDetailService {
 
 
 
-    public DetailRes updateProductDetail(Long id, DetailReq productDetailReq) {
+    public DetailRes updateProductDetail(Long id, DetailReq productDetailReq) throws Exception {
         productDetailReq.setProductDetailId(Math.toIntExact(id));
+        Product productById = productRepository.getProductById(Long.valueOf(productDetailReq.getProductId()));
+        if(productById.getStatus().equals(ProductStatus.AVAILABLE)){
+            throw new Exception("此商品已上架，不得更新庫存");
+        }else{
+            productDetailReq.setStockQuantity(productDetailReq.getQuantity());
+        }
 
         // Escape text for HTML in description and specification
         productDetailReq.setDescription(escapeTextForHtml(productDetailReq.getDescription()));
