@@ -95,7 +95,12 @@ public class ProductService {
         product.setStatus(req.getStatus());
         product.setBonusPrice(req.getBonusPrice());
         product.setSpecification(escapeTextForHtml(req.getSpecification()));
-        product.setCategoryId(req.getCategoryId());
+        if(req.getProductType().equals(ProductType.GACHA)){
+            product.setCategoryId(0L);
+        }else{
+            product.setCategoryId(req.getCategoryId());
+        }
+
     }
 
 
