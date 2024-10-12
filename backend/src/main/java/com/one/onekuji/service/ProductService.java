@@ -88,7 +88,7 @@ public class ProductService {
         product.setDescription(escapeTextForHtml(req.getDescription()));
         product.setPrice(BigDecimal.valueOf(req.getPrice()));
         product.setSliverPrice(req.getSliverPrice());
-        product.setStockQuantity(0);
+        product.setStockQuantity(req.getStockQuantity());
         product.setImageUrls(req.getImageUrls());
         product.setProductType(req.getProductType());
         product.setPrizeCategory(req.getPrizeCategory());

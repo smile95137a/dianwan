@@ -339,11 +339,11 @@ public class DrawResultService {
 	}
 
 	private void updateProductStock(Long productId, List<PrizeNumber> drawnPrizeNumbers) {
-		for (PrizeNumber drawnPrizeNumber : drawnPrizeNumbers) {
-			ProductDetailRes prizeDetail = productDetailRepository.getProductDetailById(drawnPrizeNumber.getProductDetailId());
-			prizeDetail.setQuantity(prizeDetail.getQuantity() - 1);
-			productDetailRepository.updateProductDetailQuantity(prizeDetail);
-		}
+//		for (PrizeNumber drawnPrizeNumber : drawnPrizeNumbers) {
+//			ProductDetailRes prizeDetail = productDetailRepository.getProductDetailById(drawnPrizeNumber.getProductDetailId());
+//			prizeDetail.setQuantity(prizeDetail.getQuantity() - 1);
+//			productDetailRepository.updateProductDetailQuantity(prizeDetail);
+//		}
 
 		// 检查并更新产品状态
 		List<ProductDetailRes> remainingDetails = productDetailRepository.getProductDetailByProductId(productId);
