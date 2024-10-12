@@ -78,7 +78,7 @@ public class ExpressController {
         if("1".equals(codeRequest.getX())){ //1是mall 2是賞品盒S
             params.add("Url", "https://onemorelottery.tw/mall-checkout");
         }else if ("2".equals(codeRequest.getX())){
-            params.add("Url", "https://onemorelottery.tw/prize-checkout");
+            params.add("Url", "https://onemorelottery.tw/member-center/prize-checkout");
         }
 
         params.add("Opmode", "711".equals(code) ? "3" : ("family".equals(code) ? "1" : "0"));

@@ -3,7 +3,6 @@ package com.one.frontend.service;
 import com.one.frontend.dto.OrderDetailDto;
 import com.one.frontend.eenum.OrderStatus;
 import com.one.frontend.eenum.PrizeCategory;
-import com.one.frontend.eenum.ProductStatus;
 import com.one.frontend.eenum.ProductType;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
@@ -180,15 +179,20 @@ public class DrawResultService {
 
 
 
-	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers , String payMethod) throws Exception {
+	public List<DrawResult> handleDraw2(Long userId, Long productId, List<String> prizeNumbers, String payMethod) throws Exception {
 		try {
-			// 验证用戶
-			Long prizeCart = prizeCartRepository.getCartIdByUserId(userId);
-			if (prizeCart == null) {
+			// 验证用户
+			Long prizeCartId = prizeCartRepository.getCartIdByUserId(userId);
+			if (prizeCartId == null) {
 				throw new Exception("沒有賞品盒不能抽獎，請聯繫客服人員");
 			}
 
-			// 获取产品详细列表
+			// 获取产品详细信息
+			ProductRes product = productRepository.getProductById(productId);
+			if (product == null) {
+				throw new Exception("產品不存在");
+			}
+
 			List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(productId);
 			if (productDetails.isEmpty()) {
 				throw new Exception("該產品沒有可用的獎品");
@@ -196,237 +200,217 @@ public class DrawResultService {
 
 			// 获取选中的奖品编号
 			List<PrizeNumber> selectedPrizeNumbers = prizeNumberMapper.getPrizeNumbersByProductIdAndNumbers(productId, prizeNumbers);
-			if (selectedPrizeNumbers.size() < prizeNumbers.size()) {
-				throw new Exception("部分指定的獎品編號不存在");
+			if (selectedPrizeNumbers.size() != prizeNumbers.size()) {
+				throw new Exception("部分指定的獎品編號不存在或重複");
 			}
+
+			// 验证并扣除用户余额
+			BigDecimal totalAmount = calculateTotalAmount(product, prizeNumbers.size(), payMethod);
+			deductUserBalance(userId, totalAmount, product.getPrizeCategory(), payMethod);
 
 			// 为每个选择的编号随机抽奖（按概率）
 			List<PrizeNumber> drawnPrizeNumbers = drawPrizesForNumbersWithStock(selectedPrizeNumbers, productDetails);
-			// 获取商品价格
-			ProductRes product = productRepository.getProductById(productId);
 
+			// 处理抽奖结果
+			List<DrawResult> drawResults = processDrawResults(userId, productId, drawnPrizeNumbers, product, payMethod);
 
-			// 扣除会员内储值金或红利
-			PrizeCategory category = product.getPrizeCategory();
-			BigDecimal balance = new BigDecimal(userRepository.getBalance(userId));
-			if (category == PrizeCategory.BONUS) {
-				BigDecimal amount = product.getBonusPrice();
-				// 计算抽奖总金额
-				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
-				BigDecimal bonusPoints = new BigDecimal(userRepository.getBonusPoints(userId));
-				if (bonusPoints.compareTo(totalAmount) >= 0) {
-					BigDecimal newBonusPoints = bonusPoints.subtract(totalAmount);
-					userRepository.deductUserBonusPoints(userId, newBonusPoints);
-				} else {
-					throw new Exception("红利不足");
-				}
-			} else if("1".equals(payMethod)){ //1是金幣抽獎
-				BigDecimal amount = product.getPrice();
-				// 计算抽奖总金额
-				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
-				if (balance.compareTo(totalAmount) >= 0) {
-					BigDecimal newBalance = balance.subtract(totalAmount);
-					userRepository.deductUserBalance(userId, newBalance);
-				} else {
-					throw new Exception("餘額不足，請加值");
-				}
-			} else if("2".equals(payMethod)){
-				BigDecimal amount = product.getSliverPrice();
-				BigDecimal totalAmount = amount.multiply(BigDecimal.valueOf(prizeNumbers.size()));
-				BigDecimal sliver = new BigDecimal(String.valueOf(userRepository.getSliver(userId)));
-				if (sliver.compareTo(totalAmount) >= 0) {
-					BigDecimal newBalance = sliver.subtract(totalAmount);
-					userRepository.deductUserSliver(userId, newBalance);
-				} else {
-					throw new Exception("銀幣不足");
-				}
-			}
-			LocalDateTime endTimes = null;
-			if(product.getProductType() == ProductType.PRIZE){
-				endTimes = handleDrawForLock(userId ,productId , prizeNumbers);
-			}
-			List<DrawResult> drawResults = new ArrayList<>();
-			int remainingDrawCount = prizeNumbers.size();
-			UserRes user = userRepository.getUserById(userId);
-			// 处理每个抽中的奖品
-			for (PrizeNumber selectedPrizeNumber : drawnPrizeNumbers) {
-				prizeNumberMapper.markPrizeNumberAsDrawn(selectedPrizeNumber.getPrizeNumberId(), selectedPrizeNumber.getProductId(), selectedPrizeNumber.getProductDetailId());
+			// 更新奖品库存和状态
+			updateProductStock(productId, drawnPrizeNumbers);
 
-				// 更新奖品数量
-				ProductDetailRes selectedPrizeDetail = productDetailRepository
-						.getProductDetailById(selectedPrizeNumber.getProductDetailId());
-				// 记录抽奖结果
-				DrawResult drawResult = new DrawResult();
-				drawResult.setUserId(userId);
-				drawResult.setProductId(productId);
-				drawResult.setProductDetailId(selectedPrizeDetail.getProductDetailId().longValue());
-				drawResult.setDrawTime(LocalDateTime.now());
-				if (category == PrizeCategory.BONUS) {
-					BigDecimal amount = product.getBonusPrice();
-					drawResult.setAmount(amount);
-				}else if("1".equals(payMethod)){
-					BigDecimal amount = product.getPrice();
-					drawResult.setAmount(amount);
-				}else if("2".equals(payMethod)){
-					BigDecimal amount = product.getSliverPrice();
-					drawResult.setAmount(amount);
-				}
+			// 添加商品到奖品盒
+			addToPrizeCart(prizeCartId, drawnPrizeNumbers, product);
 
-				drawResult.setDrawCount(1);
-				drawResult.setRemainingDrawCount(remainingDrawCount);
-				drawResult.setPrizeNumber(selectedPrizeNumber.getNumber());
-				drawResult.setStatus("ACTIVE");
-				drawResult.setTotalDrawCount((long) prizeNumbers.size());
-				drawResult.setCreateDate(LocalDateTime.now());
-				drawResult.setUpdateDate(LocalDateTime.now());
-				drawResult.setImageUrls(selectedPrizeDetail.getImageUrls().get(0));
-				drawResult.setProductName(selectedPrizeDetail.getProductName());
-				drawResults.add(drawResult);
+			// 处理SP奖
+			handleSPPrize(userId, productId, prizeCartId);
 
-
-				//告知抽獎結果跑馬燈
-				GachaMessage message = new GachaMessage();
-				message.setNickName(user.getNickname());
-				message.setName(selectedPrizeDetail.getProductName());
-				message.setProductDetail(selectedPrizeDetail);
-				message.setCreatedDate(LocalDateTime.now());
-
-				messagingTemplate.convertAndSend("/topic/lottery", message);
-				remainingDrawCount--;
-
-
-
-			}
-
-			// 批量插入抽奖结果
-			drawRepository.insertBatch(drawResults);
-
-			//商品加入賞品盒
-			Long prizeCartId = prizeCartRepository.getCartIdByUserId(userId);
-			List<PrizeCartItem> cartItemList = new ArrayList<>();
-			if(!(prizeCartId == null)){
-				for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
-					PrizeCartItem prizeCartItem = new PrizeCartItem();
-					ProductDetailRes selectedPrizeDetail = productDetailRepository
-							.getProductDetailById(selectedPrizeNumber.getProductDetailId());
-					ProductRes pro = productRepository.getProductById(productId);
-					ProductType productType = pro.getProductType();
-					if (productType.equals(ProductType.GACHA) || productType.equals(ProductType.BLIND_BOX)) {
-						prizeCartItem.setSliverPrice(BigDecimal.ZERO);
-					} else {
-						prizeCartItem.setSliverPrice(selectedPrizeDetail.getSliverPrice());
-					}
-					prizeCartItem.setCartId(prizeCartId);
-					prizeCartItem.setSize(selectedPrizeDetail.getSize());
-
-					prizeCartItem.setProductDetailId(selectedPrizeDetail.getProductDetailId());
-					prizeCartItem.setIsSelected(true);
-					cartItemList.add(prizeCartItem);
-				}
-			}else{
-				throw new Exception("賞品盒不存在");
-			}
-
-
-			prizeCartItemRepository.insertBatch(cartItemList);
-
-
-			// 如果抽完数量变1 1代表剩LAST赏的时候要送LAST赏
-			List<PrizeCartItem> cartItemArr = new ArrayList<>();
-			Long prizeCartId2 = prizeCartRepository.getCartIdByUserId(userId);
-			List<ProductDetailRes> productDetail = productDetailRepository.getProductDetailByProductId(productId);
-			ProductDetailRes spPrize = productDetailRepository.getProductDetailSpPrizeByProductId(productId);
-			int totalQue = 0;
-
-// 计算总数量
-			for (ProductDetailRes res : productDetail) {
-				totalQue += res.getQuantity();
-			}
-
-			if(totalQue == 0 ){
-				productRepository.updateStatus(productId);
-			}
-
-// 检查总数量是否为1
-			if (totalQue == 1 && spPrize != null) {
-				PrizeCartItem cartItem = new PrizeCartItem();
-				cartItem.setCartId(prizeCartId2);
-				cartItem.setSize(spPrize.getSize());
-				cartItem.setQuantity(1);
-				cartItem.setSliverPrice(spPrize.getSliverPrice());
-				cartItem.setProductDetailId(spPrize.getProductDetailId());
-				cartItem.setIsSelected(true);
-				cartItemArr.add(cartItem);
-			}
-
-			if (!cartItemArr.isEmpty()) {
-				prizeCartItemRepository.insertBatch(cartItemArr);
-			} else {
-				System.out.println("cartItemList is empty, skipping insertBatch.");
-			}
-
-// 扣除SP赏的数量
-			if(spPrize != null){
-				if (spPrize.getQuantity() > 0) { // 检查数量是否大于0
-					spPrize.setQuantity(spPrize.getQuantity() - 1);
-					productDetailRepository.updateProductDetailQuantity(spPrize);
-					productRepository.updateStatus(productId);
-				} else {
-					System.out.println("SP prize quantity is already 0, skipping update.");
-				}
-			}
-
-			int count = prizeNumbers.size(); // 抽奖次数
-			BigDecimal bonusPercentage = BigDecimal.ZERO; // 红利百分比
-
-// 获取金币或银币的金额
-			BigDecimal totalPrice = BigDecimal.ZERO; // 初始化总金额
-			if ("1".equals(payMethod)) {
-				for (String prize : prizeNumbers) {
-					totalPrice = totalPrice.add(product.getPrice()); // 获取每次抽奖的金币金额并累加
-				}
-			} else if ("2".equals(payMethod)) {
-				for (
-				String prize : prizeNumbers) {
-					totalPrice = totalPrice.add(product.getSliverPrice()); // 获取每次抽奖的银币金额并累加
-				}
-			}
-
-// 计算红利百分比和金额
-			if (count > 3) {
-				if (count >= 10) {
-					bonusPercentage = new BigDecimal("0.10"); // 10% 红利
-				} else if (count >= 5) {
-					bonusPercentage = new BigDecimal("0.04"); // 4% 红利
-				} else {
-					bonusPercentage = new BigDecimal("0.02"); // 2% 红利
-				}
-			} else {
-				bonusPercentage = BigDecimal.ZERO; // 小于等于3次不计算红利
-			}
-
-// 计算红利金额
-			BigDecimal bonusAmount = totalPrice.multiply(bonusPercentage);
-			userRepository.updateBonus(userId, bonusAmount);
-
-// 输出红利金额（可根据需要进一步处理）
-			if (bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
-				System.out.println((payMethod.equals("1") ? "金幣" : "銀幣") + "支付方式的红利金额: " + bonusAmount);
-			}
-
-// 处理用户抽奖次数和红利
-			ProductRes res = productRepository.getProductById(productId);
-			if (res.getStockQuantity() <= 0) {
-				res.setStatus(ProductStatus.UNAVAILABLE);
-				productRepository.updateProductQuantity(res);
-			}
-
-
+			// 计算并更新用户红利
+			updateUserBonus(userId, totalAmount, prizeNumbers.size(), payMethod);
 
 			return drawResults;
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new Exception("抽獎過程中出現錯誤: " + e.getMessage());
+		}
+	}
+
+	private BigDecimal calculateTotalAmount(ProductRes product, int count, String payMethod) {
+		BigDecimal unitPrice;
+		if (product.getPrizeCategory() == PrizeCategory.BONUS) {
+			unitPrice = product.getBonusPrice();
+		} else if ("1".equals(payMethod)) {
+			unitPrice = product.getPrice();
+		} else if ("2".equals(payMethod)) {
+			unitPrice = product.getSliverPrice();
+		} else {
+			throw new IllegalArgumentException("無效的支付方式");
+		}
+		return unitPrice.multiply(BigDecimal.valueOf(count));
+	}
+
+	private void deductUserBalance(Long userId, BigDecimal totalAmount, PrizeCategory category, String payMethod) throws Exception {
+		if (category == PrizeCategory.BONUS) {
+			BigDecimal bonusPoints = new BigDecimal(userRepository.getBonusPoints(userId));
+			if (bonusPoints.compareTo(totalAmount) < 0) {
+				throw new Exception("红利不足");
+			}
+			userRepository.deductUserBonusPoints(userId, bonusPoints.subtract(totalAmount));
+		} else if ("1".equals(payMethod)) {
+			BigDecimal balance = new BigDecimal(userRepository.getBalance(userId));
+			if (balance.compareTo(totalAmount) < 0) {
+				throw new Exception("餘額不足，請加值");
+			}
+			userRepository.deductUserBalance(userId, balance.subtract(totalAmount));
+		} else if ("2".equals(payMethod)) {
+			BigDecimal sliver = new BigDecimal(String.valueOf(userRepository.getSliver(userId)));
+			if (sliver.compareTo(totalAmount) < 0) {
+				throw new Exception("銀幣不足");
+			}
+			userRepository.deductUserSliver(userId, sliver.subtract(totalAmount));
+		}
+	}
+
+	private List<DrawResult> processDrawResults(Long userId, Long productId, List<PrizeNumber> drawnPrizeNumbers,
+												ProductRes product, String payMethod) {
+		List<DrawResult> drawResults = new ArrayList<>();
+		int totalDrawCount = drawnPrizeNumbers.size();
+		int remainingDrawCount = totalDrawCount;
+		UserRes user = userRepository.getUserById(userId);
+
+		for (PrizeNumber drawnPrizeNumber : drawnPrizeNumbers) {
+			prizeNumberMapper.markPrizeNumberAsDrawn(drawnPrizeNumber.getPrizeNumberId(),
+					drawnPrizeNumber.getProductId(),
+					drawnPrizeNumber.getProductDetailId());
+
+			ProductDetailRes prizeDetail = productDetailRepository.getProductDetailById(drawnPrizeNumber.getProductDetailId());
+
+			DrawResult drawResult = createDrawResult(userId, productId, prizeDetail, product, payMethod,
+					drawnPrizeNumber.getNumber(), totalDrawCount, remainingDrawCount);
+			drawResults.add(drawResult);
+
+			// 发送抽奖结果消息
+			sendGachaMessage(user, prizeDetail);
+
+			remainingDrawCount--;
+		}
+
+		drawRepository.insertBatch(drawResults);
+		return drawResults;
+	}
+
+	private DrawResult createDrawResult(Long userId, Long productId, ProductDetailRes prizeDetail,
+										ProductRes product, String payMethod, String prizeNumber,
+										int totalDrawCount, int remainingDrawCount) {
+		DrawResult drawResult = new DrawResult();
+		drawResult.setUserId(userId);
+		drawResult.setProductId(productId);
+		drawResult.setProductDetailId(prizeDetail.getProductDetailId().longValue());
+		drawResult.setDrawTime(LocalDateTime.now());
+		drawResult.setAmount(getAmountByPayMethod(product, payMethod));
+		drawResult.setDrawCount(1);
+		drawResult.setRemainingDrawCount(remainingDrawCount);
+		drawResult.setPrizeNumber(prizeNumber);
+		drawResult.setStatus("ACTIVE");
+		drawResult.setTotalDrawCount((long) totalDrawCount);
+		drawResult.setCreateDate(LocalDateTime.now());
+		drawResult.setUpdateDate(LocalDateTime.now());
+		drawResult.setImageUrls(prizeDetail.getImageUrls().get(0));
+		drawResult.setProductName(prizeDetail.getProductName());
+		return drawResult;
+	}
+
+	private BigDecimal getAmountByPayMethod(ProductRes product, String payMethod) {
+		if (product.getPrizeCategory() == PrizeCategory.BONUS) {
+			return product.getBonusPrice();
+		} else if ("1".equals(payMethod)) {
+			return product.getPrice();
+		} else if ("2".equals(payMethod)) {
+			return product.getSliverPrice();
+		}
+		throw new IllegalArgumentException("無效的支付方式");
+	}
+
+	private void sendGachaMessage(UserRes user, ProductDetailRes prizeDetail) {
+		GachaMessage message = new GachaMessage();
+		message.setNickName(user.getNickname());
+		message.setName(prizeDetail.getProductName());
+		message.setProductDetail(prizeDetail);
+		message.setCreatedDate(LocalDateTime.now());
+		messagingTemplate.convertAndSend("/topic/lottery", message);
+	}
+
+	private void updateProductStock(Long productId, List<PrizeNumber> drawnPrizeNumbers) {
+		for (PrizeNumber drawnPrizeNumber : drawnPrizeNumbers) {
+			ProductDetailRes prizeDetail = productDetailRepository.getProductDetailById(drawnPrizeNumber.getProductDetailId());
+			prizeDetail.setQuantity(prizeDetail.getQuantity() - 1);
+			productDetailRepository.updateProductDetailQuantity(prizeDetail);
+		}
+
+		// 检查并更新产品状态
+		List<ProductDetailRes> remainingDetails = productDetailRepository.getProductDetailByProductId(productId);
+		int totalRemainingQuantity = remainingDetails.stream().mapToInt(ProductDetailRes::getQuantity).sum();
+		if (totalRemainingQuantity == 0) {
+			productRepository.updateStatus(productId);
+		}
+	}
+
+	private void addToPrizeCart(Long prizeCartId, List<PrizeNumber> drawnPrizeNumbers, ProductRes product) {
+		List<PrizeCartItem> cartItemList = new ArrayList<>();
+		for (PrizeNumber drawnPrizeNumber : drawnPrizeNumbers) {
+			ProductDetailRes prizeDetail = productDetailRepository.getProductDetailById(drawnPrizeNumber.getProductDetailId());
+			PrizeCartItem cartItem = new PrizeCartItem();
+			cartItem.setCartId(prizeCartId);
+			cartItem.setSize(prizeDetail.getSize());
+			cartItem.setProductDetailId(prizeDetail.getProductDetailId());
+			cartItem.setIsSelected(true);
+
+			if (product.getProductType().equals(ProductType.GACHA) || product.getProductType().equals(ProductType.BLIND_BOX)) {
+				cartItem.setSliverPrice(BigDecimal.ZERO);
+			} else {
+				cartItem.setSliverPrice(prizeDetail.getSliverPrice());
+			}
+
+			cartItemList.add(cartItem);
+		}
+		prizeCartItemRepository.insertBatch(cartItemList);
+	}
+
+	private void handleSPPrize(Long userId, Long productId, Long prizeCartId) {
+		List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(productId);
+		int totalQuantity = productDetails.stream().mapToInt(ProductDetailRes::getQuantity).sum();
+
+		ProductDetailRes spPrize = productDetailRepository.getProductDetailSpPrizeByProductId(productId);
+		if (totalQuantity == 1 && spPrize != null && spPrize.getQuantity() > 0) {
+			PrizeCartItem spCartItem = new PrizeCartItem();
+			spCartItem.setCartId(prizeCartId);
+			spCartItem.setSize(spPrize.getSize());
+			spCartItem.setQuantity(1);
+			spCartItem.setSliverPrice(spPrize.getSliverPrice());
+			spCartItem.setProductDetailId(spPrize.getProductDetailId());
+			spCartItem.setIsSelected(true);
+
+			prizeCartItemRepository.insertBatch(Collections.singletonList(spCartItem));
+
+			spPrize.setQuantity(spPrize.getQuantity() - 1);
+			productDetailRepository.updateProductDetailQuantity(spPrize);
+			productRepository.updateStatus(productId);
+		}
+	}
+
+	private void updateUserBonus(Long userId, BigDecimal totalPrice, int count, String payMethod) {
+		BigDecimal bonusPercentage;
+		if (count >= 10) {
+			bonusPercentage = new BigDecimal("0.10");
+		} else if (count >= 5) {
+			bonusPercentage = new BigDecimal("0.04");
+		} else if (count > 3) {
+			bonusPercentage = new BigDecimal("0.02");
+		} else {
+			bonusPercentage = BigDecimal.ZERO;
+		}
+
+		BigDecimal bonusAmount = totalPrice.multiply(bonusPercentage);
+		if (bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
+			userRepository.updateBonus(userId, bonusAmount);
+			System.out.println((payMethod.equals("1") ? "金幣" : "銀幣") + "支付方式的红利金额: " + bonusAmount);
 		}
 	}
 

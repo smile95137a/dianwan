@@ -25,4 +25,7 @@ public interface PrizeNumberMapper {
     void deleteProductById(Long productId);
     @Delete("DELETE FROM prize_number WHERE product_detail_id = #{productDetailId}")
     void deteleByProductDetail(Integer productDetailId);
+
+    @Select("select * from prize_number where product_id = #{productId}")
+    List<PrizeNumber> isTrue(Integer productId);
 }
