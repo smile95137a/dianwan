@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -418,12 +419,15 @@ public class DrawResultService {
 															List<ProductDetailRes> productDetails) {
 		List<PrizeNumber> drawnPrizeNumbers = new ArrayList<>();
 
+		// 逐一处理每个选中的 PrizeNumber
 		for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
+			// 调用抽奖函数，获取抽到的 PrizeNumber
 			PrizeNumber drawnPrizeNumber = drawPrizeForNumber(selectedPrizeNumber, productDetails);
+
 			if (drawnPrizeNumber != null) {
 				drawnPrizeNumbers.add(drawnPrizeNumber);
 			} else {
-				// 处理所有奖品都抽完的情况，可以抛出异常或返回空列表
+				// 如果没有奖品可抽，抛出异常
 				throw new RuntimeException("所有獎品都已抽完");
 			}
 		}
@@ -431,69 +435,72 @@ public class DrawResultService {
 		return drawnPrizeNumbers;
 	}
 
+
 	public PrizeNumber drawPrizeForNumber(PrizeNumber selectedPrizeNumber, List<ProductDetailRes> productDetails) {
 		Random random = new Random();
 		List<ProductDetail> toUpdateProductDetails = new ArrayList<>();
 		List<PrizeNumber> toUpdatePrizeNumbers = new ArrayList<>();
 
-		while (true) {
-			List<ProductDetailRes> availableProductDetails = productDetails.stream()
-					.filter(detail -> detail.getQuantity() > 0)
-					.collect(Collectors.toList());
+		List<ProductDetailRes> availableProductDetails = productDetails.stream()
+				.filter(detail -> detail.getQuantity() > 0)
+				.collect(Collectors.toList());
 
-			if (availableProductDetails.isEmpty()) {
-				return null; // 所有奖品都已抽完
-			}
+		if (availableProductDetails.isEmpty()) {
+			return null; // 所有奖品都已抽完
+		}
 
-			double totalProbability = availableProductDetails.stream()
-					.mapToDouble(ProductDetailRes::getProbability)
-					.sum();
+		double totalProbability = availableProductDetails.stream()
+				.mapToDouble(ProductDetailRes::getProbability)
+				.sum();
 
-			availableProductDetails.sort((o1, o2) -> Double.compare(o2.getProbability(), o1.getProbability()));
+		double randomNumber = random.nextDouble();
+		double cumulativeProbability = 0.0;
 
-			double randomNumber = random.nextDouble();
-			double cumulativeProbability = 0.0;
+		for (ProductDetailRes detail : availableProductDetails) {
+			double normalizedProbability = detail.getProbability() / totalProbability;
+			cumulativeProbability += normalizedProbability;
 
-			for (ProductDetailRes detail : availableProductDetails) {
-				double normalizedProbability = detail.getProbability() / totalProbability;
-				cumulativeProbability += normalizedProbability;
-
-				if (randomNumber <= cumulativeProbability) {
-					// 检查库存
+			if (randomNumber <= cumulativeProbability) {
+				synchronized (this) {
 					if (detail.getQuantity() > 0) {
-						// 更新 PrizeNumber
 						selectedPrizeNumber.setLevel(detail.getGrade());
 						selectedPrizeNumber.setIsDrawn(true);
 						selectedPrizeNumber.setProductDetailId(detail.getProductDetailId());
 
-						// 更新库存
 						int newQuantity = detail.getQuantity() - 1;
-						if (newQuantity >= 0) {
-							detail.setQuantity(newQuantity);
-							toUpdateProductDetails.add(new ProductDetail(detail.getProductDetailId(), newQuantity, detail.getDrawnNumbers()));
+						detail.setQuantity(newQuantity);
+						toUpdateProductDetails.add(new ProductDetail(detail.getProductDetailId(), newQuantity, detail.getDrawnNumbers()));
 
-							// 使用原始的 selectedPrizeNumber 对象
-							toUpdatePrizeNumbers.add(selectedPrizeNumber);
-							break;
-						}
+						toUpdatePrizeNumbers.add(selectedPrizeNumber);
+						break;
 					}
 				}
 			}
+		}
 
-			// 批量更新数据
-			if (!toUpdatePrizeNumbers.isEmpty()) {
-				// 批量更新 PrizeNumber
-				prizeNumberMapper.updatePrizeNumberBatch(toUpdatePrizeNumbers, selectedPrizeNumber.getProductId());
+		// 调用批量更新，传入 prizeNumbers 和 productId
+		if (!toUpdatePrizeNumbers.isEmpty()) {
+			updatePrizeAndProductDetails(toUpdatePrizeNumbers, selectedPrizeNumber.getProductId(), toUpdateProductDetails);
+			return selectedPrizeNumber;
+		}
 
-				// 批量更新 ProductDetail
-				if (!toUpdateProductDetails.isEmpty()) {
-					productDetailRepository.updateProductDetailQuantityAndDrawnNumbersBatch(toUpdateProductDetails);
-				}
+		return null;
+	}
 
-				return selectedPrizeNumber;
-			}
+
+
+	@Transactional
+	public void updatePrizeAndProductDetails(List<PrizeNumber> prizeNumbers, Long productId, List<ProductDetail> productDetails) {
+		// 批量更新 PrizeNumber 信息，传入 list 和 productId
+		prizeNumberMapper.updatePrizeNumberBatch(prizeNumbers, productId);
+
+		// 批量更新 ProductDetail 的库存
+		if (!productDetails.isEmpty()) {
+			productDetailRepository.updateProductDetailQuantityAndDrawnNumbersBatch(productDetails);
 		}
 	}
+
+
 
 
 
