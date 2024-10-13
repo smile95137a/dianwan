@@ -1,9 +1,12 @@
 package com.one.frontend.config.security.oauth2;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.one.frontend.config.security.CustomUserDetails;
+import com.one.frontend.config.security.SecurityUtils;
+import com.one.frontend.model.User;
+import com.one.frontend.repository.UserRepository;
+import com.one.frontend.util.RandomUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,14 +15,12 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.one.frontend.config.security.CustomUserDetails;
-import com.one.frontend.config.security.SecurityUtils;
-import com.one.frontend.model.User;
-import com.one.frontend.repository.UserRepository;
-import com.one.frontend.util.RandomUtils;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -72,6 +73,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		userEntity.setNickname(customAbstractOAuth2UserInfo.getName());
 		userEntity.setEmail(customAbstractOAuth2UserInfo.getEmail());
 		userEntity.setProvider(provider.name());
+		userEntity.setBalance(BigDecimal.ZERO);
+		userEntity.setBonus(BigDecimal.ZERO);
+		userEntity.setCreatedAt(LocalDateTime.now());
+		userEntity.setRoleId(3L);
+		userEntity.setSliverCoin(BigDecimal.ZERO);
+		userEntity.setStatus("ACTIVE");
+		userEntity.setUserUid(UUID.randomUUID().toString());
 		userRepository.createUser(userEntity);
 		userEntity = userRepository.getUserByEmail(customAbstractOAuth2UserInfo.getEmail()).get();
 		return userEntity;
