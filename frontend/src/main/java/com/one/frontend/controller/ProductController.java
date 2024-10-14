@@ -1,7 +1,9 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.model.ApiResponse;
+import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
+import com.one.frontend.service.ProductDetailService;
 import com.one.frontend.service.ProductService;
 import com.one.frontend.util.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,12 +21,16 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductDetailService productDetailService;
+
     @Operation(summary = "獲取所有獎品", description = "檢索所有獎品的列表")
     @GetMapping("/query")
     public ResponseEntity<ApiResponse<List<ProductRes>>> getAllProduct(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
         List<ProductRes> products = productService.getAllProduct(page, size);
+        List<ProductDetailRes> productDetailByProductId = productDetailService.getProductDetailByProductId(Long.valueOf(products.get(0).getProductId()));
         if (products == null || products.isEmpty()) {
             ApiResponse<List<ProductRes>> response = ResponseUtils.failure(404, "無類別", null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);

@@ -3,6 +3,7 @@ package com.one.onekuji.repository;
 import com.one.onekuji.model.ProductDetail;
 import com.one.onekuji.request.DetailReq;
 import com.one.onekuji.response.DetailRes;
+import com.one.onekuji.response.ProductDetailRes;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -61,4 +62,8 @@ public interface ProductDetailRepository {
     String getProductDetailByProduct(Long productId);
     @Delete("DELETE FROM product_detail WHERE product_id = #{productId}")
     void deleteProductDetailByProductId(Integer productId);
+    @Select("select * from product_detail where product_id = #{productId} and grade = 'LAST'")
+    DetailRes getAllProductDetailsByProductId(Integer productId);
+    @Select("select * from product_detail where product_id = #{productId}")
+    ProductDetailRes getProductById(Long productId);
 }

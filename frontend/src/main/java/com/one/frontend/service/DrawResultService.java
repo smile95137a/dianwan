@@ -220,8 +220,11 @@ public class DrawResultService {
 			// 添加商品到奖品盒
 			addToPrizeCart(prizeCartId, drawnPrizeNumbers, product);
 
-			// 处理SP奖
-			handleSPPrize(userId, productId, prizeCartId);
+			// 处理SP奖并获取 DrawResult
+			DrawResult spDrawResult = handleSPPrize(userId, productId, prizeCartId , product ,payMethod);
+			if (spDrawResult != null) {
+				drawResults.add(spDrawResult);
+			}
 
 			// 计算并更新用户红利
 			updateUserBonus(userId, totalAmount, prizeNumbers.size(), payMethod);
@@ -373,26 +376,67 @@ public class DrawResultService {
 		prizeCartItemRepository.insertBatch(cartItemList);
 	}
 
-	private void handleSPPrize(Long userId, Long productId, Long prizeCartId) {
+	private DrawResult handleSPPrize(Long userId, Long productId, Long prizeCartId , ProductRes product , String payMethod) {
+		DrawResult drawResult = null; // 初始为 null
+		// 获取所有产品细节
 		List<ProductDetailRes> productDetails = productDetailRepository.getProductDetailByProductId(productId);
 		int totalQuantity = productDetails.stream().mapToInt(ProductDetailRes::getQuantity).sum();
 
-		ProductDetailRes spPrize = productDetailRepository.getProductDetailSpPrizeByProductId(productId);
-		if (totalQuantity == 1 && spPrize != null && spPrize.getQuantity() > 0) {
+		// 获取 "LAST" 奖品的细节
+		ProductDetailRes LastPrize = productDetailRepository.getProductDetailSpPrizeByProductId(productId);
+
+		// Debugging output
+		System.out.println("Total Quantity: " + totalQuantity);
+		System.out.println("Last Prize: " + LastPrize);
+
+		// 检查条件
+		if (totalQuantity == 0 && LastPrize != null) {
 			PrizeCartItem spCartItem = new PrizeCartItem();
 			spCartItem.setCartId(prizeCartId);
-			spCartItem.setSize(spPrize.getSize());
+			spCartItem.setSize(LastPrize.getSize());
 			spCartItem.setQuantity(1);
-			spCartItem.setSliverPrice(spPrize.getSliverPrice());
-			spCartItem.setProductDetailId(spPrize.getProductDetailId());
+			spCartItem.setSliverPrice(LastPrize.getSliverPrice());
+			spCartItem.setProductDetailId(LastPrize.getProductDetailId());
 			spCartItem.setIsSelected(true);
 
+			// 插入奖品项
 			prizeCartItemRepository.insertBatch(Collections.singletonList(spCartItem));
 
-			spPrize.setQuantity(spPrize.getQuantity() - 1);
-			productDetailRepository.updateProductDetailQuantity(spPrize);
+			// 更新数量
+			LastPrize.setQuantity(LastPrize.getQuantity() - 1);
+			productDetailRepository.updateProductDetailQuantity(LastPrize);
 			productRepository.updateStatus(productId);
+
+			// Debugging output
+			System.out.println("Successfully added LAST prize to cart.");
+
+			// 填充 drawResult
+			drawResult = new DrawResult();
+			drawResult.setUserId(userId);
+			drawResult.setProductId(productId);
+			drawResult.setProductDetailId(LastPrize.getProductDetailId().longValue());
+			drawResult.setDrawTime(LocalDateTime.now());
+			drawResult.setAmount(getAmountByPayMethod(product, payMethod));
+			drawResult.setDrawCount(1);
+			drawResult.setRemainingDrawCount(0);
+			drawResult.setPrizeNumber(String.valueOf(0));
+			drawResult.setStatus("ACTIVE");
+			drawResult.setTotalDrawCount(1L);
+			drawResult.setCreateDate(LocalDateTime.now());
+			drawResult.setUpdateDate(LocalDateTime.now());
+			drawResult.setImageUrls(LastPrize.getImageUrls().get(0));
+			drawResult.setProductName(LastPrize.getProductName());
+		} else {
+			// 如果没有抽到 LAST 奖品，打印出原因
+			if (totalQuantity != 1) {
+				System.out.println("Condition not met: Total quantity is not 1.");
+			} else if (LastPrize == null) {
+				System.out.println("Condition not met: Last prize does not exist.");
+			} else if (LastPrize.getQuantity() <= 0) {
+				System.out.println("Condition not met: Last prize quantity is zero or negative.");
+			}
 		}
+		return drawResult; // 返回可能为 null 的 drawResult
 	}
 
 	private void updateUserBonus(Long userId, BigDecimal totalPrice, int count, String payMethod) {
@@ -419,16 +463,33 @@ public class DrawResultService {
 		List<PrizeNumber> drawnPrizeNumbers = new ArrayList<>();
 
 		for (PrizeNumber selectedPrizeNumber : selectedPrizeNumbers) {
-			PrizeNumber drawnPrizeNumber = drawPrizeForNumber(selectedPrizeNumber, productDetails);
-			if (drawnPrizeNumber != null) {
-				drawnPrizeNumbers.add(drawnPrizeNumber);
-			} else {
-				// 处理所有奖品都抽完的情况，可以抛出异常或返回空列表
-				throw new RuntimeException("所有獎品都已抽完");
-			}
+			PrizeNumber drawnPrizeNumber;
+
+			// 继续尝试抽奖，直到抽到非 LAST 奖品
+			do {
+				drawnPrizeNumber = drawPrizeForNumber(selectedPrizeNumber, productDetails);
+				if (drawnPrizeNumber != null) {
+					// 检查是否抽到了 LAST 奖品
+					if (isLastPrize(drawnPrizeNumber)) {
+						// 如果抽到了 LAST 奖品，则清空并重新尝试抽取
+						drawnPrizeNumber = null; // 将其设置为 null，以继续抽奖
+					}
+				} else {
+					// 处理所有奖品都抽完的情况
+					throw new RuntimeException("所有獎品都已抽完");
+				}
+			} while (drawnPrizeNumber == null); // 继续抽取，直到获得有效的奖品
+
+			drawnPrizeNumbers.add(drawnPrizeNumber);
 		}
 
 		return drawnPrizeNumbers;
+	}
+
+	// 辅助方法：判断是否为 LAST 奖品
+	private boolean isLastPrize(PrizeNumber prizeNumber) {
+		// 实现判断逻辑，比如通过 prizeNumber 的属性判断
+		return "LAST".equals(prizeNumber.getLevel()); // 假设 "number" 是表示奖品编号的字段
 	}
 
 	public PrizeNumber drawPrizeForNumber(PrizeNumber selectedPrizeNumber, List<ProductDetailRes> productDetails) {

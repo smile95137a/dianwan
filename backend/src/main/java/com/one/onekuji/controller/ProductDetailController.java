@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.one.onekuji.model.ApiResponse;
 import com.one.onekuji.request.DetailReq;
 import com.one.onekuji.response.DetailRes;
+import com.one.onekuji.response.ProductDetailRes;
 import com.one.onekuji.service.ProductDetailService;
 import com.one.onekuji.util.ImageUtil;
 import com.one.onekuji.util.ResponseUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +32,23 @@ public class ProductDetailController {
 
     @GetMapping(value = "/all")
     public ResponseEntity<ApiResponse<List<DetailRes>>> getAllProductDetails() {
-        List<DetailRes> productDetailResList = productDetailService.getAllProductDetails();
-        if (productDetailResList == null || productDetailResList.isEmpty()) {
-            ApiResponse<List<DetailRes>> response = ResponseUtils.failure(404, "無商品", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+        try {
+            List<DetailRes> productDetailResList = productDetailService.getAllProductDetails();
+//            DetailRes product = productDetailService.getAllProductDetailsByProductId(productDetailResList.get(0).getProductId());
+//            if(product != null){
+//                productDetailResList.add(product);
+//            }
+            if (productDetailResList == null || productDetailResList.isEmpty()) {
+                ApiResponse<List<DetailRes>> response = ResponseUtils.failure(404, "無商品", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
 
-        ApiResponse<List<DetailRes>> response = ResponseUtils.success(200, null, productDetailResList);
-        return ResponseEntity.ok(response);
+            ApiResponse<List<DetailRes>> response = ResponseUtils.success(200, null, productDetailResList);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+       return null;
     }
 
     @PostMapping("/add")
@@ -147,4 +158,18 @@ public class ProductDetailController {
         ApiResponse<Void> response = ResponseUtils.success(200, "商品已成功刪除", null);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "獲取產品詳情", description = "通過產品 ID 獲取產品的詳細信息")
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductDetailRes>> getProductById(@PathVariable Long productId) {
+        ProductDetailRes productRes = productDetailService.getProductById(productId);
+        if (productRes == null) {
+            ApiResponse<ProductDetailRes> response = ResponseUtils.failure(404, "產品不存在", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        ApiResponse<ProductDetailRes> response = ResponseUtils.success(200, null, productRes);
+        return ResponseEntity.ok(response);
+    }
+
 }
