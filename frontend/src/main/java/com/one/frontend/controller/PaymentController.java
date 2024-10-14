@@ -39,7 +39,7 @@ public class PaymentController {
         return paymentService.webATM(paymentRequest);
     }
 
-    @GetMapping("/paymentCallback")
+    @PostMapping("/paymentCallback")
     public ResponseEntity<String> paymentCallback(
             @RequestParam String Send_Type,
             @RequestParam String result,
