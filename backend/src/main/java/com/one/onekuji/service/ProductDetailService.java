@@ -46,6 +46,8 @@ public class ProductDetailService {
 
         // 更新产品总数量
         productRepository.updateTotalQua(totalQuantity, detailReqs.get(0).getProductId());
+        // 4. 删除当前产品下所有的奖品编号
+        prizeNumberMapper.deleteProductById(Long.valueOf(detailReqs.get(0).getProductId()));
 
         // 创建并打乱奖品编号
         List<Integer> shuffledNumbers = new ArrayList<>();
