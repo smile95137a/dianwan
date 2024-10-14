@@ -95,7 +95,7 @@ public class PaymentController {
 //                       .append("&TransMode=1")
 //                       .append("&Installment=0")
 //                       .append("&Return_url=")
-                    .append("&Callback_Url=https://api.onemorelottery.tw/payment/paymentCallback")
+                    .append("&Callback_Url=https://api.onemorelottery.tw:8081/payment/paymentCallback")
 //                       .append("&e_return=1")
                     .append("&e_return=1")
                     .append("&Str_Check=d0q2mo1729enisehzolmhdwhkac38itb");
