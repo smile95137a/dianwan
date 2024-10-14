@@ -416,12 +416,12 @@ public class DrawResultService {
 			drawResult.setProductId(productId);
 			drawResult.setProductDetailId(LastPrize.getProductDetailId().longValue());
 			drawResult.setDrawTime(LocalDateTime.now());
-			drawResult.setAmount(getAmountByPayMethod(product, payMethod));
-			drawResult.setDrawCount(1);
+			drawResult.setAmount(BigDecimal.valueOf(0));
+			drawResult.setDrawCount(0);
 			drawResult.setRemainingDrawCount(0);
 			drawResult.setPrizeNumber(String.valueOf(0));
 			drawResult.setStatus("ACTIVE");
-			drawResult.setTotalDrawCount(1L);
+			drawResult.setTotalDrawCount(0L);
 			drawResult.setCreateDate(LocalDateTime.now());
 			drawResult.setUpdateDate(LocalDateTime.now());
 			drawResult.setImageUrls(LastPrize.getImageUrls().get(0));
