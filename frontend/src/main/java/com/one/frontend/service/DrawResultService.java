@@ -315,7 +315,7 @@ public class DrawResultService {
 		drawResult.setTotalDrawCount((long) totalDrawCount);
 		drawResult.setCreateDate(LocalDateTime.now());
 		drawResult.setUpdateDate(LocalDateTime.now());
-		drawResult.setImageUrls(prizeDetail.getImageUrls().get(0));
+		drawResult.setImageUrls(prizeDetail.getImageUrls());
 		drawResult.setProductName(prizeDetail.getProductName());
 		return drawResult;
 	}
@@ -424,7 +424,7 @@ public class DrawResultService {
 			drawResult.setTotalDrawCount(0L);
 			drawResult.setCreateDate(LocalDateTime.now());
 			drawResult.setUpdateDate(LocalDateTime.now());
-			drawResult.setImageUrls(LastPrize.getImageUrls().get(0));
+			drawResult.setImageUrls(LastPrize.getImageUrls());
 			drawResult.setProductName(LastPrize.getProductName());
 		} else {
 			// 如果没有抽到 LAST 奖品，打印出原因
@@ -555,6 +555,7 @@ public class DrawResultService {
 			}
 		}
 	}
+
 
 
 

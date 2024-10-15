@@ -14,13 +14,13 @@ public interface BannerRepository {
     @Select("SELECT * , b.product_id , b.image_urls FROM banner a left join product b on a.product_id = b.product_id")
     List<Banner> findAll();
 
-    @Insert("INSERT INTO banner (banner_uid, banner_image_urls, product_id, status, created_at, updated_at)\n" +
-            "VALUES (#{bannerUid}, #{imageUrls}, #{productId}, #{status}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO banner (banner_uid, banner_image_urls, product_id, status, created_at, updated_at , product_type)\n" +
+            "VALUES (#{bannerUid}, #{imageUrls}, #{productId}, #{status}, #{createdAt}, #{updatedAt} , #{productType})")
     @Options(useGeneratedKeys = true, keyProperty = "bannerId")
     void insert(Banner banner);
 
     @Update("UPDATE banner SET banner_image_urls=#{bannerImageUrl}, product_id=#{productId}, " +
-            "status=#{status}, updated_at=#{updatedAt} WHERE banner_id=#{bannerId}")
+            "status=#{status}, updated_at=#{updatedAt} , product_type = #{productType} WHERE banner_id=#{bannerId}")
     void update(Banner banner);
 
     @Delete("DELETE FROM banner WHERE banner_id = #{bannerId}")

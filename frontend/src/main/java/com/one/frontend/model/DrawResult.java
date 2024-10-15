@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Data
 @Entity
@@ -67,7 +70,21 @@ public class DrawResult{
 
     private Long remainingTime;
 
-    private String imageUrls;
+    @Schema(description = "圖片 URL 列表", example = "[\"https://example.com/image1.png\", \"https://example.com/image2.png\"]")
+    @Column(name = "image_urls", length = 2000)  // 增加长度以确保可以存储多个 URL
+    private String imageUrls; // 将 List<String> 存为单个字符串
+
+    // Getter 和 Setter 方法，进行序列化和反序列化
+    public List<String> getImageUrls() {
+        if (this.imageUrls == null || this.imageUrls.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(this.imageUrls.split(",")); // 假设使用逗号分隔符
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = String.join(",", imageUrls); // 使用逗号分隔符将列表转换为字符串
+    }
 
     private String productName;
 }

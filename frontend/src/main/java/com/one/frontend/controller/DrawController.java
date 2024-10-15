@@ -39,6 +39,7 @@ public class DrawController {
 			ApiResponse<List<DrawResult>> response = ResponseUtils.success(200, null, result);
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
+			e.printStackTrace();
 			ApiResponse<List<DrawResult>> response = ResponseUtils.failure(400, "抽獎失敗", null);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		}
