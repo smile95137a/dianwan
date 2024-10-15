@@ -494,46 +494,32 @@ public class DrawResultService {
 
 	public PrizeNumber drawPrizeForNumber(PrizeNumber selectedPrizeNumber, List<ProductDetailRes> productDetails) {
 		Random random = new Random();
-		int totalDraws = prizeNumberMapper.getNumbersCount(productDetails.get(0).getProductId());
-		int currentDrawCount = prizeNumberMapper.getNumbersCountIsTrue(productDetails.get(0).getProductId());
 		List<ProductDetail> toUpdateProductDetails = new ArrayList<>();
 		List<PrizeNumber> toUpdatePrizeNumbers = new ArrayList<>();
 
-		// 计算大奖解锁条件，超过 2/3 抽奖次数后解锁
-		int unlockDrawThreshold = (int) (totalDraws * (2.0 / 3.0));
-
 		while (true) {
-			// 过滤库存大于 0 的商品
 			List<ProductDetailRes> availableProductDetails = productDetails.stream()
 					.filter(detail -> detail.getQuantity() > 0)
 					.collect(Collectors.toList());
-
-			// 如果当前抽奖次数未达到 2/3，移除大奖
-			if (currentDrawCount < unlockDrawThreshold) {
-				availableProductDetails = availableProductDetails.stream()
-						.filter(detail -> !detail.getGrade().equals("A")) // 假设有一个 isGrandPrize() 方法来识别大奖
-						.collect(Collectors.toList());
-			}
 
 			if (availableProductDetails.isEmpty()) {
 				return null; // 所有奖品都已抽完
 			}
 
-			// 计算总权重（概率总和）
-			double totalWeight = availableProductDetails.stream()
+			double totalProbability = availableProductDetails.stream()
 					.mapToDouble(ProductDetailRes::getProbability)
 					.sum();
 
-			// 生成一个 0 到 totalWeight 之间的随机数
-			double randomValue = random.nextDouble() * totalWeight;
-			double cumulativeWeight = 0.0;
+			availableProductDetails.sort((o1, o2) -> Double.compare(o2.getProbability(), o1.getProbability()));
 
-			// 遍历每个奖品，根据权重（概率）来抽奖
+			double randomNumber = random.nextDouble();
+			double cumulativeProbability = 0.0;
+
 			for (ProductDetailRes detail : availableProductDetails) {
-				cumulativeWeight += detail.getProbability();
+				double normalizedProbability = detail.getProbability() / totalProbability;
+				cumulativeProbability += normalizedProbability;
 
-				// 如果随机数落在该奖品的权重范围内，选中该奖品
-				if (randomValue <= cumulativeWeight) {
+				if (randomNumber <= cumulativeProbability) {
 					// 检查库存
 					if (detail.getQuantity() > 0) {
 						// 更新 PrizeNumber
@@ -543,12 +529,14 @@ public class DrawResultService {
 
 						// 更新库存
 						int newQuantity = detail.getQuantity() - 1;
-						detail.setQuantity(newQuantity);
-						toUpdateProductDetails.add(new ProductDetail(detail.getProductDetailId(), newQuantity, detail.getDrawnNumbers()));
+						if (newQuantity >= 0) {
+							detail.setQuantity(newQuantity);
+							toUpdateProductDetails.add(new ProductDetail(detail.getProductDetailId(), newQuantity, detail.getDrawnNumbers()));
 
-						// 使用原始的 selectedPrizeNumber 对象
-						toUpdatePrizeNumbers.add(selectedPrizeNumber);
-						break;
+							// 使用原始的 selectedPrizeNumber 对象
+							toUpdatePrizeNumbers.add(selectedPrizeNumber);
+							break;
+						}
 					}
 				}
 			}
