@@ -63,4 +63,9 @@ public interface PrizeNumberMapper {
             "</script>"
     })
     void updatePrizeNumberBatch(@Param("list") List<PrizeNumber> prizeNumbers, @Param("productId") Long productId);
+
+    @Select("select count(*) from prize_number where product_id = #{productId}")
+    int getNumbersCount(Long productId);
+    @Select("select count(*) from prize_number where product_id = #{productId}  and is_drawn = true")
+    int getNumbersCountIsTrue(Long productId);
 }
