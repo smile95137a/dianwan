@@ -41,7 +41,10 @@ public class OrderService {
 	private final PaymentService paymentService;
 	@Autowired
 	private PrizeCartItemService prizeCartItemService;
-
+	@Autowired
+	private OrderTempMapper orderTempMapper;
+	@Autowired
+	private OrderDetailTempMapper orderDetailTempMapper;
 	@Autowired
 	private InvoiceService invoiceService;
 	@Autowired
@@ -181,50 +184,70 @@ public class OrderService {
 
 		//paymentResponse result = 1 等於成功
 		if("1".equals(paymentResponse.getResult())){
-			// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
-			Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(totalAmount) // 總金額 =
-					// 商品價格
-					// + 運費
-					.paymentMethod(payCartRes.getPaymentMethod()) // 從 PayCartRes 獲取支付方式
-					.shippingCost(shippingCost) // 保存運費
-					.shippingMethod(payCartRes.getShippingMethod()) // 從 PayCartRes 獲取運送方式
-					.shippingName(payCartRes.getShippingName()) // 從 PayCartRes 獲取收貨人姓名
-					.shippingEmail(payCartRes.getShippingEmail()) // 從 PayCartRes 獲取收貨人 Email
-					.shippingPhone(payCartRes.getShippingPhone()) // 從 PayCartRes 獲取收貨人電話
-					.shippingZipCode(payCartRes.getShippingZipCode()) // 從 PayCartRes 獲取收貨地址郵遞區號
-					.shippingCity(payCartRes.getShippingCity()) // 從 PayCartRes 獲取收貨城市
-					.shippingArea(payCartRes.getShippingArea()) // 從 PayCartRes 獲取收貨區域
-					.shippingAddress(payCartRes.getShippingAddress()) // 從 PayCartRes 獲取收貨地址
-					.billingName(payCartRes.getBillingName()) // 從 PayCartRes 獲取賬單姓名
-					.billingEmail(payCartRes.getBillingEmail()) // 從 PayCartRes 獲取賬單 Email
-					.billingPhone(payCartRes.getBillingPhone()) // 從 PayCartRes 獲取賬單電話
-					.billingZipCode(payCartRes.getBillingZipCode()) // 從 PayCartRes 獲取賬單地址郵遞區號
-					.billingCity(payCartRes.getBillingCity()) // 從 PayCartRes 獲取賬單城市
-					.billingArea(payCartRes.getBillingArea()) // 從 PayCartRes 獲取賬單區域
-					.billingAddress(payCartRes.getBillingAddress()) // 從 PayCartRes 獲取賬單地址
-					.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
-					.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
-					.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
-					.shopId(payCartRes.getShopId())
-					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
-					.build();
 
-			// 插入訂單到資料庫
-			orderRepository.insertOrder(orderEntity);
+				// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
+				Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(totalAmount) // 總金額 =
+						// 商品價格
+						// + 運費
+						.paymentMethod(payCartRes.getPaymentMethod()) // 從 PayCartRes 獲取支付方式
+						.shippingCost(shippingCost) // 保存運費
+						.shippingMethod(payCartRes.getShippingMethod()) // 從 PayCartRes 獲取運送方式
+						.shippingName(payCartRes.getShippingName()) // 從 PayCartRes 獲取收貨人姓名
+						.shippingEmail(payCartRes.getShippingEmail()) // 從 PayCartRes 獲取收貨人 Email
+						.shippingPhone(payCartRes.getShippingPhone()) // 從 PayCartRes 獲取收貨人電話
+						.shippingZipCode(payCartRes.getShippingZipCode()) // 從 PayCartRes 獲取收貨地址郵遞區號
+						.shippingCity(payCartRes.getShippingCity()) // 從 PayCartRes 獲取收貨城市
+						.shippingArea(payCartRes.getShippingArea()) // 從 PayCartRes 獲取收貨區域
+						.shippingAddress(payCartRes.getShippingAddress()) // 從 PayCartRes 獲取收貨地址
+						.billingName(payCartRes.getBillingName()) // 從 PayCartRes 獲取賬單姓名
+						.billingEmail(payCartRes.getBillingEmail()) // 從 PayCartRes 獲取賬單 Email
+						.billingPhone(payCartRes.getBillingPhone()) // 從 PayCartRes 獲取賬單電話
+						.billingZipCode(payCartRes.getBillingZipCode()) // 從 PayCartRes 獲取賬單地址郵遞區號
+						.billingCity(payCartRes.getBillingCity()) // 從 PayCartRes 獲取賬單城市
+						.billingArea(payCartRes.getBillingArea()) // 從 PayCartRes 獲取賬單區域
+						.billingAddress(payCartRes.getBillingAddress()) // 從 PayCartRes 獲取賬單地址
+						.invoice(payCartRes.getInvoice()) // 從 PayCartRes 獲取發票信息
+						.createdAt(LocalDateTime.now()).resultStatus(OrderStatus.PREPARING_SHIPMENT) // 訂單狀態設為準備發貨
+						.paidAt(LocalDateTime.now()) // 假設已付款，更新付款時間
+						.shopId(payCartRes.getShopId())
+						.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
+						.build();
 
-			// 根據訂單號查詢訂單ID
-			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
-			// 轉換購物車項目到訂單詳情並保存
-			cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId)) // 映射購物車項目為訂單詳情
-					.forEach(orderDetail -> orderDetailRepository.saveOrderDetail(orderDetail)); // 保存訂單詳情
+				if("1".equals(payCartRes.getPaymentMethod())) {
+					// 插入訂單到資料庫
+					orderRepository.insertOrder(orderEntity);
 
-			// 獲取所有購物車項的ID並移除
-			List<Long> cartItemIds = cartItemList.stream().map(CartItem::getCartItemId).collect(Collectors.toList());
+					// 根據訂單號查詢訂單ID
+					Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
-			// 移除購物車項
-			cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+					// 轉換購物車項目到訂單詳情並保存
+					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId)) // 映射購物車項目為訂單詳情
+							.forEach(orderDetail -> orderDetailRepository.saveOrderDetail(orderDetail)); // 保存訂單詳情
 
+					// 獲取所有購物車項的ID並移除
+					List<Long> cartItemIds = cartItemList.stream().map(CartItem::getCartItemId).collect(Collectors.toList());
+
+					// 移除購物車項
+					cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+				}else if("2".equals(payCartRes.getPaymentMethod())){
+					// 插入訂單到資料庫
+					orderTempMapper.addOrderTemp(orderEntity);
+
+					// 根據訂單號查詢訂單ID
+					Long orderId = orderTempMapper.getOrderIdByOrderNumber(orderNumber);
+
+					// 轉換購物車項目到訂單詳情並保存
+					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId)) // 映射購物車項目為訂單詳情
+							.forEach(orderDetail -> orderDetailTempMapper.insertOrderDetail(orderDetail)); // 保存訂單詳情
+
+					// 獲取所有購物車項的ID並移除
+					List<Long> cartItemIds = cartItemList.stream().map(CartItem::getCartItemId).collect(Collectors.toList());
+
+					// 移除購物車項
+					cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+
+				}
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
@@ -308,6 +331,7 @@ public class OrderService {
 
 		//paymentResponse result = 1 等於成功
 		if("1".equals(paymentResponse.getResult())){
+
 			// 創建訂單實體，這裡包含了支付和運輸方式、收貨人、賬單信息等字段
 			Order orderEntity = Order.builder().userId(userId).orderNumber(orderNumber).totalAmount(shippingCost) // 總金額 =
 					// 商品價格
@@ -336,29 +360,50 @@ public class OrderService {
 					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
 					.build();
 
-			// 插入訂單到資料庫
-			orderRepository.insertOrder(orderEntity);
 
-			// 根據訂單號查詢訂單ID
-			Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
-		System.out.println(prizeCartItemList);
-			// 轉換購物車項目到訂單詳情並保存
-		List<OrderDetail> orderDetails = prizeCartItemList.stream()
-				.filter(Objects::nonNull)  // 過濾掉 null 元素
-				.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
-				.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
-				.collect(Collectors.toList());
+			if("1".equals(payCartRes.getPaymentMethod())) {
+				// 插入訂單到資料庫
+				orderRepository.insertOrder(orderEntity);
 
-		// 批量保存訂單詳情
-		if (!orderDetails.isEmpty()) {
-			orderDetailRepository.savePrizeOrderDetailBatch(orderDetails);
-		}
+				// 根據訂單號查詢訂單ID
+				Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
-			// 獲取所有購物車項的ID並移除
-			List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+				// 根據訂單號查詢訂單ID
+				List<OrderDetail> orderDetails = prizeCartItemList.stream()
+						.filter(Objects::nonNull)  // 過濾掉 null 元素
+						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
+						.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
+						.collect(Collectors.toList());
 
-			// 移除購物車項
-			prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+				// 批量保存訂單詳情
+				if (!orderDetails.isEmpty()) {
+					orderDetailRepository.savePrizeOrderDetailBatch(orderDetails);
+				}
+				// 獲取所有購物車項的ID並移除
+				List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+
+				// 移除購物車項
+				prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+			}else if("2".equals(payCartRes.getPaymentMethod())){
+				// 插入訂單到資料庫
+				orderTempMapper.addOrderTemp(orderEntity);
+
+				// 根據訂單號查詢訂單ID
+				Long orderId = orderTempMapper.getOrderIdByOrderNumber(orderNumber);
+
+				List<OrderDetail> orderDetails = prizeCartItemList.stream()
+						.filter(Objects::nonNull)  // 過濾掉 null 元素
+						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
+						.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
+						.collect(Collectors.toList());
+
+				// 批量保存訂單詳情
+				if (!orderDetails.isEmpty()) {
+					orderDetailRepository.savePrizeOrderDetailBatch(orderDetails);
+				}
+				// 獲取所有購物車項的ID並移除
+				List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+			}
 
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());

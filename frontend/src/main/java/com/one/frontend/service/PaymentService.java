@@ -1,13 +1,8 @@
 package com.one.frontend.service;
 
 import com.google.gson.Gson;
-import com.one.frontend.model.Award;
-import com.one.frontend.model.PaymentRequest;
-import com.one.frontend.model.RewardStatus;
-import com.one.frontend.model.UserReward;
-import com.one.frontend.repository.UserRepository;
-import com.one.frontend.repository.UserRewardRepository;
-import com.one.frontend.repository.UserTransactionRepository;
+import com.one.frontend.model.*;
+import com.one.frontend.repository.*;
 import com.one.frontend.response.PaymentResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -17,14 +12,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -34,6 +29,12 @@ public class PaymentService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderTempMapper orderTempMapper;
+
+    @Autowired
+    private OrderDetailTempMapper orderDetailTempMapper;
 
     @Autowired
     private UserRewardRepository userRewardRepository;
@@ -117,8 +118,8 @@ return null;
 
 
     public PaymentResponse webATM(PaymentRequest paymentRequest) {
-        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
-//        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
+//        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
+        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
                 .sendType("4")            // 傳送型態
@@ -131,7 +132,7 @@ return null;
                 .buyerMail(paymentRequest.getBuyerMail()) // 消費者Email
                 .buyerMemo(paymentRequest.getBuyerMemo()) // 消費備註
                 .returnUrl(paymentRequest.getReturnUrl()) // 授權結果回傳網址
-                .callbackUrl(paymentRequest.getCallbackUrl()) // 背景對帳網址
+                .callbackUrl("https://api.onemorelottery.tw:8081/payment/paymentCallback") // 背景對帳網址
                 .eReturn("1")             // 是否使用Json回傳
                 .strCheck(STRCHECK) // 交易驗證密碼
                 .build();
@@ -222,11 +223,11 @@ return null;
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
         // 獲取該用戶當月的消費總金額
-        BigDecimal deposit = userTransactionRepository.getTotalAmountForUserAndMonth(userId, "DEPOSIT", startOfMonth, endOfMonth);
+        BigDecimal deposit = userTransactionRepository.getTotalAmountForUserAndMonth(userId, "CONSUME", startOfMonth, endOfMonth);
 
         // 初始化 Award 物件
         Award award = new Award();
-        award.setCumulative(deposit);  // 設置累計消費金額
+        award.setCumulative(deposit);
 
         // 累計滿額條件和對應代幣數量
         int[] thresholds = {1000, 5000, 10000, 30000, 50000, 100000};
@@ -248,27 +249,33 @@ return null;
         // 設置結果到 Award 物件
         award.setRewardStatusList(rewardStatusList);
 
-        // 檢查該用戶當月是否已經發放過獎勵
-        boolean hasReceivedReward = userRewardRepository.hasReceivedRewardForMonth(userId, startOfMonth, endOfMonth);
-        if (!hasReceivedReward) {
-            // 如果用戶當月未領取過獎勵，則發放獎勵
-            Optional<RewardStatus> highestAchieved = rewardStatusList.stream()
-                    .filter(RewardStatus::isAchieved)
-                    .max(Comparator.comparing(RewardStatus::getThreshold));
+        // 檢查是否有達標但未領取的獎勵
+        for (RewardStatus status : rewardStatusList) {
+            if (status.isAchieved()) {
+                // 檢查該門檻是否已領取過
+                boolean hasReceivedThisReward = userRewardRepository.hasReceivedRewardForThreshold(
+                        userId,
+                        startOfMonth,
+                        endOfMonth,
+                        status.getThreshold()
+                );
 
-            highestAchieved.ifPresent(rewardStatus -> {
-                userRepository.updateSliverCoin(userId, BigDecimal.valueOf(rewardStatus.getSliver()));
+                if (!hasReceivedThisReward) {
+                    // 更新用戶銀幣餘額
+                    userRepository.updateSliverCoin(userId, BigDecimal.valueOf(status.getSliver()));
 
-                // 將獎勵發放記錄保存到 user_reward 表
-                UserReward userReward = new UserReward();
-                userReward.setUserId(userId);
-                userReward.setRewardAmount(BigDecimal.valueOf(rewardStatus.getSliver()));
-                userReward.setRewardDate(LocalDate.now());
-                userRewardRepository.save(userReward);
-            });
+                    // 記錄獎勵發放
+                    UserReward userReward = new UserReward();
+                    userReward.setUserId(userId);
+                    userReward.setRewardAmount(BigDecimal.valueOf(status.getSliver()));
+                    userReward.setRewardDate(LocalDate.now());
+                    userReward.setThresholdAmount(status.getThreshold());
+                    userReward.setCreatedAt(LocalDate.now());
+                    userRewardRepository.save(userReward);
+                }
+            }
         }
 
-        // 返回 Award 物件，無論是否已經領取過獎勵
         return award;
     }
 
@@ -307,5 +314,90 @@ return null;
      */
     public void recordConsume(Long userId, BigDecimal amount) {
         userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
+    }
+
+
+    private final OrderRepository orderMapper;
+    private final OrderDetailRepository orderDetailMapper;
+
+    @Autowired
+    public PaymentService(OrderTempMapper orderTempMapper, OrderDetailTempMapper orderDetailTempMapper,
+                        OrderRepository orderMapper, OrderDetailRepository orderDetailMapper) {
+        this.orderTempMapper = orderTempMapper;
+        this.orderDetailTempMapper = orderDetailTempMapper;
+        this.orderMapper = orderMapper;
+        this.orderDetailMapper = orderDetailMapper;
+    }
+
+    @Transactional
+    public void transferOrderFromTemp(String orderId) {
+        // 1. 获取临时订单
+        OrderTemp orderTemp = orderTempMapper.getOrderTempById(Integer.valueOf(orderId));
+        if (orderTemp == null) {
+            throw new IllegalArgumentException("OrderTemp not found for orderId: " + orderId);
+        }
+
+        // 2. 获取对应的临时订单明细
+        List<OrderDetailTemp> orderDetailTemps = orderDetailTempMapper.getOrderDetailsByOrderId(Long.valueOf(orderTemp.getId()));
+        if (orderDetailTemps == null || orderDetailTemps.isEmpty()) {
+            throw new IllegalArgumentException("OrderDetailTemp not found for orderId: " + orderId);
+        }
+
+        // 3. 转换并保存到正式的 Order 表
+        Order order = convertToOrder(orderTemp);
+        orderMapper.insertOrder(order);
+
+        // 4. 转换并保存到正式的 OrderDetail 表
+        List<OrderDetail> orderDetails = convertToOrderDetails(Long.valueOf(order.getId()), orderDetailTemps);
+        orderDetailMapper.savePrizeOrderDetailBatch(orderDetails);
+
+        // 5. 清理临时表数据
+        orderTempMapper.deleteOrderTemp(orderTemp.getId());
+        orderDetailTempMapper.deleteOrderDetail(Long.valueOf(orderTemp.getOrderNumber()));
+    }
+
+    private Order convertToOrder(OrderTemp orderTemp) {
+        return Order.builder()
+                .orderNumber(orderTemp.getOrderNumber())
+                .userId(orderTemp.getUserId())
+                .totalAmount(orderTemp.getTotalAmount())
+                .shippingCost(orderTemp.getShippingCost())
+                .isFreeShipping(orderTemp.getIsFreeShipping())
+                .bonusPointsEarned(orderTemp.getBonusPointsEarned())
+                .bonusPointsUsed(orderTemp.getBonusPointsUsed())
+                .createdAt(orderTemp.getCreatedAt())
+                .updatedAt(orderTemp.getUpdatedAt())
+                .paidAt(orderTemp.getPaidAt())
+                .resultStatus(orderTemp.getResultStatus())
+                .paymentMethod(orderTemp.getPaymentMethod())
+                .shippingMethod(orderTemp.getShippingMethod())
+                .shippingName(orderTemp.getShippingName())
+                .shippingZipCode(orderTemp.getShippingZipCode())
+                .shippingCity(orderTemp.getShippingCity())
+                .shippingArea(orderTemp.getShippingArea())
+                .shippingAddress(orderTemp.getShippingAddress())
+                .billingZipCode(orderTemp.getBillingZipCode())
+                .billingName(orderTemp.getBillingName())
+                .billingCity(orderTemp.getBillingCity())
+                .billingArea(orderTemp.getBillingArea())
+                .billingAddress(orderTemp.getBillingAddress())
+                .invoice(orderTemp.getInvoice())
+                .trackingNumber(orderTemp.getTrackingNumber())
+                .shippingPhone(orderTemp.getShippingPhone())
+                .shopId(orderTemp.getShopId())
+                .OPMode(orderTemp.getOPMode())
+                .build();
+    }
+
+    private List<OrderDetail> convertToOrderDetails(Long orderId, List<OrderDetailTemp> orderDetailTemps) {
+        return orderDetailTemps.stream().map(detailTemp -> OrderDetail.builder()
+                .orderId(orderId)
+                .productDetailId(detailTemp.getProductDetailId())
+                .storeProductId(detailTemp.getStoreProductId())
+                .quantity(detailTemp.getQuantity())
+                .totalPrice(detailTemp.getTotalPrice())
+                .bonusPointsEarned(detailTemp.getBonusPointsEarned())
+                .build()
+        ).collect(Collectors.toList());
     }
 }

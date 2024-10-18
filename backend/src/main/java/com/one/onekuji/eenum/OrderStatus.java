@@ -2,7 +2,9 @@ package com.one.onekuji.eenum;
 
 public enum OrderStatus {
     PREPARING_SHIPMENT("準備發貨"),
-    SHIPPED("已發貨");
+    SHIPPED("已發貨"),
+
+    SOLD_OUT("售罄");
 
     private final String description;
 

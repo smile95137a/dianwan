@@ -32,4 +32,7 @@ public class UserReward {
     @Column(name = "created_at", updatable = false)
     private LocalDate createdAt;
 
+
+    @Column(name = "threshold_amount", precision = 10, scale = 2)
+    private BigDecimal thresholdAmount;  // 新增欄位，用於記錄領取的門檻金額
 }

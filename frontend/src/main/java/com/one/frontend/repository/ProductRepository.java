@@ -58,7 +58,7 @@ public interface ProductRepository {
             "stock_quantity = #{stockQuantity} " +
             "WHERE product_id = #{productId}")
     void updateProductQuantity(ProductRes product);
-    @Update("update product set status = 'UNAVAILABLE' where product_id = #{productId}")
+    @Update("update product set status = 'SOLD_OUT' where product_id = #{productId}")
     void updateStatus(Long productId);
     @Select("select category_id from product_category where category_uuid = #{uuid}")
     Long getProductByCategoryId(String uuid);

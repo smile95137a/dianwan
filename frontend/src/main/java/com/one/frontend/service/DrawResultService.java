@@ -38,7 +38,8 @@ public class DrawResultService {
 	private final OrderService orderService;
 	private final PrizeCartItemRepository prizeCartItemRepository;
 	private final PrizeCartRepository prizeCartRepository;
-
+	@Autowired
+	private UserTransactionRepository userTransactionRepository;
 
 	@Autowired
 	private SimpMessagingTemplate messagingTemplate;
@@ -208,6 +209,9 @@ public class DrawResultService {
 			BigDecimal totalAmount = calculateTotalAmount(product, prizeNumbers.size(), payMethod);
 			deductUserBalance(userId, totalAmount, product.getPrizeCategory(), payMethod);
 
+			// **记录消费** (在扣除用户余额后)
+			recordConsume(userId, totalAmount);
+
 			// 为每个选择的编号随机抽奖（按概率）
 			List<PrizeNumber> drawnPrizeNumbers = drawPrizesForNumbersWithStock(selectedPrizeNumbers, productDetails);
 
@@ -234,6 +238,11 @@ public class DrawResultService {
 			throw new Exception("抽獎過程中出現錯誤: " + e.getMessage());
 		}
 	}
+
+	private void recordConsume(Long userId, BigDecimal amount) {
+		userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
+	}
+
 
 	private BigDecimal calculateTotalAmount(ProductRes product, int count, String payMethod) {
 		BigDecimal unitPrice;

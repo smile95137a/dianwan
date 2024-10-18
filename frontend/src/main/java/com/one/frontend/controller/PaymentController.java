@@ -67,6 +67,9 @@ public class PaymentController {
         System.out.println("e_payaccount: " + e_payaccount);
         System.out.println("e_PayInfo: " + e_PayInfo);
         System.out.println("str_check: " + str_check);
+        if("1".equals(result)){
+           paymentService.transferOrderFromTemp(OrderID);
+        }
 
         return ResponseEntity.ok("Received payment callback successfully");
     }

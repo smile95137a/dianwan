@@ -31,13 +31,13 @@ public interface UserTransactionRepository {
                                              @Param("startDate") LocalDate startDate,
                                              @Param("endDate") LocalDate endDate);
 
-    @Select("SELECT * FROM transaction WHERE user_id = #{userId} " +
+    @Select("SELECT * FROM user_transaction WHERE user_id = #{userId} " +
             "AND transaction_date BETWEEN #{startDate} AND #{endDate}")
     List<UserTransaction> findTransactionsByUserIdAndDateRange(
             @Param("userId") Long userId,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
 
-    @Select("SELECT * FROM transaction WHERE user_id = #{userId}")
+    @Select("SELECT * FROM user_transaction WHERE user_id = #{userId}")
     List<UserTransaction> findAllTransactionsByUserId(@Param("userId") Long userId);
 }

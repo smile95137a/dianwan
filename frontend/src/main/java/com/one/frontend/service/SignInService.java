@@ -36,11 +36,11 @@ public class SignInService {
 
         // 查询用户当月的储值总金额
         BigDecimal totalDepositAmount = userTransactionRepository.getTotalAmountForUserAndMonth(
-                userId, "DEPOSIT", startOfMonth, endOfMonth);
+                userId, "CONSUME", startOfMonth, endOfMonth);
 
-        // 检查是否达到 500 元
-        if (totalDepositAmount.compareTo(BigDecimal.valueOf(500)) < 0) {
-            throw new Exception("當月儲值金額未滿 500 元，無法簽到");
+        // 检查是否达到 1000 元
+        if (totalDepositAmount.compareTo(BigDecimal.valueOf(1000)) < 0) {
+            throw new Exception("當月消費金額未滿 1000 元，無法簽到");
         }
 
         // 如果儲值滿 500，則繼續處理簽到邏輯
