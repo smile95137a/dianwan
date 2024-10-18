@@ -135,7 +135,7 @@ public class OrderService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) throws Exception {
+	public OrderPayRes createOrder(PayCartRes payCartRes, List<CartItem> cartItemList, Long userId) throws Exception {
 
 		// 生成訂單號
 		String orderNumber = genOrderNumber();
@@ -286,11 +286,11 @@ public class OrderService {
 		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
 
 
-		return orderNumber; // 返回訂單號
+		return new OrderPayRes(orderNumber , paymentResponse); // 返回訂單號
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String createPrizeOrder(PayCartRes payCartRes, List<PrizeCartItem> prizeCartItemList, Long userId) throws Exception {
+	public OrderPayRes createPrizeOrder(PayCartRes payCartRes, List<PrizeCartItem> prizeCartItemList, Long userId) throws Exception {
 
 		// 生成訂單號
 		String orderNumber = genOrderNumber();
@@ -443,7 +443,7 @@ public class OrderService {
 		invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
 
 
-		return orderNumber; // 返回訂單號
+		return new OrderPayRes(orderNumber , paymentResponse); // 返回訂單號
 	}
 
 	private Order createOrderEntity(PayCartRes payCartRes, Long userId, String orderNumber, BigDecimal shippingCost) {
