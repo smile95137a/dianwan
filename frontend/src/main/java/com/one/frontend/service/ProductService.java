@@ -1,5 +1,6 @@
 package com.one.frontend.service;
 
+import com.one.frontend.eenum.ProductType;
 import com.one.frontend.repository.ProductRepository;
 import com.one.frontend.repository.UserRepository;
 import com.one.frontend.response.ProductRes;
@@ -37,5 +38,13 @@ public class ProductService {
         ProductRes res = productRepository.getProductByCId(categoryId);
 
         return res;
+    }
+
+    public List<ProductRes> getProductByType(String type) {
+        // 将数字类型转换为对应的ProductType枚举
+        ProductType productType = ProductType.fromCode(type);
+
+        // 根据枚举值从数据库获取相应类型的商品
+        return productRepository.getProductByType(productType.name());
     }
 }
