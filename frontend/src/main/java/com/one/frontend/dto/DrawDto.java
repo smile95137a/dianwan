@@ -13,4 +13,6 @@ public class DrawDto {
    private  List<String> prizeNumbers;
 
    private String exchangeType;
+
+   private String code;
 }

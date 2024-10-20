@@ -7,6 +7,7 @@ import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.DrawResult;
 import com.one.frontend.response.DrawResponse;
 import com.one.frontend.service.DrawResultService;
+import com.one.frontend.service.RedemptionCodeService;
 import com.one.frontend.util.ResponseUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +24,23 @@ import java.util.List;
 public class DrawController {
 
 	@Autowired
+	private RedemptionCodeService redemptionCodeService;
+
+	@Autowired
 	private DrawResultService drawResultService;
+
+	@PostMapping("/redeem")
+	public ResponseEntity<ApiResponse<?>> redeemCode(@RequestBody DrawDto drawDto) throws Exception {
+		var userDetails = SecurityUtils.getCurrentUserPrinciple();
+		var userId = userDetails.getId();
+		String s = redemptionCodeService.redeemCode(userId , drawDto);
+		if("兌換成功".equals(s)){
+			drawResultService.handleDraw2(userId , drawDto.getProductId() , drawDto.getPrizeNumbers() , "1");
+		}
+		ApiResponse<?> response1 = ResponseUtils.success(200, "成功", s);
+		return ResponseEntity.ok(response1);
+	}
+
 
 	@PostMapping("/oneprize")
 	@Operation(summary = "扭蛋抽獎")
