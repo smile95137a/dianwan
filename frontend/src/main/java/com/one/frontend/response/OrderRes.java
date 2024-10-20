@@ -40,6 +40,7 @@ public class OrderRes {
 	private String trackingNumber;
 
 	private List<OrderDetailRes> orderDetails;
+	private Long userId;
 
 
 }

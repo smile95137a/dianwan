@@ -4,7 +4,9 @@ import com.one.frontend.config.security.SecurityUtils;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
+import com.one.frontend.repository.OrderRepository;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.response.OrderRes;
 import com.one.frontend.response.PaymentResponse;
 import com.one.frontend.service.PaymentService;
 import com.one.frontend.util.ResponseUtils;
@@ -29,6 +31,9 @@ public class PaymentController {
     private PaymentService paymentService;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
     @PostMapping("/creditCart")
     public PaymentResponse creditCart(@RequestBody PaymentRequest paymentRequest) {
         return paymentService.creditCard(paymentRequest);
@@ -68,7 +73,8 @@ public class PaymentController {
         System.out.println("e_PayInfo: " + e_PayInfo);
         System.out.println("str_check: " + str_check);
         if("1".equals(result)){
-           paymentService.transferOrderFromTemp(OrderID);
+
+            paymentService.transferOrderFromTemp(OrderID);
         }
 
         return ResponseEntity.ok("Received payment callback successfully");
@@ -118,6 +124,45 @@ public class PaymentController {
     }
 
 
+    @PostMapping("/paymentCallback2")
+    public ResponseEntity<String> paymentCallback2(
+            @RequestParam String Send_Type,
+            @RequestParam String result,
+            @RequestParam String ret_msg,
+            @RequestParam String OrderID,
+            @RequestParam String e_money,
+            @RequestParam String PayAmount,
+            @RequestParam String e_date,
+            @RequestParam String e_time,
+            @RequestParam String e_orderno,
+            @RequestParam String e_payaccount,
+            @RequestParam String e_PayInfo,
+            @RequestParam String str_check
+    ) {
+        // 打印接收到的参数
+        System.out.println("Send_Type: " + Send_Type);
+        System.out.println("Result: " + result);
+        System.out.println("Return Message: " + ret_msg);
+        System.out.println("Order ID: " + OrderID);
+        System.out.println("e_money: " + e_money);
+        System.out.println("Pay Amount: " + PayAmount);
+        System.out.println("e_date: " + e_date);
+        System.out.println("e_time: " + e_time);
+        System.out.println("e_orderno: " + e_orderno);
+        System.out.println("e_payaccount: " + e_payaccount);
+        System.out.println("e_PayInfo: " + e_PayInfo);
+        System.out.println("str_check: " + str_check);
+        if("1".equals(result)){
+            // 记录储值交易
+            OrderRes orderByOrderNumber = orderRepository.findOrderByOrderNumber(OrderID);
+            paymentService.recordDeposit(orderByOrderNumber.getUserId(), BigDecimal.valueOf(Long.parseLong(PayAmount)));
+            ApiResponse<Void> response1 = ResponseUtils.success(200, "成功", null);
+            return ResponseEntity.ok("Received payment callback successfully");
+        }
+
+        return ResponseEntity.ok("Received payment callback successfully");
+    }
+
 
     @PostMapping("/topOp") //儲值
     public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) throws Exception {
@@ -127,10 +172,8 @@ public class PaymentController {
         int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
         if ("1".equals(result)) {
-            // 记录储值交易
-            paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
-            ApiResponse<Void> response1 = ResponseUtils.success(200, "成功", null);
-            return ResponseEntity.ok(response1);
+            ApiResponse<Object> success = ResponseUtils.success(200, "成功", response);
+            return ResponseEntity.ok(success);
         }
         ApiResponse<Boolean> response1 = ResponseUtils.failure(200, "失敗", null);
 
