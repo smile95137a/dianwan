@@ -216,6 +216,11 @@ public class OrderService {
 				orderEntity.setBillNumber(paymentResponse.getEPayAccount());
 			}
 
+			if(payCartRes.getState() != null){
+				orderEntity.setState("1");
+				orderEntity.setDonationCode(payCartRes.getDonationCode());
+			}
+
 
 				if("1".equals(payCartRes.getPaymentMethod())) {
 					// 插入訂單到資料庫
@@ -362,6 +367,11 @@ public class OrderService {
 					.build();
 			if(paymentResponse.getEPayAccount() != null){
 				orderEntity.setBillNumber(paymentResponse.getEPayAccount());
+			}
+
+			if(payCartRes.getState() != null){
+				orderEntity.setState("1");
+				orderEntity.setDonationCode(payCartRes.getDonationCode());
 			}
 
 			if("1".equals(payCartRes.getPaymentMethod())) {
