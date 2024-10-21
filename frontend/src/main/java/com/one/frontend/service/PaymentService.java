@@ -3,7 +3,9 @@ package com.one.frontend.service;
 import com.google.gson.Gson;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
-import com.one.frontend.response.PaymentResponse;
+import com.one.frontend.request.ReceiptReq;
+import com.one.frontend.response.*;
+import jakarta.mail.MessagingException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -11,11 +13,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +43,15 @@ public class PaymentService {
 
     @Autowired
     private UserRewardRepository userRewardRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private InvoiceService invoiceService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String CUSTOMERID = "B82FD0DF7DE03FC702DEC35A2446E469";
     private final String STRCHECK = "d0q2mo1729enisehzolmhdwhkac38itb";
@@ -48,67 +62,67 @@ public class PaymentService {
 //        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
-                .sendType("0")            // 傳送型態
-                .payModeNo("2")           // 付款模式
-                .customerId(CUSTOMERID) // 商店代號
-                .orderNo(paymentRequest.getOrderNo())    // 交易單號
-                .amount(paymentRequest.getAmount())           // 交易金額
-                .transCode("00")          // 交易類別
-                .buyerName(paymentRequest.getBuyerName())    // 消費者姓名
-                .buyerTelm(paymentRequest.getBuyerTelm())  // 消費者手機
-                .buyerMail(paymentRequest.getBuyerMail()) // 消費者Email
-                .buyerMemo(paymentRequest.getBuyerMemo()) // 消費備註
-                .cardNo(paymentRequest.getCardNo())  // 信用卡號
-                .expireDate(paymentRequest.getExpireDate())       // 卡片有效日期
-                .cvv(paymentRequest.getCvv())               // 卡片認證碼
-                .transMode("1")           // 交易模式
-                .installment("0")         // 期數
-                .returnUrl(paymentRequest.getReturnUrl()) // 授權結果回傳網址
-                .callbackUrl(paymentRequest.getCallbackUrl()) // 背景對帳網址
-                .eReturn("1")             // 是否使用Json回傳
-                .strCheck(STRCHECK) // 交易驗證密碼
+                .sendType("0".trim())  // 傳送型態，寫死去除空白
+                .payModeNo("2".trim())  // 付款模式，寫死去除空白
+                .customerId(CUSTOMERID.trim())  // 商店代號，去除前後空白
+                .amount(paymentRequest.getAmount())  // 交易金額，數值無需去空白
+                .transCode("00".trim())  // 交易類別，寫死去除空白
+                .buyerName(paymentRequest.getBuyerName().trim().replaceAll("\\s+", " "))  // 消費者姓名，去除前後空白
+                .buyerTelm(paymentRequest.getBuyerTelm().trim())  // 消費者手機，去除前後空白
+                .buyerMail(paymentRequest.getBuyerMail().trim())  // 消費者Email，去除前後空白
+                .buyerMemo("再來一抽備註")  // 消費備註，去除前後空白
+                .cardNo(paymentRequest.getCardNo().trim())  // 信用卡號，去除前後空白
+                .expireDate(paymentRequest.getExpireDate().trim())  // 卡片有效日期，去除前後空白
+                .cvv(paymentRequest.getCvv().trim())  // 卡片認證碼，去除前後空白
+                .transMode("1".trim())  // 交易模式，寫死去除空白
+                .installment("0".trim())  // 期數，寫死去除空白
+                .eReturn("1".trim())  // 是否使用Json回傳，寫死去除空白
+                .strCheck(STRCHECK.trim())  // 交易驗證密碼，去除前後空白
                 .build();
+
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(url);
-            post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"); // 确保使用UTF-8编码
 
             // 构建请求体
             StringBuilder requestBody = new StringBuilder();
-            requestBody.append("Send_Type=").append(req.getSendType())
-                    .append("&Pay_Mode_No=").append(req.getPayModeNo())
-                    .append("&CustomerId=").append(req.getCustomerId())
-                    .append("&Order_No=")
-                    .append("&Amount=").append(req.getAmount())
-                    .append("&TransCode=").append(req.getTransCode())
-                    .append("&Buyer_Name=").append(req.getBuyerName())
-                    .append("&Buyer_Telm=").append(req.getBuyerTelm())
-                    .append("&Buyer_Mail=").append(req.getBuyerMail())
-                    .append("&Buyer_Memo=").append(req.getBuyerMemo())
-                    .append("&CardNo=").append(req.getCardNo())
-                    .append("&ExpireDate=").append(req.getExpireDate())
-                    .append("&CVV=").append(req.getCvv())
-                    .append("&TransMode=").append(req.getTransMode())
-                    .append("&Installment=").append(req.getInstallment())
-                    .append("&Return_url=")
-                    .append("&Callback_Url=")
-                    .append("&e_return=").append(req.getEReturn())
-                    .append("&Str_Check=").append(req.getStrCheck());
+            requestBody.append("Send_Type=").append(URLEncoder.encode(req.getSendType(), "UTF-8"))
+                    .append("&Pay_Mode_No=").append(URLEncoder.encode(req.getPayModeNo(), "UTF-8"))
+                    .append("&CustomerId=").append(URLEncoder.encode(req.getCustomerId(), "UTF-8"))
+                    .append("&Order_No=") // 不需要传值，保持原样
+                    .append("&Amount=").append(URLEncoder.encode(req.getAmount().toString(), "UTF-8"))
+                    .append("&TransCode=").append(URLEncoder.encode(req.getTransCode(), "UTF-8"))
+                    .append("&Buyer_Name=").append(URLEncoder.encode(req.getBuyerName(), "UTF-8"))
+                    .append("&Buyer_Telm=").append(URLEncoder.encode(req.getBuyerTelm(), "UTF-8"))
+                    .append("&Buyer_Mail=").append(URLEncoder.encode(req.getBuyerMail(), "UTF-8"))
+                    .append("&Buyer_Memo=").append(URLEncoder.encode(req.getBuyerMemo(), "UTF-8"))
+                    .append("&CardNo=").append(URLEncoder.encode(req.getCardNo(), "UTF-8"))
+                    .append("&ExpireDate=").append(URLEncoder.encode(req.getExpireDate().replace("/", "").substring(2) + req.getExpireDate().substring(0, 2), "UTF-8"))
+                    .append("&CVV=").append(URLEncoder.encode(req.getCvv(), "UTF-8"))
+                    .append("&TransMode=").append(URLEncoder.encode(req.getTransMode(), "UTF-8"))
+                    .append("&Installment=").append(URLEncoder.encode(req.getInstallment(), "UTF-8"))
+                    .append("&Return_url=") // 不需要传值，保持原样
+                    .append("&Callback_Url=") // 不需要传值，保持原样
+                    .append("&e_return=").append(URLEncoder.encode(req.getEReturn(), "UTF-8"))
+                    .append("&Str_Check=").append(URLEncoder.encode(req.getStrCheck(), "UTF-8"));
 
-            post.setEntity(new StringEntity(requestBody.toString()));
+            post.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8)); // 设置请求体为UTF-8编码
 
             System.out.println(requestBody);
+
             // 发送请求并接收响应
             HttpResponse response = httpClient.execute(post);
             System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
 
-            // 处理响应体
-            String jsonResponse = EntityUtils.toString(response.getEntity());
+            // 处理响应体，确保使用UTF-8解码
+            String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             System.out.println("Response JSON: " + jsonResponse);
 
             Gson gson = new Gson();
             PaymentResponse paymentResponse = gson.fromJson(jsonResponse, PaymentResponse.class);
             System.out.println(paymentResponse);
+
             return paymentResponse;
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,46 +132,44 @@ return null;
 
 
     public PaymentResponse webATM(PaymentRequest paymentRequest) {
-//        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
-        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
+        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
+//        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
-                .sendType("4")            // 傳送型態
-                .payModeNo("2")           // 付款模式
-                .customerId(CUSTOMERID) // 商店代號
-                .orderNo(paymentRequest.getOrderNo())    // 交易單號
-                .amount(paymentRequest.getAmount())           // 交易金額
-                .buyerName(paymentRequest.getBuyerName())    // 消費者姓名
-                .buyerTelm(paymentRequest.getBuyerTelm())  // 消費者手機
-                .buyerMail(paymentRequest.getBuyerMail()) // 消費者Email
-                .buyerMemo(paymentRequest.getBuyerMemo()) // 消費備註
-                .returnUrl(paymentRequest.getReturnUrl()) // 授權結果回傳網址
-                .callbackUrl("https://api.onemorelottery.tw:8081/payment/paymentCallback") // 背景對帳網址
-                .eReturn("1")             // 是否使用Json回傳
-                .strCheck(STRCHECK) // 交易驗證密碼
+                .sendType("4".trim())  // 傳送型態，去除空白
+                .payModeNo("2".trim())  // 付款模式，去除空白
+                .customerId(CUSTOMERID.trim())  // 商店代號，去除前後空白
+                .amount(paymentRequest.getAmount())  // 交易金額，不需要trim處理
+                .buyerName(paymentRequest.getBuyerName().trim())  // 消費者姓名，去除前後空白
+                .buyerTelm(paymentRequest.getBuyerTelm().trim())  // 消費者手機，去除前後空白
+                .buyerMail(paymentRequest.getBuyerMail().trim())  // 消費者Email，去除前後空白
+                .buyerMemo("再來一抽備註")  // 消費備註，去除前後空白
+                .callbackUrl("https://api.onemorelottery.tw:8081/payment/paymentCallback".trim())  // 背景對帳網址，去除空白
+                .eReturn("1".trim())  // 是否使用Json回傳，去除空白
+                .strCheck(STRCHECK.trim())  // 交易驗證密碼，去除前後空白
                 .build();
-
+        System.out.println(req);
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(url);
-            post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"); // 确保使用UTF-8
 
             // 构建请求体
             StringBuilder requestBody = new StringBuilder();
-            requestBody.append("Send_Type=").append(req.getSendType())
-                    .append("&Pay_Mode_No=").append(req.getPayModeNo())
-                    .append("&CustomerId=").append(req.getCustomerId())
-                    .append("&Order_No=")
-                    .append("&Amount=").append(req.getAmount())
-                    .append("&Buyer_Name=").append(req.getBuyerName())
-                    .append("&Buyer_Telm=").append(req.getBuyerTelm())
-                    .append("&Buyer_Mail=").append(req.getBuyerMail())
-                    .append("&Buyer_Memo=").append(req.getBuyerMemo())
-                    .append("&Return_url=")
-                    .append("&Callback_Url=").append(req.getCallbackUrl())
-                    .append("&e_return=").append(req.getEReturn())
-                    .append("&Str_Check=").append(req.getStrCheck());
+            requestBody.append("Send_Type=").append(URLEncoder.encode(req.getSendType(), "UTF-8"))
+                    .append("&Pay_Mode_No=").append(URLEncoder.encode(req.getPayModeNo(), "UTF-8"))
+                    .append("&CustomerId=").append(URLEncoder.encode(req.getCustomerId(), "UTF-8"))
+                    .append("&Order_No=") // 不需要传值，保持原样
+                    .append("&Amount=").append(URLEncoder.encode(req.getAmount().toString(), "UTF-8"))
+                    .append("&Buyer_Name=").append(URLEncoder.encode(req.getBuyerName(), "UTF-8"))
+                    .append("&Buyer_Telm=").append(URLEncoder.encode(req.getBuyerTelm(), "UTF-8"))
+                    .append("&Buyer_Mail=").append(URLEncoder.encode(req.getBuyerMail(), "UTF-8"))
+                    .append("&Buyer_Memo=").append(URLEncoder.encode(req.getBuyerMemo(), "UTF-8"))
+                    .append("&Return_url=") // 不需要传值，保持原样
+                    .append("&Callback_Url=").append(URLEncoder.encode(req.getCallbackUrl(), "UTF-8"))
+                    .append("&e_return=").append(URLEncoder.encode(req.getEReturn(), "UTF-8"))
+                    .append("&Str_Check=").append(URLEncoder.encode(req.getStrCheck(), "UTF-8"));
 
-            post.setEntity(new StringEntity(requestBody.toString()));
+            post.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8)); // 设置请求体为UTF-8编码
 
             System.out.println(requestBody);
             // 发送请求并接收响应
@@ -165,7 +177,7 @@ return null;
             System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
 
             // 处理响应体
-            String jsonResponse = EntityUtils.toString(response.getEntity());
+            String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8); // 确保响应体按UTF-8处理
             System.out.println("Response JSON: " + jsonResponse);
 
             Gson gson = new Gson();
@@ -175,50 +187,48 @@ return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     public PaymentResponse webATM2(PaymentRequest paymentRequest) {
-//        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
-        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
+        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
+//        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
-                .sendType("4")            // 傳送型態
-                .payModeNo("2")           // 付款模式
-                .customerId(CUSTOMERID) // 商店代號
-                .orderNo(paymentRequest.getOrderNo())    // 交易單號
-                .amount(paymentRequest.getAmount())           // 交易金額
-                .buyerName(paymentRequest.getBuyerName())    // 消費者姓名
-                .buyerTelm(paymentRequest.getBuyerTelm())  // 消費者手機
-                .buyerMail(paymentRequest.getBuyerMail()) // 消費者Email
-                .buyerMemo(paymentRequest.getBuyerMemo()) // 消費備註
-                .returnUrl(paymentRequest.getReturnUrl()) // 授權結果回傳網址
-                .callbackUrl("https://api.onemorelottery.tw:8081/payment/paymentCallback2") // 背景對帳網址
-                .eReturn("1")             // 是否使用Json回傳
-                .strCheck(STRCHECK) // 交易驗證密碼
+                .sendType("4".trim())  // 傳送型態，去除空白
+                .payModeNo("2".trim())  // 付款模式，去除空白
+                .customerId(CUSTOMERID.trim())  // 商店代號，去除空白
+                .amount(paymentRequest.getAmount())  // 交易金額
+                .buyerName(paymentRequest.getBuyerName().trim())  // 消費者姓名，去除空白
+                .buyerTelm(paymentRequest.getBuyerTelm().trim())  // 消費者手機，去除空白
+                .buyerMail(paymentRequest.getBuyerMail().trim())  // 消費者Email，去除空白
+                .buyerMemo("再來一抽備註")  // 消費備註，去除空白
+                .callbackUrl("https://api.onemorelottery.tw:8081/payment/paymentCallback2".trim())  // 背景對帳網址，去除空白
+                .eReturn("1".trim())  // 是否使用Json回傳，去除空白
+                .strCheck(STRCHECK.trim())  // 交易驗證密碼，去除空白
                 .build();
-
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(url);
-            post.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            post.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"); // 确保使用UTF-8
 
             // 构建请求体
             StringBuilder requestBody = new StringBuilder();
-            requestBody.append("Send_Type=").append(req.getSendType())
-                    .append("&Pay_Mode_No=").append(req.getPayModeNo())
-                    .append("&CustomerId=").append(req.getCustomerId())
-                    .append("&Order_No=")
-                    .append("&Amount=").append(req.getAmount())
-                    .append("&Buyer_Name=").append(req.getBuyerName())
-                    .append("&Buyer_Telm=").append(req.getBuyerTelm())
-                    .append("&Buyer_Mail=").append(req.getBuyerMail())
-                    .append("&Buyer_Memo=").append(req.getBuyerMemo())
-                    .append("&Return_url=")
-                    .append("&Callback_Url=").append(req.getCallbackUrl())
-                    .append("&e_return=").append(req.getEReturn())
-                    .append("&Str_Check=").append(req.getStrCheck());
+            requestBody.append("Send_Type=").append(URLEncoder.encode(req.getSendType(), "UTF-8"))
+                    .append("&Pay_Mode_No=").append(URLEncoder.encode(req.getPayModeNo(), "UTF-8"))
+                    .append("&CustomerId=").append(URLEncoder.encode(req.getCustomerId(), "UTF-8"))
+                    .append("&Order_No=") // 不需要传值，保持原样
+                    .append("&Amount=").append(URLEncoder.encode(req.getAmount().toString(), "UTF-8"))
+                    .append("&Buyer_Name=").append(URLEncoder.encode(req.getBuyerName(), "UTF-8"))
+                    .append("&Buyer_Telm=").append(URLEncoder.encode(req.getBuyerTelm(), "UTF-8"))
+                    .append("&Buyer_Mail=").append(URLEncoder.encode(req.getBuyerMail(), "UTF-8"))
+                    .append("&Buyer_Memo=").append(URLEncoder.encode(req.getBuyerMemo(), "UTF-8"))
+                    .append("&Return_url=") // 不需要传值，保持原样
+                    .append("&Callback_Url=").append(URLEncoder.encode(req.getCallbackUrl(), "UTF-8"))
+                    .append("&e_return=").append(URLEncoder.encode(req.getEReturn(), "UTF-8"))
+                    .append("&Str_Check=").append(URLEncoder.encode(req.getStrCheck(), "UTF-8"));
 
-            post.setEntity(new StringEntity(requestBody.toString()));
+            post.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8)); // 设置请求体为UTF-8编码
 
             System.out.println(requestBody);
             // 发送请求并接收响应
@@ -226,7 +236,7 @@ return null;
             System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
 
             // 处理响应体
-            String jsonResponse = EntityUtils.toString(response.getEntity());
+            String jsonResponse = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8); // 确保响应体按UTF-8处理
             System.out.println("Response JSON: " + jsonResponse);
 
             Gson gson = new Gson();
@@ -236,6 +246,7 @@ return null;
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -388,30 +399,46 @@ return null;
     }
 
     @Transactional
-    public void transferOrderFromTemp(String orderId) {
-        // 1. 获取临时订单
-        OrderTemp orderTemp = orderTempMapper.getOrderTempById(Integer.valueOf(orderId));
-        if (orderTemp == null) {
-            throw new IllegalArgumentException("OrderTemp not found for orderId: " + orderId);
+    public void transferOrderFromTemp(String orderId) throws MessagingException {
+        OrderRes order = orderMapper.findOrderByOrderNumber(orderId);
+        orderMapper.updateStatus(order.getOrderNumber());
+        UserRes userById = userRepository.getUserById(order.getUserId());
+        List<OrderDetailRes> orderDetailsByOrderId = orderDetailRepository.findOrderDetailsByOrderId(order.getId());
+        //訂單成立開立發票並且傳送至email
+        ReceiptReq invoiceRequest = new ReceiptReq();
+        if(order.getVehicle() != null){
+            invoiceRequest.setOrderCode(order.getVehicle());
         }
-
-        // 2. 获取对应的临时订单明细
-        List<OrderDetailTemp> orderDetailTemps = orderDetailTempMapper.getOrderDetailsByOrderId(Long.valueOf(orderTemp.getId()));
-        if (orderDetailTemps == null || orderDetailTemps.isEmpty()) {
-            throw new IllegalArgumentException("OrderDetailTemp not found for orderId: " + orderId);
+        invoiceRequest.setEmail(userById.getUsername());
+        if(order.getState() != null){
+            invoiceRequest.setState(1);
+            invoiceRequest.setDonationCode(order.getDonationCode());
+        }else{
+            invoiceRequest.setState(0);
         }
+        BigDecimal amountToSend = order.getTotalAmount();
+        invoiceRequest.setTotalFee(String.valueOf(amountToSend));
+        List<ReceiptReq.Item> items = new ArrayList<>();
+        for(OrderDetailRes cartItem : orderDetailsByOrderId){
+            ReceiptReq.Item item = new ReceiptReq.Item();
+            ProductDetailRes byId = productDetailRepository.getProductDetailById(cartItem.getProductDetailRes().getProductDetailId());
+            item.setName(byId.getProductName());
+            item.setNumber(cartItem.getQuantity());
+            if(cartItem.getUnitPrice() != null){
+                item.setMoney(cartItem.getUnitPrice().intValue());
+            }else{
+                item.setMoney(cartItem.getTotalPrice().intValue());
+            }
+            items.add(item);
+        }
+        invoiceRequest.setItems(items);
+        System.out.println("有到這");
+        System.out.println(invoiceRequest);
 
-        // 3. 转换并保存到正式的 Order 表
-        Order order = convertToOrder(orderTemp);
-        orderMapper.insertOrder(order);
-
-        // 4. 转换并保存到正式的 OrderDetail 表
-        List<OrderDetail> orderDetails = convertToOrderDetails(Long.valueOf(order.getId()), orderDetailTemps);
-        orderDetailMapper.savePrizeOrderDetailBatch(orderDetails);
-
-        // 5. 清理临时表数据
-        orderTempMapper.deleteOrderTemp(orderTemp.getId());
-        orderDetailTempMapper.deleteOrderDetail(Long.valueOf(orderTemp.getOrderNumber()));
+        ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
+        System.out.println(res.getBody());
+        ReceiptRes receiptRes = res.getBody();
+        invoiceService.getInvoicePicture(receiptRes.getCode() , userById.getId());
     }
 
     private Order convertToOrder(OrderTemp orderTemp) {

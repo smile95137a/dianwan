@@ -10,6 +10,7 @@ import com.one.frontend.response.OrderRes;
 import com.one.frontend.response.PaymentResponse;
 import com.one.frontend.service.PaymentService;
 import com.one.frontend.util.ResponseUtils;
+import jakarta.mail.MessagingException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -58,7 +59,7 @@ public class PaymentController {
             @RequestParam String e_payaccount,
             @RequestParam String e_PayInfo,
             @RequestParam String str_check
-    ) {
+    ) throws MessagingException {
         // 打印接收到的参数
         System.out.println("Send_Type: " + Send_Type);
         System.out.println("Result: " + result);
@@ -73,8 +74,9 @@ public class PaymentController {
         System.out.println("e_PayInfo: " + e_PayInfo);
         System.out.println("str_check: " + str_check);
         if("1".equals(result)){
-
             paymentService.transferOrderFromTemp(OrderID);
+
+
         }
 
         return ResponseEntity.ok("Received payment callback successfully");
@@ -157,6 +159,7 @@ public class PaymentController {
             OrderRes orderByOrderNumber = orderRepository.findOrderByOrderNumber(OrderID);
             paymentService.recordDeposit(orderByOrderNumber.getUserId(), BigDecimal.valueOf(Long.parseLong(PayAmount)));
             ApiResponse<Void> response1 = ResponseUtils.success(200, "成功", null);
+
             return ResponseEntity.ok("Received payment callback successfully");
         }
 

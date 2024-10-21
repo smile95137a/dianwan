@@ -38,9 +38,9 @@ public interface PrizeCartItemRepository {
 
     @Insert({
             "<script>",
-            "INSERT INTO prize_cart_item (cart_id, product_detail_id,sliver_price, is_selected, size) VALUES ",
+            "INSERT INTO prize_cart_item (cart_id, product_detail_id,sliver_price, is_selected, size , quantity) VALUES ",
             "<foreach collection='cartItemList' item='item' separator=','>",
-            "(#{item.cartId}, #{item.productDetailId}, #{item.sliverPrice}, #{item.isSelected}, #{item.size})",
+            "(#{item.cartId}, #{item.productDetailId}, #{item.sliverPrice}, #{item.isSelected}, #{item.size} , #{item.quantity})",
             "</foreach>",
             "</script>"
     })

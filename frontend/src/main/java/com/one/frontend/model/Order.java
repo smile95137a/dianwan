@@ -133,4 +133,15 @@ public class Order {
     @Column(name = "OPMode")
     private String OPMode;
 
+    @Column(name = "bill_number")
+    private String billNumber;
+
+    @Column(name = "e_payaccount")
+    private String ePayAccount;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "donation_code")
+    private String donationCode;
 }

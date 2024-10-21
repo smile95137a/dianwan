@@ -23,9 +23,11 @@ public class TransactionService {
             transactions = transactionRepository.findAllTransactionsByUserId(userId);
         }
 
-        // 更新交易类型为用户友好的字符串
+        // 不需要再将中文设置回枚举
+        // 通过 getFriendlyTransactionType() 在前端返回用户友好的字符串
         transactions.forEach(transaction -> {
-            transaction.setTransactionType(UserTransaction.TransactionType.valueOf(transaction.getFriendlyTransactionType()));
+            // 使用友好的类型（中文），返回给前端时处理为中文字符串
+            System.out.println(transaction.getFriendlyTransactionType());
         });
 
         return transactions;

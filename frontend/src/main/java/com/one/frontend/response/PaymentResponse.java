@@ -38,6 +38,8 @@ public class PaymentResponse {
     private String avCode;     // AV 代码
     @SerializedName("Invoice_No")
     private String invoiceNo;   // 发票号
+    @SerializedName("e_payaccount")
+    private String ePayAccount;
 
     // Getters and Setters
     // (可以使用 Lombok 自动生成)

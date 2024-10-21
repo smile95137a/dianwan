@@ -22,7 +22,7 @@ public class UserTransaction {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) // 在数据库中保存英文枚举值
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType; // 消费或储值
 
@@ -37,6 +37,7 @@ public class UserTransaction {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // 记录更新时间
+
     @Column(name = "user_UUID")
     private String userUUID;
 
@@ -54,67 +55,37 @@ public class UserTransaction {
 
     // 枚举类型，用于表示交易类型
     public enum TransactionType {
-        CONSUME, // 消费
-        DEPOSIT  // 储值
+        CONSUME("消費"),   // 英文保存到数据库，中文用于展示
+        DEPOSIT("儲值");
+
+        private final String friendlyName;
+
+        TransactionType(String friendlyName) {
+            this.friendlyName = friendlyName;
+        }
+
+        public String getFriendlyName() {
+            return friendlyName;
+        }
+
+        // 根据友好字符串返回对应的枚举
+        public static TransactionType fromFriendlyName(String friendlyName) {
+            for (TransactionType type : TransactionType.values()) {
+                if (type.getFriendlyName().equals(friendlyName)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("非法参数: No enum constant for friendly name " + friendlyName);
+        }
     }
+
+    // 返回交易类型的友好字符串，用于前端展示
     public String getFriendlyTransactionType() {
-        return "DEPOSIT".equals(transactionType) ? "儲值" : "消費";
-    }
-    // Getters and Setters
-
-    public Long getId() {
-        return id;
+        return transactionType.getFriendlyName();
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public LocalDateTime getTransactionDate() {
-        return transactionDate;
-    }
-
-    public void setTransactionDate(LocalDateTime transactionDate) {
-        this.transactionDate = transactionDate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    // 设置友好的交易类型
+    public void setFriendlyTransactionType(String friendlyTransactionType) {
+        this.transactionType = TransactionType.fromFriendlyName(friendlyTransactionType);
     }
 }

@@ -41,6 +41,9 @@ public class OrderRes {
 
 	private List<OrderDetailRes> orderDetails;
 	private Long userId;
+	private String vehicle;
+	private String state;
+	private String donationCode;
 
 
 }
