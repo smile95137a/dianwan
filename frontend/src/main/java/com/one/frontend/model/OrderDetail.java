@@ -53,4 +53,7 @@ public class OrderDetail {
 
 	@Column(name = "total_price")
 	private BigDecimal totalPrice;
+
+	@Column(name = "bill_number")
+	private String billNumber;
 }

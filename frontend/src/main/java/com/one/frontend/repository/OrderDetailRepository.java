@@ -35,8 +35,8 @@ public interface OrderDetailRepository {
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void save(@Param("orderDetail") StoreOrderDetailReq orderDetail);
     
-    @Insert("INSERT INTO order_detail (order_id, store_product_id, quantity, unit_price, total_price, result_item_id, bonus_points_earned) " +
-            "VALUES (#{orderDetail.orderId}, #{orderDetail.storeProductId}, #{orderDetail.quantity}, #{orderDetail.unitPrice}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned})")
+    @Insert("INSERT INTO order_detail (order_id, store_product_id, quantity, unit_price, total_price, result_item_id, bonus_points_earned , bill_number) " +
+            "VALUES (#{orderDetail.orderId}, #{orderDetail.storeProductId}, #{orderDetail.quantity}, #{orderDetail.unitPrice}, #{orderDetail.totalPrice}, #{orderDetail.resultItemId}, #{orderDetail.bonusPointsEarned} , #{orderDetail.billNumber})")
     @Options(useGeneratedKeys = true, keyProperty = "orderDetail.id")
     void saveOrderDetail(@Param("orderDetail") OrderDetail orderDetail);
 
@@ -109,9 +109,9 @@ public interface OrderDetailRepository {
 
     @Insert({
             "<script>",
-            "INSERT INTO order_detail (order_id, product_detail_id, quantity, total_price) VALUES ",
+            "INSERT INTO order_detail (order_id, product_detail_id, quantity, total_price , bill_number) VALUES ",
             "<foreach collection='orderDetails' item='orderDetail' separator=','>",
-            "(#{orderDetail.orderId}, #{orderDetail.productDetailId}, #{orderDetail.quantity}, #{orderDetail.totalPrice})",
+            "(#{orderDetail.orderId}, #{orderDetail.productDetailId}, #{orderDetail.quantity}, #{orderDetail.totalPrice} , #{orderDetail.billNumber})",
             "</foreach>",
             "</script>"
     })

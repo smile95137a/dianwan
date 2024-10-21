@@ -373,7 +373,7 @@ public class DrawResultService {
 			cartItem.setCartId(prizeCartId);
 			cartItem.setSize(prizeDetail.getSize());
 			cartItem.setProductDetailId(prizeDetail.getProductDetailId());
-			cartItem.setIsSelected(true);
+			cartItem.setIsSelected(false);
 			cartItem.setQuantity(1);
 			if (product.getProductType().equals(ProductType.GACHA) || product.getProductType().equals(ProductType.BLIND_BOX)) {
 				cartItem.setSliverPrice(BigDecimal.ZERO);
@@ -542,13 +542,13 @@ public class DrawResultService {
 
 					// 額外的隨機性檢查，降低低概率獎品的中獎機會
 					if (randomNumber <= cumulativeProbability) {
-						// 對於低概率獎品增加額外的隨機性檢查
-						if (detail.getProbability() < 0.5) {  // 可以調整這個閾值
-							// 再次生成隨機數，必須小於原始概率才能中獎
-							if (random.nextDouble() > detail.getProbability()) {
-								continue;  // 未通過額外檢查，跳過這個獎品
-							}
-						}
+//						// 對於低概率獎品增加額外的隨機性檢查
+//						if (detail.getProbability() < 0.5) {  // 可以調整這個閾值
+//							// 再次生成隨機數，必須小於原始概率才能中獎
+//							if (random.nextDouble() > detail.getProbability()) {
+//								continue;  // 未通過額外檢查，跳過這個獎品
+//							}
+//						}
 
 						// 5. 二次檢查庫存（防止並發）
 						if (detail.getQuantity() > 0) {

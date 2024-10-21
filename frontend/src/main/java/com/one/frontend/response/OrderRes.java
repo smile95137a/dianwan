@@ -1,5 +1,6 @@
 package com.one.frontend.response;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,7 @@ public class OrderRes {
 	private List<OrderDetailRes> orderDetails;
 	private Long userId;
 	private String vehicle;
+	private String billNumber;
 	private String state;
 	private String donationCode;
 

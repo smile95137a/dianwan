@@ -221,7 +221,7 @@ public class OrderService {
 				orderEntity.setDonationCode(payCartRes.getDonationCode());
 			}
 
-
+			PaymentResponse finalPaymentResponse = paymentResponse;
 				if("1".equals(payCartRes.getPaymentMethod())) {
 					// 插入訂單到資料庫
 					orderEntity.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
@@ -231,7 +231,7 @@ public class OrderService {
 					Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
 					// 轉換購物車項目到訂單詳情並保存
-					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId)) // 映射購物車項目為訂單詳情
+					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId , finalPaymentResponse.getEPayAccount())) // 映射購物車項目為訂單詳情
 							.forEach(orderDetail -> orderDetailRepository.saveOrderDetail(orderDetail)); // 保存訂單詳情
 
 					// 獲取所有購物車項的ID並移除
@@ -280,7 +280,8 @@ public class OrderService {
 					Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
 					// 轉換購物車項目到訂單詳情並保存
-					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId)) // 映射購物車項目為訂單詳情
+
+					cartItemList.stream().map(cartItem -> mapCartItemToOrderDetail(cartItem, orderId , finalPaymentResponse.getEPayAccount())) // 映射購物車項目為訂單詳情
 							.forEach(orderDetail -> orderDetailRepository.saveOrderDetail(orderDetail)); // 保存訂單詳情
 
 					// 獲取所有購物車項的ID並移除
@@ -365,6 +366,8 @@ public class OrderService {
 					.shopId(payCartRes.getShopId())
 					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
 					.build();
+			System.out.println(paymentResponse.getEPayAccount());
+			System.out.println("到這");
 			if(paymentResponse.getEPayAccount() != null){
 				orderEntity.setBillNumber(paymentResponse.getEPayAccount());
 			}
@@ -373,7 +376,9 @@ public class OrderService {
 				orderEntity.setState("1");
 				orderEntity.setDonationCode(payCartRes.getDonationCode());
 			}
-
+			PaymentResponse finalPaymentResponse = paymentResponse;
+			System.out.println("到這2");
+			System.out.println(finalPaymentResponse);
 			if("1".equals(payCartRes.getPaymentMethod())) {
 				// 插入訂單到資料庫
 				orderEntity.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
@@ -383,9 +388,10 @@ public class OrderService {
 				Long orderId = orderRepository.getOrderIdByOrderNumber(orderNumber);
 
 				// 根據訂單號查詢訂單ID
+
 				List<OrderDetail> orderDetails = prizeCartItemList.stream()
 						.filter(Objects::nonNull)  // 過濾掉 null 元素
-						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
+						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost , finalPaymentResponse.getEPayAccount()))
 						.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
 						.collect(Collectors.toList());
 
@@ -441,7 +447,7 @@ public class OrderService {
 				// 根據訂單號查詢訂單ID
 				List<OrderDetail> orderDetails = prizeCartItemList.stream()
 						.filter(Objects::nonNull)  // 過濾掉 null 元素
-						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost))
+						.map(cartItem -> mapCartItemToPrizeOrderDetail(cartItem, orderId, shippingCost ,  finalPaymentResponse.getEPayAccount()))
 						.filter(Objects::nonNull)  // 過濾掉映射結果為 null 的元素
 						.collect(Collectors.toList());
 
@@ -497,19 +503,20 @@ public class OrderService {
 		return orderNumber;
 	}
 
-	public OrderDetail mapCartItemToOrderDetail(CartItem cartItem, Long orderId) {
+	public OrderDetail mapCartItemToOrderDetail(CartItem cartItem, Long orderId ,  String billNumber ) {
 		BigDecimal totalPrice = cartItem.getUnitPrice().multiply(new BigDecimal(cartItem.getQuantity()));
 
 		return OrderDetail.builder().orderId(orderId).storeProductId(cartItem.getStoreProductId())
 				.quantity(cartItem.getQuantity()).unitPrice(cartItem.getUnitPrice()).totalPrice(totalPrice) // 新增
-																											// totalPrice
+				.billNumber(billNumber)																						// totalPrice
 				.build();
 	}
 
-	public OrderDetail mapCartItemToPrizeOrderDetail(PrizeCartItem cartItem, Long orderId , BigDecimal shippingCost) {
+	public OrderDetail mapCartItemToPrizeOrderDetail(PrizeCartItem cartItem, Long orderId , BigDecimal shippingCost , String billNumber) {
 
 		return OrderDetail.builder().orderId(orderId).productDetailId(cartItem.getProductDetailId())
-				.quantity(cartItem.getQuantity()).unitPrice(cartItem.getSliverPrice()).totalPrice(shippingCost) // 新增
+				.quantity(cartItem.getQuantity()).unitPrice(cartItem.getSliverPrice()).totalPrice(shippingCost)
+				.billNumber(billNumber)// 新增
 				.build();
 	}
 
