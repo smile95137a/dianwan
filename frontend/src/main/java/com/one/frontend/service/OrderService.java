@@ -118,6 +118,7 @@ public class OrderService {
 							break;
 						case "NO_PAY":
 							statusDescription = "未付款";
+							break;
 						default:
 							statusDescription = "未知狀態";
 							break;
