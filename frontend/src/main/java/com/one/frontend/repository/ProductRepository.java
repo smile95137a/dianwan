@@ -1,6 +1,7 @@
 package com.one.frontend.repository;
 
 import com.one.frontend.model.Product;
+import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
 import org.apache.ibatis.annotations.*;
 
@@ -9,17 +10,31 @@ import java.util.List;
 @Mapper
 public interface ProductRepository {
 
-    @Select("SELECT p.*, pc.category_uuid, " +
-            "SUM(CASE WHEN pd.grade <> 'LAST' THEN pd.quantity ELSE 0 END) as detailQuantity, " +
-            "SUM(CASE WHEN pd.grade <> 'LAST' THEN pd.stock_quantity ELSE 0 END) as detailStockQuantity " +
+    @Select("WITH product_summary AS (" +
+            "  SELECT product_id, " +
+            "    SUM(quantity) as detailQuantity, " +
+            "    SUM(stock_quantity) as detailStockQuantity " +
+            "  FROM product_detail " +
+            "  WHERE grade <> 'LAST' " + // 移到 WITH 子句中，減少需要處理的數據量
+            "  GROUP BY product_id" +
+            ") " +
+            "SELECT p.*, " +
+            "       pc.category_uuid, " +
+            "       COALESCE(ps.detailQuantity, 0) as detailQuantity, " + // 使用 COALESCE 處理 NULL
+            "       COALESCE(ps.detailStockQuantity, 0) as detailStockQuantity " +
             "FROM product p " +
-            "LEFT JOIN product_detail pd ON p.product_id = pd.product_id " +
+            "LEFT JOIN product_summary ps ON p.product_id = ps.product_id " +
             "LEFT JOIN product_category pc ON p.category_id = pc.category_id " +
-            "GROUP BY p.product_id " +
+            "ORDER BY p.product_id " +
             "LIMIT #{size} OFFSET #{offset}")
 	List<ProductRes> getAllProduct(@Param("offset") int offset, @Param("size") int size);
 
-
+    @Select("SELECT * FROM product_detail " +
+            "WHERE product_id IN " +
+            "<foreach item='id' collection='productIds' open='(' separator=',' close=')'>" +
+            "#{id}" +
+            "</foreach>")
+    List<ProductDetailRes> getProductDetailsByProductIds(@Param("productIds") List<Long> productIds);
 
     @Select("SELECT * FROM product WHERE product_id = #{productId}")
     ProductRes getProductById(@Param("productId") Long productId);

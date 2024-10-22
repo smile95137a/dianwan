@@ -34,4 +34,5 @@
         private Integer detailQuantity;
         private Integer detailStockQuantity;
         private String categoryUUid;
+        private List<ProductDetailRes> productDetails;
     }

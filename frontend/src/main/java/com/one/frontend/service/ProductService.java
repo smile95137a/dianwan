@@ -3,7 +3,9 @@ package com.one.frontend.service;
 import com.one.frontend.eenum.ProductType;
 import com.one.frontend.repository.ProductRepository;
 import com.one.frontend.repository.UserRepository;
+import com.one.frontend.response.ProductDetailRes;
 import com.one.frontend.response.ProductRes;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,14 @@ public class ProductService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<ProductDetailRes> getProductDetailsByProductIds(List<Long> productIds) {
+        try {
+            return productRepository.getProductDetailsByProductIds(productIds);
+        } catch (Exception e) {
+            throw new ServiceException("獲取商品詳情失敗", e);
+        }
     }
 
     public ProductRes getProductById(Long productId) {
