@@ -175,6 +175,7 @@ public class PaymentController {
         int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
         if ("1".equals(result)) {
+            paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
             ApiResponse<Object> success = ResponseUtils.success(200, "成功", response);
             return ResponseEntity.ok(success);
         }

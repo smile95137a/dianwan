@@ -116,6 +116,8 @@ public class OrderService {
 						case "SHIPPED":
 							statusDescription = "已發貨";
 							break;
+						case "NO_PAY":
+							statusDescription = "未付款";
 						default:
 							statusDescription = "未知狀態";
 							break;

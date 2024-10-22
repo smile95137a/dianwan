@@ -253,6 +253,7 @@ return null;
     public PaymentResponse topOp(PaymentRequest paymentRequest, String payMethod , Long userId) throws Exception {
         PaymentResponse response = null;
         if("1".equals(payMethod)){
+           paymentRequest.setBuyerName(paymentRequest.getCardHolderName());
             response = this.creditCard(paymentRequest);
         }else if("2".equals(payMethod)){
             response = this.webATM2(paymentRequest);
