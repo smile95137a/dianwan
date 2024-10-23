@@ -402,7 +402,7 @@ return null;
     @Transactional
     public void transferOrderFromTemp(String orderId) throws MessagingException {
         OrderRes order = orderMapper.findOrderByOrderNumber(orderId);
-        orderMapper.updateStatus(order.getOrderNumber());
+        orderMapper.updateStatus(order.getId());
         UserRes userById = userRepository.getUserById(order.getUserId());
         List<OrderDetailRes> orderDetailsByOrderId = orderDetailRepository.findOrderDetailsByOrderId(order.getId());
         //訂單成立開立發票並且傳送至email

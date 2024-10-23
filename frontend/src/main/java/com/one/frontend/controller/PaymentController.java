@@ -74,7 +74,7 @@ public class PaymentController {
         System.out.println("e_PayInfo: " + e_PayInfo);
         System.out.println("str_check: " + str_check);
         try {
-            if("1".equals(result)){
+            if("已付款".equals(ret_msg)){
                 paymentService.transferOrderFromTemp(OrderID);
             }
         }catch (Exception e){

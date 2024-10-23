@@ -86,7 +86,7 @@ public interface OrderRepository {
 	List<DrawResultDto> queryDrawOrder(@Param("userId") Object userId,
 									   @Param("startDate") Object startDate,
 									   @Param("endDate") Object endDate);
-	@Update("UPDATE order SET result_status = 'PREPARING_SHIPMENT' WHERE order_number = #{orderNumber}")
-	void updateStatus(@Param("orderNumber") String orderNumber);
+	@Update("UPDATE `order` SET result_status = 'PREPARING_SHIPMENT' WHERE id = #{orderNumber}")
+	void updateStatus(@Param("orderNumber") Long orderNumber);
 
 }
