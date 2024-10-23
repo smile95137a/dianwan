@@ -87,4 +87,11 @@ public class DrawResult{
     }
 
     private String productName;
+
+    @Column(name = "sliver_price")
+    private BigDecimal sliverPrice;
+    @Column(name = "price")
+    private BigDecimal price;
+    @Column(name = "bonus_price")
+    private BigDecimal bonusPrice;
 }

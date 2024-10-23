@@ -36,8 +36,11 @@ public class DrawController {
 		String s = redemptionCodeService.redeemCode(userId , drawDto);
 		if("兌換成功".equals(s)){
 			drawResultService.handleDraw2(userId , drawDto.getProductId() , drawDto.getPrizeNumbers() , "1");
+		}else{
+			ApiResponse<?> response1 = ResponseUtils.failure(200, s, null);
+			return ResponseEntity.ok(response1);
 		}
-		ApiResponse<?> response1 = ResponseUtils.success(200, "成功", s);
+		ApiResponse<?> response1 = ResponseUtils.success(200, s, null);
 		return ResponseEntity.ok(response1);
 	}
 

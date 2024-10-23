@@ -26,7 +26,6 @@ public class RedemptionCodeService {
             }
 
             // 更新兌換碼狀態
-            redemptionCode.setRedeemed(true);
             redemptionCode.setRedeemedAt(LocalDateTime.now());
             redemptionCode.setUserId(userId);
             redemptionCodeMapper.updateRedemptionCode(redemptionCode);

@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-
+	@Autowired
+	private UserTransactionRepository userTransactionRepository;
 	private final OrderRepository orderRepository;
 	private final OrderDetailRepository orderDetailRepository;
 	private final CartItemService cartItemService;
@@ -294,10 +295,16 @@ public class OrderService {
 					cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
 
 				}
+
+				this.recordConsume(userId , totalAmount);
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
 		return new OrderPayRes(orderNumber , paymentResponse); // 返回訂單號
+	}
+
+	private void recordConsume(Long userId, BigDecimal amount) {
+		userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -464,7 +471,7 @@ public class OrderService {
 				// 移除購物車項
 				prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
 			}
-
+			this.recordConsume(userId , shippingCost);
 		}else{
 			throw new Exception("資料有錯" + paymentResponse.getRetMsg());
 		}
@@ -525,20 +532,51 @@ public class OrderService {
 
 	public OrderRes getOrderByOrderNumber(Long userId, String orderNumber) {
 		try {
+			// 获取订单对象
 			var order = orderRepository.getOrderByUserIdAndOrderNumber(userId, orderNumber);
+
 			if (order != null) {
+				// 获取订单详情并设置到订单对象中
 				List<OrderDetailRes> orderDetails = orderDetailRepository.findOrderDetailsByOrderId(order.getId());
 				order.setOrderDetails(orderDetails);
+
+				// 获取订单状态并进行状态描述转换
+				String statusDescription;
+				String resultStatus = order.getResultStatus();
+
+				if (resultStatus != null) {
+					switch (resultStatus) {
+						case "PREPARING_SHIPMENT":
+							statusDescription = "訂單準備中";
+							break;
+						case "SHIPPED":
+							statusDescription = "已發貨";
+							break;
+						case "NO_PAY":
+							statusDescription = "未付款";
+							break;
+						default:
+							statusDescription = "未知狀態";
+							break;
+					}
+				} else {
+					statusDescription = "狀態不可用";
+				}
+
+				// 将状态描述设置到 OrderRes 对象中
+				order.setResultStatus(statusDescription);
 			}
 
 			return order;
+
 		} catch (Exception e) {
-			// 在这里处理异常，例如记录日志或抛出自定义异常
+			// 打印异常信息并记录日志
 			System.err.println("Error retrieving order by order number: " + e.getMessage());
-			// 您可以选择抛出自定义异常，或者返回一个默认值（如null）
-			return null; // 或者 throw new CustomException("Failed to retrieve order", e);
+			// 可以抛出自定义异常或者返回默认值
+			return null;  // 或者 throw new CustomException("Failed to retrieve order", e);
 		}
 	}
+
 
 	public OrderRes getPrizeOrderByOrderNumber(Long userId, String orderNumber) {
 		try {

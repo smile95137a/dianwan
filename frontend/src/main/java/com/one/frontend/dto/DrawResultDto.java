@@ -1,5 +1,6 @@
 package com.one.frontend.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,5 +31,8 @@ public class DrawResultDto {
     private LocalDateTime updateDate;
     private String productName;
     private List<String> imageUrls;
+    private BigDecimal sliverPrice;
+    private BigDecimal price;
+    private BigDecimal bonusPrice;
 
 }

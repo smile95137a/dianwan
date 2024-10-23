@@ -22,7 +22,7 @@ public class RedemptionCode {
     private String code;
 
     @Column(name = "is_redeemed", nullable = false)
-    private boolean isRedeemed = false;
+    private boolean redeemed = false;
 
     @Column(name = "redeemed_at")
     private LocalDateTime redeemedAt;

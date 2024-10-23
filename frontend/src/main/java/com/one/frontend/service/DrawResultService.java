@@ -317,7 +317,15 @@ public class DrawResultService {
 		drawResult.setProductId(productId);
 		drawResult.setProductDetailId(prizeDetail.getProductDetailId().longValue());
 		drawResult.setDrawTime(LocalDateTime.now());
-		drawResult.setAmount(getAmountByPayMethod(product, payMethod));
+		if (product.getPrizeCategory() == PrizeCategory.BONUS) {
+			drawResult.setBonusPrice(getAmountByPayMethod(product, payMethod));
+		} else if ("1".equals(payMethod)) {
+			drawResult.setPrice(getAmountByPayMethod(product, payMethod));
+		} else if ("2".equals(payMethod)) {
+			drawResult.setSliverPrice(getAmountByPayMethod(product, payMethod));
+		}else{
+			drawResult.setAmount(BigDecimal.ZERO);
+		}
 		drawResult.setDrawCount(1);
 		drawResult.setRemainingDrawCount(remainingDrawCount);
 		drawResult.setPrizeNumber(prizeNumber);

@@ -73,11 +73,14 @@ public class PaymentController {
         System.out.println("e_payaccount: " + e_payaccount);
         System.out.println("e_PayInfo: " + e_PayInfo);
         System.out.println("str_check: " + str_check);
-        if("1".equals(result)){
-            paymentService.transferOrderFromTemp(OrderID);
-
-
+        try {
+            if("1".equals(result)){
+                paymentService.transferOrderFromTemp(OrderID);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
 
         return ResponseEntity.ok("Received payment callback successfully");
     }
@@ -174,12 +177,12 @@ public class PaymentController {
         PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
         int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
-        if ("1".equals(result)) {
+        if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
             paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
             ApiResponse<Object> success = ResponseUtils.success(200, "成功", response);
             return ResponseEntity.ok(success);
         }
-        ApiResponse<Boolean> response1 = ResponseUtils.failure(200, "失敗", null);
+        ApiResponse<Object> response1 = ResponseUtils.success(200, "成功", response);
 
         return ResponseEntity.ok(response1);
     }
