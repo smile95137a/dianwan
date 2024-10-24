@@ -175,9 +175,9 @@ public class PaymentController {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
         PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
-        int amount = Integer.parseInt(response.getAmount());
         String result = response.getResult();
         if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
+            int amount = Integer.parseInt(response.getAmount());
             paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
             ApiResponse<Object> success = ResponseUtils.success(200, "成功", response);
             return ResponseEntity.ok(success);

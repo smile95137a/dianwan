@@ -256,6 +256,10 @@ return null;
            paymentRequest.setBuyerName(paymentRequest.getCardHolderName());
             response = this.creditCard(paymentRequest);
         }else if("2".equals(payMethod)){
+            UserRes user = userRepository.getUserById(userId);
+            paymentRequest.setBuyerName(user.getNickname());
+            paymentRequest.setBuyerMail(user.getUsername());
+            paymentRequest.setBuyerTelm(user.getPhoneNumber());
             response = this.webATM2(paymentRequest);
         }
 
