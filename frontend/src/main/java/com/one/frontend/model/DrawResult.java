@@ -94,4 +94,7 @@ public class DrawResult{
     private BigDecimal price;
     @Column(name = "bonus_price")
     private BigDecimal bonusPrice;
+
+    @Column(name = "pay_type")
+    private String payType;
 }

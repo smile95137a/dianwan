@@ -1,6 +1,5 @@
 package com.one.frontend.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,5 +33,7 @@ public class DrawResultDto {
     private BigDecimal sliverPrice;
     private BigDecimal price;
     private BigDecimal bonusPrice;
+
+    private String payType;
 
 }

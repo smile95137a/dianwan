@@ -317,15 +317,7 @@ public class DrawResultService {
 		drawResult.setProductId(productId);
 		drawResult.setProductDetailId(prizeDetail.getProductDetailId().longValue());
 		drawResult.setDrawTime(LocalDateTime.now());
-		if (product.getPrizeCategory() == PrizeCategory.BONUS) {
-			drawResult.setBonusPrice(getAmountByPayMethod(product, payMethod));
-		} else if ("1".equals(payMethod)) {
-			drawResult.setPrice(getAmountByPayMethod(product, payMethod));
-		} else if ("2".equals(payMethod)) {
-			drawResult.setSliverPrice(getAmountByPayMethod(product, payMethod));
-		}else{
-			drawResult.setAmount(BigDecimal.ZERO);
-		}
+		drawResult.setAmount(getAmountByPayMethod(product, payMethod));
 		drawResult.setDrawCount(1);
 		drawResult.setRemainingDrawCount(remainingDrawCount);
 		drawResult.setPrizeNumber(prizeNumber);
@@ -335,6 +327,17 @@ public class DrawResultService {
 		drawResult.setUpdateDate(LocalDateTime.now());
 		drawResult.setImageUrls(prizeDetail.getImageUrls());
 		drawResult.setProductName(prizeDetail.getProductName());
+		if (product.getPrizeCategory() == PrizeCategory.BONUS) {
+			drawResult.setPayType("3");
+		} else if ("1".equals(payMethod)) {
+			drawResult.setPayType("1");
+		} else if ("2".equals(payMethod)) {
+			drawResult.setPayType("2");
+		}else{
+			drawResult.setPayType("4");
+		}
+
+
 		return drawResult;
 	}
 
@@ -345,8 +348,9 @@ public class DrawResultService {
 			return product.getPrice();
 		} else if ("2".equals(payMethod)) {
 			return product.getSliverPrice();
+		}else{
+			return BigDecimal.ZERO;
 		}
-		throw new IllegalArgumentException("無效的支付方式");
 	}
 
 	private void sendGachaMessage(UserRes user, ProductDetailRes prizeDetail) {
