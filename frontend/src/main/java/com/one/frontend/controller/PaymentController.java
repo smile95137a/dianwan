@@ -184,10 +184,13 @@ public class PaymentController {
             paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
             ApiResponse<Object> success = ResponseUtils.success(200, response.getRetMsg(), response);
             return ResponseEntity.ok(success);
+        }else if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
+            ApiResponse<Object> response1 = ResponseUtils.success(200, response.getRetMsg(), response);
+            return ResponseEntity.ok(response1);
+        }else{
+            ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
+            return ResponseEntity.ok(response1);
         }
-        ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
-
-        return ResponseEntity.ok(response1);
     }
 
     /**
