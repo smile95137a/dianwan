@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/payment")
@@ -177,20 +178,30 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<?>> topOp(@RequestBody PaymentRequest paymentRequest) throws Exception {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
-        PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
-        String result = response.getResult();
-        if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
-            int amount = Integer.parseInt(response.getAmount());
-            paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
-            ApiResponse<Object> success = ResponseUtils.success(200, response.getRetMsg(), response);
-            return ResponseEntity.ok(success);
-        }else if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
-            ApiResponse<Object> response1 = ResponseUtils.success(200, response.getRetMsg(), response);
-            return ResponseEntity.ok(response1);
-        }else{
-            ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
-            return ResponseEntity.ok(response1);
+        try{
+            if(!("2".equals(paymentRequest.getPaymentMethod()) && Integer.parseInt(paymentRequest.getAmount()) > 20000)){
+                PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
+                String result = response.getResult();
+                if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
+                    int amount = Integer.parseInt(response.getAmount());
+                    paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
+                    ApiResponse<Object> success = ResponseUtils.success(200, response.getRetMsg(), response);
+                    return ResponseEntity.ok(success);
+                }else if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
+                    ApiResponse<Object> response1 = ResponseUtils.success(200, response.getRetMsg(), response);
+                    return ResponseEntity.ok(response1);
+                }else{
+                    ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
+                    return ResponseEntity.ok(response1);
+                }
+            }else{
+                ApiResponse<Object> response1 = ResponseUtils.failure(200, "轉帳單筆不得超過兩萬", new ArrayList<>());
+                return ResponseEntity.ok(response1);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
