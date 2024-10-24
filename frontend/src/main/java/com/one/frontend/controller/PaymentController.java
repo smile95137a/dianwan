@@ -5,8 +5,8 @@ import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
 import com.one.frontend.repository.OrderRepository;
+import com.one.frontend.repository.PaymentResponseMapper;
 import com.one.frontend.repository.UserRepository;
-import com.one.frontend.response.OrderRes;
 import com.one.frontend.response.PaymentResponse;
 import com.one.frontend.service.PaymentService;
 import com.one.frontend.util.ResponseUtils;
@@ -35,6 +35,9 @@ public class PaymentController {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private PaymentResponseMapper paymentResponseMapper;
     @PostMapping("/creditCart")
     public PaymentResponse creditCart(@RequestBody PaymentRequest paymentRequest) {
         return paymentService.creditCard(paymentRequest);
@@ -159,8 +162,8 @@ public class PaymentController {
         System.out.println("str_check: " + str_check);
         if("1".equals(result)){
             // 记录储值交易
-            OrderRes orderByOrderNumber = orderRepository.findOrderByOrderNumber(OrderID);
-            paymentService.recordDeposit(orderByOrderNumber.getUserId(), BigDecimal.valueOf(Long.parseLong(PayAmount)));
+            PaymentResponse byId = paymentResponseMapper.findById(OrderID);
+            paymentService.recordDeposit(byId.getUserId(), BigDecimal.valueOf(Long.parseLong(PayAmount)));
             ApiResponse<Void> response1 = ResponseUtils.success(200, "成功", null);
 
             return ResponseEntity.ok("Received payment callback successfully");
@@ -179,10 +182,10 @@ public class PaymentController {
         if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
             int amount = Integer.parseInt(response.getAmount());
             paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
-            ApiResponse<Object> success = ResponseUtils.success(200, "成功", response);
+            ApiResponse<Object> success = ResponseUtils.success(200, response.getRetMsg(), response);
             return ResponseEntity.ok(success);
         }
-        ApiResponse<Object> response1 = ResponseUtils.success(200, "成功", response);
+        ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
 
         return ResponseEntity.ok(response1);
     }

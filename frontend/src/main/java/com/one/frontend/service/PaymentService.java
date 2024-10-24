@@ -51,6 +51,9 @@ public class PaymentService {
     private ProductDetailRepository productDetailRepository;
 
     @Autowired
+    private PaymentResponseMapper paymentResponseMapper;
+
+    @Autowired
     private InvoiceService invoiceService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String CUSTOMERID = "B82FD0DF7DE03FC702DEC35A2446E469";
@@ -261,6 +264,8 @@ return null;
             paymentRequest.setBuyerMail(user.getUsername());
             paymentRequest.setBuyerTelm(user.getPhoneNumber());
             response = this.webATM2(paymentRequest);
+            response.setUserId(userId);
+            paymentResponseMapper.insert(response);
         }
 
 
