@@ -432,7 +432,11 @@ return null;
         for(OrderDetailRes cartItem : orderDetailsByOrderId){
             ReceiptReq.Item item = new ReceiptReq.Item();
             ProductDetailRes byId = productDetailRepository.getProductDetailById(cartItem.getProductDetailRes().getProductDetailId());
-            item.setName(byId.getProductName());
+            if(byId.getProductName() != null){
+                item.setName(byId.getProductName());
+            }else{
+                item.setName("商品");
+            }
             item.setNumber(cartItem.getQuantity());
             if(cartItem.getUnitPrice() != null){
                 item.setMoney(cartItem.getUnitPrice().intValue());
