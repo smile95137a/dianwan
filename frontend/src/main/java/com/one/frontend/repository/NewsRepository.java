@@ -9,7 +9,7 @@ import java.util.List;
 public interface NewsRepository {
 
     // 查询所有新闻
-    @Select("SELECT * FROM news order by created_date desc")
+    @Select("SELECT * FROM news where status = 'AVAILABLE' order by created_date desc")
     List<News> getAllNews();
 
     // 根据ID查询新闻
