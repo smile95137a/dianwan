@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/news")
@@ -131,7 +133,7 @@ public class NewsController {
             }
 
             // 替换内容中的 Blob URL 为实际上传的图片 URL
-            String updatedContent = replaceBlobUrlsWithFileUrls(newsReq.getContent(), fileUrls);
+            String updatedContent = replaceBlobUrlsWithFileUrls2(newsReq.getContent(), fileUrls);
             newsReq.setContent(updatedContent);
 
             // 更新图片 URL 列表到 News 对象中（如果有此字段）
@@ -155,6 +157,32 @@ public class NewsController {
         }
     }
 
+    private String replaceBlobUrlsWithFileUrls2(String content, List<String> fileUrls) {
+        // 假设这里有一个方法可以提取 Blob URL，暂时用一个示例的方式
+        List<String> blobUrls = extractBlobUrls(content);
+
+        for (int i = 0; i < blobUrls.size(); i++) {
+            String blobUrl = blobUrls.get(i);
+            // 替换 Blob URL 为实际文件 URL
+            if (i < fileUrls.size()) {
+                content = content.replace(blobUrl, fileUrls.get(i));
+            }
+        }
+        return content;
+    }
+
+    public static List<String> extractBlobUrls(String content) {
+        List<String> blobUrls = new ArrayList<>();
+        // 正则表达式匹配 Blob URL
+        String blobUrlRegex = "blob:[^\"']+";
+        Pattern pattern = Pattern.compile(blobUrlRegex);
+        Matcher matcher = pattern.matcher(content);
+
+        while (matcher.find()) {
+            blobUrls.add(matcher.group());
+        }
+        return blobUrls;
+    }
 
     @DeleteMapping("/{newsUid}")
     public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable String newsUid) {
