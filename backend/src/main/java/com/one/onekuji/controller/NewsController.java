@@ -110,6 +110,13 @@ public class NewsController {
         return content;
     }
 
+    @PostMapping("/img/upload")
+    public ResponseEntity<ApiResponse<String>> updateNews(@RequestParam(value="file") MultipartFile file){
+        String upload = ImageUtil.upload(file);
+        ApiResponse<String> response = ResponseUtils.success(200, "upload", upload);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{newsUid}")
     public ResponseEntity<ApiResponse<Void>> updateNews(@PathVariable String newsUid,
                                                         @RequestPart("newsReq") String news,
