@@ -137,6 +137,10 @@ public class NewsController {
                         fileUrls.add(fileUrl);
                     }
                 }
+            }else{
+                News storeProductRes = newsService.getNewsById(newsReq.getNewsUid());
+                List<String> list = storeProductRes.getImageUrls();
+                fileUrls.addAll(list);
             }
 
             // 替换内容中的 Blob URL 为实际上传的图片 URL
