@@ -158,7 +158,8 @@ public class OrderService {
 		PaymentResponse paymentResponse = new PaymentResponse();
 		if("1".equals(payCartRes.getPaymentMethod())){
 			paymentResponse.setResult("1");
-			paymentResponse.setOrderId(payCartRes.getOrderId());
+			String orderNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+			paymentResponse.setOrderId(orderNumber);
 			paymentResponse.setEPayAccount(String.valueOf(shippingCost));
 		}else if("2".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();
@@ -308,7 +309,8 @@ public class OrderService {
 		PaymentResponse paymentResponse = new PaymentResponse();
 		if("1".equals(payCartRes.getPaymentMethod())){
 			paymentResponse.setResult("1");
-			paymentResponse.setOrderId(payCartRes.getOrderId());
+			String orderNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
+			paymentResponse.setOrderId(orderNumber);
 			paymentResponse.setEPayAccount(String.valueOf(shippingCost));
 		}else if("2".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();

@@ -383,7 +383,7 @@ return null;
      * 记录储值交易
      */
     public String recordDeposit(Long userId, BigDecimal amount) {
-        String orderNumber = UUID.randomUUID().toString();
+        String orderNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
         userRepository.updateBalance(userId , Integer.parseInt(String.valueOf(amount)));
         userTransactionRepository.insertTransaction2(userId, "DEPOSIT", amount , orderNumber);
         return orderNumber;
