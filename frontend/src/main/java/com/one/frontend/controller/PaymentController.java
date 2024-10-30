@@ -97,12 +97,12 @@ public class PaymentController {
         try {
             String s = paymentService.transferOrderFromTemp(creditDto.getOrderNumber());
             ApiResponse<Object> sc = ResponseUtils.success(200, null, s);
+            return ResponseEntity.ok(sc);
         } catch (Exception e) {
             e.printStackTrace();
             ApiResponse<Object> error = ResponseUtils.failure(500, "系統錯誤，請稍後再試", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-        return null;
     }
 
 

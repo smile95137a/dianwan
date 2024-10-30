@@ -427,6 +427,9 @@ return null;
     @Autowired
     private PrizeCartItemService prizeCartItemService;
 
+    @Autowired
+    private StoreProductRepository storeProductRepository;
+
     @Transactional
     public String transferOrderFromTemp(String orderId) throws MessagingException {
         OrderRes order = orderMapper.findOrderByOrderNumber(orderId);
@@ -474,18 +477,35 @@ return null;
         for(OrderDetailRes cartItem : orderDetailsByOrderId){
             ReceiptReq.Item item = new ReceiptReq.Item();
             ProductDetailRes byId = productDetailRepository.getProductDetailById(cartItem.getProductDetailRes().getProductDetailId());
-            if(byId.getProductName() != null){
-                item.setName(byId.getProductName());
-            }else{
-                item.setName("商品");
+            StoreProductRes resById = storeProductRepository.findResById(cartItem.getStoreProduct().getStoreProductId());
+            if(byId != null){
+                if(byId.getProductName() != null){
+                    item.setName(byId.getProductName());
+                }else{
+                    item.setName("商品");
+                }
+                item.setNumber(cartItem.getQuantity());
+                if(cartItem.getUnitPrice() != null){
+                    item.setMoney(cartItem.getUnitPrice().intValue());
+                }else{
+                    item.setMoney(cartItem.getTotalPrice().intValue());
+                }
+                items.add(item);
+            }else if(resById != null){
+                if(resById.getProductName() != null){
+                    item.setName(resById.getProductName());
+                }else{
+                    item.setName("商品");
+                }
+                item.setNumber(cartItem.getQuantity());
+                if(cartItem.getUnitPrice() != null){
+                    item.setMoney(cartItem.getUnitPrice().intValue());
+                }else{
+                    item.setMoney(cartItem.getTotalPrice().intValue());
+                }
+                items.add(item);
             }
-            item.setNumber(cartItem.getQuantity());
-            if(cartItem.getUnitPrice() != null){
-                item.setMoney(cartItem.getUnitPrice().intValue());
-            }else{
-                item.setMoney(cartItem.getTotalPrice().intValue());
-            }
-            items.add(item);
+
         }
         invoiceRequest.setItems(items);
 
