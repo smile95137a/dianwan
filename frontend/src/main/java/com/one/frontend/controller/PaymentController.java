@@ -179,7 +179,7 @@ public class PaymentController {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
         try{
-            if(!("2".equals(paymentRequest.getPaymentMethod()) && Integer.parseInt(paymentRequest.getAmount()) > 20000)){
+            if("2".equals(paymentRequest.getPaymentMethod()) && Integer.parseInt(paymentRequest.getAmount()) < 20000){
                 PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
                 String result = response.getResult();
                 if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
