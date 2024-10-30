@@ -409,12 +409,53 @@ return null;
         this.orderDetailMapper = orderDetailMapper;
     }
 
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private CartItemService cartItemService;
+
+    @Autowired
+    private PrizeCartRepository prizeCartRepository;
+
+    @Autowired
+    private PrizeCartItemRepository prizeCartItemRepository;
+
+    @Autowired
+    private PrizeCartItemService prizeCartItemService;
+
     @Transactional
-    public void transferOrderFromTemp(String orderId) throws MessagingException {
+    public String transferOrderFromTemp(String orderId) throws MessagingException {
         OrderRes order = orderMapper.findOrderByOrderNumber(orderId);
         orderMapper.updateStatus(order.getId());
         UserRes userById = userRepository.getUserById(order.getUserId());
         List<OrderDetailRes> orderDetailsByOrderId = orderDetailRepository.findOrderDetailsByOrderId(order.getId());
+        Long cartIdByUserId = cartRepository.getCartIdByUserId(order.getUserId());
+        List<CartItem> cartItemList = cartItemRepository.find(cartIdByUserId);
+        Long cartIdByUserId1 = prizeCartRepository.getCartIdByUserId(order.getUserId());
+        List<PrizeCartItem> prizeCartItemList = prizeCartItemRepository.find(cartIdByUserId1);
+
+
+        if("1".equals(order.getType())){
+            // 獲取所有購物車項的ID並移除
+            List<Long> cartItemIds = cartItemList.stream().map(CartItem::getCartItemId).collect(Collectors.toList());
+
+            // 移除購物車項
+            cartItemService.removeCartItems(cartItemIds, cartItemList.get(0).getCartId());
+        }else if("2".equals(order.getType())){
+// 獲取所有購物車項的ID並移除
+            List<Long> cartItemIds = prizeCartItemList.stream().map(PrizeCartItem::getPrizeCartItemId).collect(Collectors.toList());
+
+            // 移除購物車項
+            prizeCartItemService.removeCartItems(cartItemIds, prizeCartItemList.get(0).getCartId());
+        }
+
+
+
+
         //訂單成立開立發票並且傳送至email
         ReceiptReq invoiceRequest = new ReceiptReq();
         if(order.getVehicle() != null){
@@ -447,13 +488,13 @@ return null;
             items.add(item);
         }
         invoiceRequest.setItems(items);
-        System.out.println("有到這");
-        System.out.println(invoiceRequest);
 
         ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
-        System.out.println(res.getBody());
         ReceiptRes receiptRes = res.getBody();
         invoiceService.getInvoicePicture(receiptRes.getCode() , userById.getId());
+
+        return order.getType();
+
     }
 
     private Order convertToOrder(OrderTemp orderTemp) {
@@ -501,14 +542,30 @@ return null;
         ).collect(Collectors.toList());
     }
 
-    public boolean recordDeposit2(CreditDto creditDto) {
+    public Boolean recordDeposit2(CreditDto creditDto) {
         String status = userTransactionRepository.findByOrderNumber(creditDto.getOrderNumber());
+        UserTransaction userTransaction = userTransactionRepository.findByOrderNumber2(creditDto.getOrderNumber());
+        if(status == null){
+            return null;
+        }
+
+
         if ("IS_PAY".equals(status)) {
             return false;
         } else {
+            userRepository.updateBalance(userTransaction.getUserId() , Integer.parseInt(String.valueOf(userTransaction.getAmount())));
             userTransactionRepository.updateStatus(creditDto);
             return true;
         }
     }
 
+
+    public OrderDetail mapCartItemToOrderDetail(CartItem cartItem, Long orderId ,  String billNumber ) {
+        BigDecimal totalPrice = cartItem.getUnitPrice().multiply(new BigDecimal(cartItem.getQuantity()));
+
+        return OrderDetail.builder().orderId(orderId).storeProductId(cartItem.getStoreProductId())
+                .quantity(cartItem.getQuantity()).unitPrice(cartItem.getUnitPrice()).totalPrice(totalPrice) // 新增
+                .billNumber(billNumber)																						// totalPrice
+                .build();
+    }
 }

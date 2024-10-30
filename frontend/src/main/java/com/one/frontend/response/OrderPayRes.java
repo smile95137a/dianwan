@@ -11,5 +11,7 @@ public class OrderPayRes {
 
     private String orderNumber;
 
+    private String type;
+
     private PaymentResponse paymentRequest;
 }

@@ -51,4 +51,7 @@ public interface CartItemRepository {
 
     @Select("SELECT quantity FROM onekuji.cart a join cart_item b on a.cart_id = b.cart_id where user_id = #{userId} and store_product_id = #{storeProductId}")
     CartItemRes findQua(Long userId, Long storeProductId);
+
+    @Select("SELECT * FROM cart_item WHERE cart_id = #{cartId}")
+    List<CartItem> find(Long cartId);
 }

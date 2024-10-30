@@ -45,6 +45,7 @@ public class OrderRes {
 	private String billNumber;
 	private String state;
 	private String donationCode;
+	private String type;
 
 
 }

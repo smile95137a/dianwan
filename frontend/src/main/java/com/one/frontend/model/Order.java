@@ -144,4 +144,7 @@ public class Order {
 
     @Column(name = "donation_code")
     private String donationCode;
+
+    @Column(name = "type")
+    private String type;
 }

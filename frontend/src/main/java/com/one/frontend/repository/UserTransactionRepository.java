@@ -50,4 +50,7 @@ public interface UserTransactionRepository {
     void updateStatus(@Param("creditDto") CreditDto creditDto);
     @Select("select status from user_transaction where order_number = #{orderNumber}")
     String findByOrderNumber(String orderNumber);
+
+    @Select("select * from user_transaction where order_number = #{orderNumber}")
+    UserTransaction findByOrderNumber2(String orderNumber);
 }

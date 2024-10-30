@@ -45,4 +45,8 @@ public interface PrizeCartItemRepository {
             "</script>"
     })
     void insertBatch(@Param("cartItemList") List<PrizeCartItem> cartItemList);
+    @Select(
+            "select * from prize_cart_item WHERE cart_id = #{cartId} "
+    )
+    List<PrizeCartItem> find(Long cartId);
 }

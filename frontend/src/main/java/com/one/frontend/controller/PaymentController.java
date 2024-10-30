@@ -82,15 +82,31 @@ public class PaymentController {
             if("已付款".equals(ret_msg)){
                 paymentService.transferOrderFromTemp(OrderID);
             }else if("0".equals(Send_Type) && "true".equals(result)){
-                paymentService.transferOrderFromTemp(OrderID);
+
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
         return ResponseEntity.ok("Received payment callback successfully");
     }
+
+    @PostMapping("/creditMP")
+    public ResponseEntity<ApiResponse<?>> creditpaymentCallback(@RequestBody CreditDto creditDto) {
+        var userDetails = SecurityUtils.getCurrentUserPrinciple();
+        var userId = userDetails.getId();
+        try {
+            String s = paymentService.transferOrderFromTemp(creditDto.getOrderNumber());
+            ApiResponse<Object> sc = ResponseUtils.success(200, null, s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse<Object> error = ResponseUtils.failure(500, "系統錯誤，請稍後再試", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+        return null;
+    }
+
+
+
     @PostMapping("/test")
     public ResponseEntity<String> logisticsCallback() {
         String url = "https://n.gomypay.asia/TestShuntClass.aspx";
@@ -212,7 +228,14 @@ public class PaymentController {
         var userDetails = SecurityUtils.getCurrentUserPrinciple();
         var userId = userDetails.getId();
         try {
-            boolean status = paymentService.recordDeposit2(creditDto);
+            Boolean status = paymentService.recordDeposit2(creditDto);
+            if(status == null){
+                ApiResponse<Object> failure = ResponseUtils.failure(400, "無付款資訊", null);
+                return ResponseEntity.ok(failure);
+            }
+
+
+
             if (status) {
                 ApiResponse<Object> success = ResponseUtils.success(200, "付款成功，信用卡狀態已為已付款", null);
                 return ResponseEntity.ok(success);
