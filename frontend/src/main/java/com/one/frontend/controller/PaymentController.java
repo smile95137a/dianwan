@@ -210,7 +210,7 @@ public class PaymentController {
                 }
             }else if("1".equals(paymentRequest.getPaymentMethod())){
                 int amount = Integer.parseInt(paymentRequest.getAmount());
-                String s = paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
+                String s = paymentService.recordDeposit3(userId, BigDecimal.valueOf(amount));
                 ApiResponse<Object> success = ResponseUtils.success(200, "信用卡訂單編號", s);
                 return ResponseEntity.ok(success);
             }else{
