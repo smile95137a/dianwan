@@ -48,6 +48,8 @@ public class PayCartRes {
     private String oPMode;  //通路代號 1:全家 2:萊爾富3: 統一超商 4.OK 超商
     private String express;
     private String shopId;
+    private Boolean cardResult;
+    private String orderId;
 }
 
 

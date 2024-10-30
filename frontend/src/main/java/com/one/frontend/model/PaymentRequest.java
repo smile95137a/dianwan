@@ -29,6 +29,7 @@ public class PaymentRequest {
     private String callbackUrl;      // 背景對帳網址
     private String eReturn;          // 是否使用Json回傳
     private String strCheck;         // 交易驗證密碼
-private String paymentMethod;
-private String cardHolderName;
+    private String paymentMethod;
+    private String cardHolderName;
+    private Boolean cardResult;
 }

@@ -182,18 +182,18 @@ public class PaymentController {
             if(!("2".equals(paymentRequest.getPaymentMethod()) && Integer.parseInt(paymentRequest.getAmount()) > 20000)){
                 PaymentResponse response = paymentService.topOp(paymentRequest , paymentRequest.getPaymentMethod() , userId);
                 String result = response.getResult();
-                if ("1".equals(result) && "1".equals(paymentRequest.getPaymentMethod())) {
-                    int amount = Integer.parseInt(response.getAmount());
-                    paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
-                    ApiResponse<Object> success = ResponseUtils.success(200, response.getRetMsg(), response);
-                    return ResponseEntity.ok(success);
-                }else if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
+                if("1".equals(result) && "2".equals(paymentRequest.getPaymentMethod())){
                     ApiResponse<Object> response1 = ResponseUtils.success(200, response.getRetMsg(), response);
                     return ResponseEntity.ok(response1);
                 }else{
                     ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
                     return ResponseEntity.ok(response1);
                 }
+            }else if("1".equals(paymentRequest.getPaymentMethod()) && paymentRequest.getCardResult()){
+                int amount = Integer.parseInt(paymentRequest.getAmount());
+                paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
+                ApiResponse<Object> success = ResponseUtils.success(200, "成功", null);
+                return ResponseEntity.ok(success);
             }else{
                 ApiResponse<Object> response1 = ResponseUtils.failure(200, "轉帳單筆不得超過兩萬", new ArrayList<>());
                 return ResponseEntity.ok(response1);

@@ -156,20 +156,10 @@ public class OrderService {
 		UserRes userRes = userRepository.getUserById(userId);
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPaymentMethod())){
-			PaymentRequest paymentRequest = new PaymentRequest();
-			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(totalAmount)); // 假设你的 totalAmount 是 BigDecimal
-			int amountToSend = totalAmount.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
-			paymentRequest.setAmount(String.valueOf(amountToSend));
-			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
-			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-			paymentRequest.setBuyerMail(userRes.getUsername());
-			paymentRequest.setBuyerMemo("再來一抽備註");
-			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpiryDate().replace("/", ""));
-			paymentRequest.setCvv(payCartRes.getCvv());
-			System.out.println(paymentRequest);
-			paymentResponse = paymentService.creditCard(paymentRequest);
+		if("1".equals(payCartRes.getPaymentMethod()) && payCartRes.getCardResult()){
+			paymentResponse.setResult("1");
+			paymentResponse.setOrderId(payCartRes.getOrderId());
+			paymentResponse.setEPayAccount(String.valueOf(shippingCost));
 		}else if("2".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();
 			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(totalAmount)); // 假设你的 totalAmount 是 BigDecimal
@@ -316,20 +306,10 @@ public class OrderService {
 		UserRes userRes = userRepository.getUserById(userId);
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPaymentMethod())){
-			PaymentRequest paymentRequest = new PaymentRequest();
-			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
-			int amountToSend = shippingCost.setScale(0, BigDecimal.ROUND_DOWN).intValue(); // 去掉小数部分
-			paymentRequest.setAmount(String.valueOf(amountToSend));
-			paymentRequest.setBuyerName(payCartRes.getCardHolderName());
-			paymentRequest.setBuyerTelm(userRes.getPhoneNumber());
-			paymentRequest.setBuyerMail(userRes.getUsername());
-			paymentRequest.setBuyerMemo("再來一抽備註");
-			paymentRequest.setCardNo(payCartRes.getCardNo());
-			paymentRequest.setExpireDate(payCartRes.getExpiryDate().replace("/", ""));
-			paymentRequest.setCvv(payCartRes.getCvv());
-			System.out.println(paymentRequest);
-			paymentResponse = paymentService.creditCard(paymentRequest);
+		if("1".equals(payCartRes.getPaymentMethod()) && payCartRes.getCardResult()){
+			paymentResponse.setResult("1");
+			paymentResponse.setOrderId(payCartRes.getOrderId());
+			paymentResponse.setEPayAccount(String.valueOf(shippingCost));
 		}else if("2".equals(payCartRes.getPaymentMethod())){
 			PaymentRequest paymentRequest = new PaymentRequest();
 			BigDecimal totalAmount2 = new BigDecimal(String.valueOf(shippingCost)); // 假设你的 totalAmount 是 BigDecimal
@@ -372,8 +352,6 @@ public class OrderService {
 					.shopId(payCartRes.getShopId())
 					.OPMode("711".equals(payCartRes.getShippingMethod()) ? "3" : "family".equals(payCartRes.getShippingMethod()) ? "1" : "0")
 					.build();
-			System.out.println(paymentResponse.getEPayAccount());
-			System.out.println("到這");
 			if(paymentResponse.getEPayAccount() != null){
 				orderEntity.setBillNumber(paymentResponse.getEPayAccount());
 			}
@@ -383,8 +361,6 @@ public class OrderService {
 				orderEntity.setDonationCode(payCartRes.getDonationCode());
 			}
 			PaymentResponse finalPaymentResponse = paymentResponse;
-			System.out.println("到這2");
-			System.out.println(finalPaymentResponse);
 			if("1".equals(payCartRes.getPaymentMethod())) {
 				// 插入訂單到資料庫
 				orderEntity.setResultStatus(OrderStatus.PREPARING_SHIPMENT);
@@ -435,11 +411,8 @@ public class OrderService {
 					items.add(item);
 				}
 				invoiceRequest.setItems(items);
-				System.out.println("有到這");
-				System.out.println(invoiceRequest);
 
 				ResponseEntity<ReceiptRes> res = invoiceService.addB2CInvoice(invoiceRequest);
-				System.out.println(res.getBody());
 				ReceiptRes receiptRes = res.getBody();
 				invoiceService.getInvoicePicture(receiptRes.getCode() , userId);
 			}else if("2".equals(payCartRes.getPaymentMethod())){

@@ -61,8 +61,8 @@ public class PaymentService {
 
     public PaymentResponse creditCard(PaymentRequest paymentRequest) {
 
-        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
-//        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
+//        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
+        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
                 .sendType("0".trim())  // 傳送型態，寫死去除空白
@@ -79,7 +79,7 @@ public class PaymentService {
                 .cvv(paymentRequest.getCvv().trim())  // 卡片認證碼，去除前後空白
                 .transMode("1".trim())  // 交易模式，寫死去除空白
                 .installment("0".trim())  // 期數，寫死去除空白
-                .eReturn("1".trim())  // 是否使用Json回傳，寫死去除空白
+//                .eReturn("1".trim())  // 是否使用Json回傳，寫死去除空白
                 .strCheck(STRCHECK.trim())  // 交易驗證密碼，去除前後空白
                 .build();
 
@@ -107,7 +107,7 @@ public class PaymentService {
                     .append("&Installment=").append(URLEncoder.encode(req.getInstallment(), "UTF-8"))
                     .append("&Return_url=") // 不需要传值，保持原样
                     .append("&Callback_Url=") // 不需要传值，保持原样
-                    .append("&e_return=").append(URLEncoder.encode(req.getEReturn(), "UTF-8"))
+                    .append("&e_return=")
                     .append("&Str_Check=").append(URLEncoder.encode(req.getStrCheck(), "UTF-8"));
 
             post.setEntity(new StringEntity(requestBody.toString(), StandardCharsets.UTF_8)); // 设置请求体为UTF-8编码
@@ -135,8 +135,8 @@ return null;
 
 
     public PaymentResponse webATM(PaymentRequest paymentRequest) {
-        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
-//        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
+//        String url = "https://n.gomypay.asia/ShuntClass.aspx";  //正式
+        String url = "https://n.gomypay.asia/TestShuntClass.aspx";  //測試
 
         PaymentRequest req = PaymentRequest.builder()
                 .sendType("4".trim())  // 傳送型態，去除空白
