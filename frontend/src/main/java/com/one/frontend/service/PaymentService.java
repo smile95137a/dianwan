@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -384,10 +385,12 @@ return null;
      */
     public String recordDeposit(Long userId, BigDecimal amount) {
         String orderNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 20);
-        userRepository.updateBalance(userId , Integer.parseInt(String.valueOf(amount)));
-        userTransactionRepository.insertTransaction2(userId, "DEPOSIT", amount , orderNumber);
+        int amountInCents = amount.multiply(BigDecimal.valueOf(100)).intValue(); // 转为整数分
+        userRepository.updateBalance(userId, amountInCents);
+        userTransactionRepository.insertTransaction2(userId, "DEPOSIT", amount, orderNumber);
         return orderNumber;
     }
+
 
     /**
      * 记录消费交易
@@ -573,7 +576,9 @@ return null;
         if ("IS_PAY".equals(status)) {
             return false;
         } else {
-            userRepository.updateBalance(userTransaction.getUserId() , Integer.parseInt(String.valueOf(userTransaction.getAmount())));
+            BigDecimal amountDecimal = new BigDecimal(String.valueOf(userTransaction.getAmount())).setScale(0, RoundingMode.HALF_UP);
+            int amount = amountDecimal.intValue();
+            userRepository.updateBalance(userTransaction.getUserId(), amount);
             userTransactionRepository.updateStatus(creditDto);
             return true;
         }
