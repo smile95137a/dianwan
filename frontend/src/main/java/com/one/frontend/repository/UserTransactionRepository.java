@@ -1,10 +1,8 @@
 package com.one.frontend.repository;
 
+import com.one.frontend.dto.CreditDto;
 import com.one.frontend.model.UserTransaction;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,6 +18,14 @@ public interface UserTransactionRepository {
     void insertTransaction(@Param("userId") Long userId,
                            @Param("transactionType") String transactionType,
                            @Param("amount") BigDecimal amount);
+
+
+    @Insert("INSERT INTO user_transaction (user_id, transaction_type, amount, transaction_date, created_at , order_number , status) " +
+            "VALUES (#{userId}, #{transactionType}, #{amount}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP , #{orderNumber} , 'NO_PAY')")
+    void insertTransaction2(@Param("userId") Long userId,
+                           @Param("transactionType") String transactionType,
+                           @Param("amount") BigDecimal amount,
+                           @Param("orderNumber") String orderNumber);
 
 
     // 获取某个用户在指定时间段内的交易金额（消费或储值）
@@ -40,4 +46,8 @@ public interface UserTransactionRepository {
 
     @Select("SELECT * FROM user_transaction WHERE user_id = #{userId}")
     List<UserTransaction> findAllTransactionsByUserId(@Param("userId") Long userId);
+    @Update("UPDATE user_transaction SET status = 'IS_PAY', order_id = #{creditDto.orderId} WHERE order_number = #{creditDto.orderNumber}")
+    void updateStatus(@Param("creditDto") CreditDto creditDto);
+    @Select("select status from user_transaction where order_number = #{orderNumber}")
+    String findByOrderNumber(String orderNumber);
 }

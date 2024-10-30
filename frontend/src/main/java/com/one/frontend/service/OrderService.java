@@ -156,7 +156,7 @@ public class OrderService {
 		UserRes userRes = userRepository.getUserById(userId);
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPaymentMethod()) && payCartRes.getCardResult()){
+		if("1".equals(payCartRes.getPaymentMethod())){
 			paymentResponse.setResult("1");
 			paymentResponse.setOrderId(payCartRes.getOrderId());
 			paymentResponse.setEPayAccount(String.valueOf(shippingCost));
@@ -306,7 +306,7 @@ public class OrderService {
 		UserRes userRes = userRepository.getUserById(userId);
 
 		PaymentResponse paymentResponse = new PaymentResponse();
-		if("1".equals(payCartRes.getPaymentMethod()) && payCartRes.getCardResult()){
+		if("1".equals(payCartRes.getPaymentMethod())){
 			paymentResponse.setResult("1");
 			paymentResponse.setOrderId(payCartRes.getOrderId());
 			paymentResponse.setEPayAccount(String.valueOf(shippingCost));

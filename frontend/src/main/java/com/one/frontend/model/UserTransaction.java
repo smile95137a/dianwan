@@ -41,6 +41,13 @@ public class UserTransaction {
     @Column(name = "user_UUID")
     private String userUUID;
 
+    @Column(name = "order_id")
+    private String orderId;
+    @Column(name = "order_number")
+    private String orderNumber;
+    @Column(name = "status")
+    private String status;
+
     // 在保存实体时自动生成创建和更新时间
     @PrePersist
     protected void onCreate() {

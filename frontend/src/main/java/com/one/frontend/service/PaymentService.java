@@ -1,6 +1,7 @@
 package com.one.frontend.service;
 
 import com.google.gson.Gson;
+import com.one.frontend.dto.CreditDto;
 import com.one.frontend.model.*;
 import com.one.frontend.repository.*;
 import com.one.frontend.request.ReceiptReq;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -380,17 +382,19 @@ return null;
     /**
      * 记录储值交易
      */
-    public void recordDeposit(Long userId, BigDecimal amount) {
+    public String recordDeposit(Long userId, BigDecimal amount) {
+        String orderNumber = UUID.randomUUID().toString();
         userRepository.updateBalance(userId , Integer.parseInt(String.valueOf(amount)));
-        userTransactionRepository.insertTransaction(userId, "DEPOSIT", amount);
+        userTransactionRepository.insertTransaction2(userId, "DEPOSIT", amount , orderNumber);
+        return orderNumber;
     }
 
     /**
      * 记录消费交易
      */
-    public void recordConsume(Long userId, BigDecimal amount) {
-        userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
-    }
+//    public void recordConsume(Long userId, BigDecimal amount) {
+//        userTransactionRepository.insertTransaction(userId, "CONSUME", amount);
+//    }
 
 
     private final OrderRepository orderMapper;
@@ -496,4 +500,15 @@ return null;
                 .build()
         ).collect(Collectors.toList());
     }
+
+    public boolean recordDeposit2(CreditDto creditDto) {
+        String status = userTransactionRepository.findByOrderNumber(creditDto.getOrderNumber());
+        if ("IS_PAY".equals(status)) {
+            return false;
+        } else {
+            userTransactionRepository.updateStatus(creditDto);
+            return true;
+        }
+    }
+
 }

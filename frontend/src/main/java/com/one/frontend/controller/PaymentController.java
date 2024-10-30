@@ -1,6 +1,7 @@
 package com.one.frontend.controller;
 
 import com.one.frontend.config.security.SecurityUtils;
+import com.one.frontend.dto.CreditDto;
 import com.one.frontend.model.ApiResponse;
 import com.one.frontend.model.Award;
 import com.one.frontend.model.PaymentRequest;
@@ -189,10 +190,10 @@ public class PaymentController {
                     ApiResponse<Object> response1 = ResponseUtils.failure(200, response.getRetMsg(), response);
                     return ResponseEntity.ok(response1);
                 }
-            }else if("1".equals(paymentRequest.getPaymentMethod()) && paymentRequest.getCardResult()){
+            }else if("1".equals(paymentRequest.getPaymentMethod())){
                 int amount = Integer.parseInt(paymentRequest.getAmount());
-                paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
-                ApiResponse<Object> success = ResponseUtils.success(200, "成功", null);
+                String s = paymentService.recordDeposit(userId, BigDecimal.valueOf(amount));
+                ApiResponse<Object> success = ResponseUtils.success(200, "信用卡訂單編號", s);
                 return ResponseEntity.ok(success);
             }else{
                 ApiResponse<Object> response1 = ResponseUtils.failure(200, "轉帳單筆不得超過兩萬", new ArrayList<>());
@@ -203,6 +204,27 @@ public class PaymentController {
         }
         return null;
     }
+
+    @PostMapping("/creditTopOp")
+    public ResponseEntity<ApiResponse<?>> creditTopOp(@RequestBody CreditDto creditDto) {
+        var userDetails = SecurityUtils.getCurrentUserPrinciple();
+        var userId = userDetails.getId();
+        try {
+            boolean status = paymentService.recordDeposit2(creditDto);
+            if (status) {
+                ApiResponse<Object> success = ResponseUtils.success(200, "付款成功，信用卡狀態已為已付款", null);
+                return ResponseEntity.ok(success);
+            } else {
+                ApiResponse<Object> failure = ResponseUtils.failure(400, "已付款訂單編號，不得重複刷新", null);
+                return ResponseEntity.ok(failure);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse<Object> error = ResponseUtils.failure(500, "系統錯誤，請稍後再試", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
 
     /**
      * 领取消费奖励
